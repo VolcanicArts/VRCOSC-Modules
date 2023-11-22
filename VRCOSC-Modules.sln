@@ -1,0 +1,21 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+#
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VRCOSC.Modules", "VRCOSC.Modules\VRCOSC.Modules.csproj", "{1C127FFC-3380-47FC-8DB1-E2E1CB84CFE1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1C127FFC-3380-47FC-8DB1-E2E1CB84CFE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C127FFC-3380-47FC-8DB1-E2E1CB84CFE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C127FFC-3380-47FC-8DB1-E2E1CB84CFE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C127FFC-3380-47FC-8DB1-E2E1CB84CFE1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A89026DF-A0CC-4340-AB6C-8B5E3D8A16D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A89026DF-A0CC-4340-AB6C-8B5E3D8A16D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A89026DF-A0CC-4340-AB6C-8B5E3D8A16D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A89026DF-A0CC-4340-AB6C-8B5E3D8A16D8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
