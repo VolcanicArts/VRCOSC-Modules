@@ -10,7 +10,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\VRCOSC\VRCOSC.Game\VRCOSC.Game.csproj" />
+      <PackageReference Include="VolcanicArts.VRCOSC.SDK" Version="2023.1122.0" />
     </ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">

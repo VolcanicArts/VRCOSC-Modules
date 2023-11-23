@@ -2,11 +2,11 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.Game.Graphics;
-using VRCOSC.Game.Modules.SDK;
-using VRCOSC.Game.Modules.SDK.Attributes.Settings;
-using VRCOSC.Game.Modules.SDK.Attributes.Settings.Addons;
-using VRCOSC.Game.Modules.SDK.Parameters;
-using VRCOSC.Game.Modules.SDK.Providers.PiShock;
+using VRCOSC.Game.SDK;
+using VRCOSC.Game.SDK.Attributes.Settings;
+using VRCOSC.Game.SDK.Attributes.Settings.Addons;
+using VRCOSC.Game.SDK.Parameters;
+using VRCOSC.Game.SDK.Providers.PiShock;
 
 namespace VRCOSC.Modules.PiShock;
 

@@ -2,8 +2,8 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Globalization;
-using VRCOSC.Game.Modules.SDK;
-using VRCOSC.Game.Modules.SDK.Parameters;
+using VRCOSC.Game.SDK;
+using VRCOSC.Game.SDK.Parameters;
 
 namespace VRCOSC.Modules.Clock;
 
@@ -28,6 +28,7 @@ public sealed class ClockModule : Module
         RegisterParameter<bool>(ClockParameter.Period, "VRCOSC/Clock/Period", ParameterMode.Write, "Period", "False for AM. True for PM");
 
         CreateGroup("Smoothing", ClockSetting.SmoothHour, ClockSetting.SmoothMinute, ClockSetting.SmoothSecond);
+        CreateGroup("Timezone", ClockSetting.Timezone);
     }
 
     [ModuleUpdate(ModuleUpdateMode.Custom)]

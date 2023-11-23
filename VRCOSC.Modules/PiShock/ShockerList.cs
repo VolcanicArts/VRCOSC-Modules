@@ -8,8 +8,8 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using VRCOSC.Game.Graphics;
 using VRCOSC.Game.Graphics.UI.Text;
-using VRCOSC.Game.Modules.SDK.Attributes.Settings;
-using VRCOSC.Game.Modules.SDK.Graphics.Settings;
+using VRCOSC.Game.SDK.Attributes.Settings;
+using VRCOSC.Game.SDK.Graphics.Settings;
 
 namespace VRCOSC.Modules.PiShock;
 

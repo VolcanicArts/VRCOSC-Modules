@@ -2,9 +2,9 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.Game.Graphics;
-using VRCOSC.Game.Modules.SDK;
-using VRCOSC.Game.Modules.SDK.Attributes.Settings.Addons;
-using VRCOSC.Game.Modules.SDK.Modules.Heartrate;
+using VRCOSC.Game.SDK;
+using VRCOSC.Game.SDK.Attributes.Settings.Addons;
+using VRCOSC.Game.SDK.Modules.Heartrate;
 
 namespace VRCOSC.Modules.Pulsoid;
 

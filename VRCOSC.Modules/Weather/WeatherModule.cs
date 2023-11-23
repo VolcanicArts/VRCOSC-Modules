@@ -2,9 +2,9 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Diagnostics;
-using VRCOSC.Game.Modules.SDK;
-using VRCOSC.Game.Modules.SDK.Parameters;
-using VRCOSC.Game.Modules.SDK.Providers.Weather;
+using VRCOSC.Game.SDK;
+using VRCOSC.Game.SDK.Parameters;
+using VRCOSC.Game.SDK.Providers.Weather;
 
 namespace VRCOSC.Modules.Weather;
 
