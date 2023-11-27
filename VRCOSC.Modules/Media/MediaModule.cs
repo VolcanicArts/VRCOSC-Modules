@@ -68,17 +68,17 @@ public class MediaModule : Module
             // Hack to allow browsers to have time info
             mediaProvider.Update(TimeSpan.FromMilliseconds(50));
         }
+
+        if (!currentlySeeking)
+        {
+            SendParameter(MediaParameter.Position, mediaProvider.State.Timeline.Progress);
+        }
     }
 
     [ModuleUpdate(ModuleUpdateMode.Custom, true, 1000)]
     private void sendUpdatableParameters()
     {
         SendParameter(MediaParameter.Volume, mediaProvider.TryGetVolume());
-
-        if (!currentlySeeking)
-        {
-            SendParameter(MediaParameter.Position, mediaProvider.State.Timeline.Progress);
-        }
     }
 
     private void onPlaybackStateChange()
