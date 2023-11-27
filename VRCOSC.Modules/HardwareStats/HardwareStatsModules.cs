@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Diagnostics;
 using VRCOSC.Game.SDK;
 using VRCOSC.Game.SDK.Parameters;
 using VRCOSC.Game.SDK.Providers.Hardware;
@@ -41,6 +40,16 @@ public sealed class HardwareStatsModule : Module
         Log("Hooking into hardware monitor...");
         hardwareStatsProvider ??= new HardwareStatsProvider();
         hardwareStatsProvider.Init();
+        hardwareStatsProvider.Log += LogDebug;
+
+        await Task.Run(() =>
+        {
+            while (!hardwareStatsProvider.CanAcceptQueries)
+            {
+            }
+
+            return true;
+        });
 
         await hardwareStatsProvider.Update();
 
@@ -66,9 +75,7 @@ public sealed class HardwareStatsModule : Module
     [ModuleUpdate(ModuleUpdateMode.Custom, true, 500)]
     private async void updateParameters()
     {
-        Debug.Assert(hardwareStatsProvider is not null);
-
-        await hardwareStatsProvider.Update();
+        await hardwareStatsProvider!.Update();
 
         var cpu = hardwareStatsProvider.GetCPU(GetSettingValue<int>(HardwareStatsSetting.SelectedCPU));
         var gpu = hardwareStatsProvider.GetGPU(GetSettingValue<int>(HardwareStatsSetting.SelectedGPU));
@@ -113,9 +120,7 @@ public sealed class HardwareStatsModule : Module
 
     protected override Task OnModuleStop()
     {
-        Debug.Assert(hardwareStatsProvider is not null);
-
-        hardwareStatsProvider.Shutdown();
+        hardwareStatsProvider!.Shutdown();
         return Task.CompletedTask;
     }
 
