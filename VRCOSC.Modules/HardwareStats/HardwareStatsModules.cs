@@ -75,7 +75,11 @@ public sealed class HardwareStatsModule : Module
     [ModuleUpdate(ModuleUpdateMode.Custom, true, 500)]
     private async void updateParameters()
     {
-        await hardwareStatsProvider!.Update();
+        if (!hardwareStatsProvider!.CanAcceptQueries) return;
+
+        await hardwareStatsProvider.Update();
+
+        if (!hardwareStatsProvider!.CanAcceptQueries) return;
 
         var cpu = hardwareStatsProvider.GetCPU(GetSettingValue<int>(HardwareStatsSetting.SelectedCPU));
         var gpu = hardwareStatsProvider.GetGPU(GetSettingValue<int>(HardwareStatsSetting.SelectedGPU));
