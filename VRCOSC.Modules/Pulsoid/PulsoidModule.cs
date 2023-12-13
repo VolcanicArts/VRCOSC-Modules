@@ -1,10 +1,10 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using VRCOSC.Game.Graphics;
-using VRCOSC.Game.SDK;
-using VRCOSC.Game.SDK.Attributes.Settings.Addons;
-using VRCOSC.Game.SDK.Modules.Heartrate;
+using VRCOSC.Graphics;
+using VRCOSC.SDK;
+using VRCOSC.SDK.Attributes.Settings.Addons;
+using VRCOSC.SDK.Modules.Heartrate;
 
 namespace VRCOSC.Modules.Pulsoid;
 

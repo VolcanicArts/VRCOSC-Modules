@@ -1,18 +1,22 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using VRCOSC.Game.SDK;
-using VRCOSC.Game.SDK.Parameters;
-using VRCOSC.Game.SDK.Providers.Hardware;
+using System.Security.Principal;
+using VRCOSC.SDK;
+using VRCOSC.SDK.Avatars;
+using VRCOSC.SDK.Parameters;
+using VRCOSC.SDK.Providers.Hardware;
 
 namespace VRCOSC.Modules.HardwareStats;
 
 [ModuleTitle("Hardware Stats")]
 [ModuleDescription("Sends hardware stats as avatar parameters and allows for displaying them in the ChatBox")]
 [ModuleType(ModuleType.Generic)]
-public sealed class HardwareStatsModule : Module
+public sealed class HardwareStatsModule : AvatarModule
 {
     private HardwareStatsProvider? hardwareStatsProvider;
+
+    public static bool IsAdministrator => new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
 
     protected override void OnLoad()
     {
@@ -38,6 +42,9 @@ public sealed class HardwareStatsModule : Module
     protected override async Task<bool> OnModuleStart()
     {
         Log("Hooking into hardware monitor...");
+
+        if (!IsAdministrator) Log("VRCOSC isn't running as admin so you won't receive power and temp data");
+
         hardwareStatsProvider ??= new HardwareStatsProvider();
         hardwareStatsProvider.Init();
         hardwareStatsProvider.Log += LogDebug;

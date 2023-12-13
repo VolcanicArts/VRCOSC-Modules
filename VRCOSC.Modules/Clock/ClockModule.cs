@@ -2,8 +2,9 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Globalization;
-using VRCOSC.Game.SDK;
-using VRCOSC.Game.SDK.Parameters;
+using VRCOSC.SDK;
+using VRCOSC.SDK.Avatars;
+using VRCOSC.SDK.Parameters;
 
 namespace VRCOSC.Modules.Clock;
 
@@ -11,7 +12,7 @@ namespace VRCOSC.Modules.Clock;
 [ModuleDescription("Sends a chosen timezone as hours, minutes, and seconds")]
 [ModuleType(ModuleType.Generic)]
 [ModulePrefab("VRCOSC-Watch", "https://github.com/VolcanicArts/VRCOSC/releases/download/latest/VRCOSC-Watch.unitypackage")]
-public sealed class ClockModule : Module
+public sealed class ClockModule : AvatarModule
 {
     private DateTime time;
 

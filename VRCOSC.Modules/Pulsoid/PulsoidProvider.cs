@@ -2,7 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using Newtonsoft.Json;
-using VRCOSC.Game.SDK.Modules.Heartrate;
+using VRCOSC.SDK.Modules.Heartrate;
 
 namespace VRCOSC.Modules.Pulsoid;
 

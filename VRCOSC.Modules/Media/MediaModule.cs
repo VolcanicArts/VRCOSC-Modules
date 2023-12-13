@@ -1,9 +1,10 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using VRCOSC.Game.SDK;
-using VRCOSC.Game.SDK.Parameters;
-using VRCOSC.Game.SDK.Providers.Media;
+using VRCOSC.SDK;
+using VRCOSC.SDK.Avatars;
+using VRCOSC.SDK.Parameters;
+using VRCOSC.SDK.Providers.Media;
 
 namespace VRCOSC.Modules.Media;
 
@@ -11,7 +12,7 @@ namespace VRCOSC.Modules.Media;
 [ModuleDescription("Integration with Windows Media")]
 [ModuleType(ModuleType.Integrations)]
 [ModulePrefab("VRCOSC-Media", "https://github.com/VolcanicArts/VRCOSC/releases/download/latest/VRCOSC-Media.unitypackage")]
-public class MediaModule : Module
+public class MediaModule : AvatarModule
 {
     private readonly MediaProvider mediaProvider = new WindowsMediaProvider();
     private bool currentlySeeking;
@@ -93,7 +94,7 @@ public class MediaModule : Module
         SendParameter(MediaParameter.Repeat, (int)mediaProvider.State.RepeatMode);
     }
 
-    protected override void OnRegisteredParameterReceived(RegisteredParameter parameter)
+    protected override void OnRegisteredParameterReceived(AvatarParameter parameter)
     {
         switch (parameter.Lookup)
         {

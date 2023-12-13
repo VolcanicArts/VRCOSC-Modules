@@ -6,10 +6,10 @@ using Newtonsoft.Json.Linq;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using VRCOSC.Game.Graphics;
-using VRCOSC.Game.Graphics.UI.Text;
-using VRCOSC.Game.SDK.Attributes.Settings;
-using VRCOSC.Game.SDK.Graphics.Settings;
+using VRCOSC.Graphics;
+using VRCOSC.Graphics.UI.Text;
+using VRCOSC.SDK.Attributes.Settings;
+using VRCOSC.SDK.Graphics.Settings;
 
 namespace VRCOSC.Modules.PiShock;
 

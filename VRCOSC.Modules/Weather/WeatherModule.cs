@@ -2,16 +2,17 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Diagnostics;
-using VRCOSC.Game.SDK;
-using VRCOSC.Game.SDK.Parameters;
-using VRCOSC.Game.SDK.Providers.Weather;
+using VRCOSC.SDK;
+using VRCOSC.SDK.Avatars;
+using VRCOSC.SDK.Parameters;
+using VRCOSC.SDK.Providers.Weather;
 
 namespace VRCOSC.Modules.Weather;
 
 [ModuleTitle("Weather")]
 [ModuleDescription("Retrieves weather information for a specific area")]
 [ModuleType(ModuleType.Generic)]
-public class WeatherModule : Module
+public class WeatherModule : AvatarModule
 {
     private WeatherProvider? weatherProvider;
 
@@ -44,7 +45,7 @@ public class WeatherModule : Module
     {
         Debug.Assert(weatherProvider is not null);
 
-        var weather = await weatherProvider.RetrieveFor(GetSettingValue<string>(WeatherSetting.Location)!);
+        var weather = await weatherProvider.RetrieveFor(GetSettingValue<string>(WeatherSetting.Location)!, DateTime.Now);
 
         if (weather is null)
         {

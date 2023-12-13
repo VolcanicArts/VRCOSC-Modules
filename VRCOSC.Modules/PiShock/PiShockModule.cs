@@ -1,12 +1,13 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using VRCOSC.Game.Graphics;
-using VRCOSC.Game.SDK;
-using VRCOSC.Game.SDK.Attributes.Settings;
-using VRCOSC.Game.SDK.Attributes.Settings.Addons;
-using VRCOSC.Game.SDK.Parameters;
-using VRCOSC.Game.SDK.Providers.PiShock;
+using VRCOSC.Graphics;
+using VRCOSC.SDK;
+using VRCOSC.SDK.Attributes.Settings;
+using VRCOSC.SDK.Attributes.Settings.Addons;
+using VRCOSC.SDK.Avatars;
+using VRCOSC.SDK.Parameters;
+using VRCOSC.SDK.Providers.PiShock;
 
 namespace VRCOSC.Modules.PiShock;
 
@@ -14,7 +15,7 @@ namespace VRCOSC.Modules.PiShock;
 [ModuleDescription("Allows for controlling PiShock shockers from avatar parameters and voice control using speech to text")]
 [ModuleType(ModuleType.NSFW)]
 [ModulePrefab("VRCOSC-PiShock", "https://github.com/VolcanicArts/VRCOSC/releases/download/latest/VRCOSC-PiShock.unitypackage")]
-public class PiShockModule : Module
+public class PiShockModule : AvatarModule
 {
     private PiShockProvider? piShockProvider;
 
@@ -167,7 +168,7 @@ public class PiShockModule : Module
         SendParameter(PiShockParameter.Intensity, intensity);
     }
 
-    protected override void OnRegisteredParameterReceived(RegisteredParameter parameter)
+    protected override void OnRegisteredParameterReceived(AvatarParameter parameter)
     {
         switch (parameter.Lookup)
         {
