@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Security.Principal;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using VRCOSC.SDK;
 using VRCOSC.SDK.Avatars;
 using VRCOSC.SDK.Parameters;
@@ -47,7 +48,6 @@ public sealed class HardwareStatsModule : AvatarModule
 
         hardwareStatsProvider ??= new HardwareStatsProvider();
         hardwareStatsProvider.Init();
-        hardwareStatsProvider.Log += LogDebug;
 
         await Task.Run(() =>
         {
@@ -60,19 +60,27 @@ public sealed class HardwareStatsModule : AvatarModule
 
         await hardwareStatsProvider.Update();
 
-        var cpu = hardwareStatsProvider.GetCPU(GetSettingValue<int>(HardwareStatsSetting.SelectedCPU));
-
-        if (cpu is null)
+        if (!hardwareStatsProvider.CPUs.ContainsKey(GetSettingValue<int>(HardwareStatsSetting.SelectedCPU)))
         {
-            Log("Warning. Could not connect to CPU");
+            Log($"CPU of id {GetSettingValue<int>(HardwareStatsSetting.SelectedCPU)} isn't available. If you have multiple, try changing the index");
+            Log("Available CPU indexes:");
+            hardwareStatsProvider.CPUs.ForEach(pair => Log("Index: " + pair.Key));
             return false;
         }
 
-        var gpu = hardwareStatsProvider.GetGPU(GetSettingValue<int>(HardwareStatsSetting.SelectedGPU));
-
-        if (gpu is null)
+        if (!hardwareStatsProvider.GPUs.ContainsKey(GetSettingValue<int>(HardwareStatsSetting.SelectedGPU)))
         {
-            Log("Warning. Could not connect to GPU");
+            Log($"GPU of id {GetSettingValue<int>(HardwareStatsSetting.SelectedGPU)} isn't available. If you have multiple, try changing the index");
+            Log("Available GPU indexes:");
+            hardwareStatsProvider.CPUs.ForEach(pair => Log("Index: " + pair.Key));
+            return false;
+        }
+
+        var ram = hardwareStatsProvider.RAM;
+
+        if (ram is null)
+        {
+            Log("Could not connect to RAM. This is impossible, so well done!");
             return false;
         }
 
@@ -88,27 +96,10 @@ public sealed class HardwareStatsModule : AvatarModule
 
         if (!hardwareStatsProvider!.CanAcceptQueries) return;
 
-        var cpu = hardwareStatsProvider.GetCPU(GetSettingValue<int>(HardwareStatsSetting.SelectedCPU));
-        var gpu = hardwareStatsProvider.GetGPU(GetSettingValue<int>(HardwareStatsSetting.SelectedGPU));
-        var ram = hardwareStatsProvider.GetRam();
+        if (!hardwareStatsProvider.CPUs.TryGetValue(GetSettingValue<int>(HardwareStatsSetting.SelectedCPU), out var cpu)) return;
+        if (!hardwareStatsProvider.GPUs.TryGetValue(GetSettingValue<int>(HardwareStatsSetting.SelectedGPU), out var gpu)) return;
 
-        if (cpu is null)
-        {
-            Log("Warning. Could not connect to CPU");
-            return;
-        }
-
-        if (gpu is null)
-        {
-            Log("Warning. Could not connect to GPU");
-            return;
-        }
-
-        if (ram is null)
-        {
-            Log("Warning. Could not connect to RAM");
-            return;
-        }
+        var ram = hardwareStatsProvider.RAM!;
 
         SendParameter(HardwareStatsParameter.CpuUsage, cpu.Usage / 100f);
         SendParameter(HardwareStatsParameter.CpuPower, cpu.Power);
