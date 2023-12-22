@@ -49,9 +49,9 @@ public class PiShockModule : AvatarModule
 
         RegisterParameter<float>(PiShockParameter.Duration, "VRCOSC/PiShock/Duration", ParameterMode.ReadWrite, "Duration", "The duration of the action as a percentage mapped between 1-15");
         RegisterParameter<float>(PiShockParameter.Intensity, "VRCOSC/PiShock/Intensity", ParameterMode.ReadWrite, "Intensity", "The intensity of the action as a percentage mapped between 1-100");
-        RegisterParameter<bool>(PiShockParameter.Shock, "VRCOSC/PiShock/Shock/*", ParameterMode.Read, "Shock Group", "For use when you want to execute a shock on a specific group instead of selecting a group");
-        RegisterParameter<bool>(PiShockParameter.Vibrate, "VRCOSC/PiShock/Vibrate/*", ParameterMode.Read, "Vibrate Group", "For use when you want to execute a vibration on a specific group instead of selecting a group");
-        RegisterParameter<bool>(PiShockParameter.Beep, "VRCOSC/PiShock/Beep/*", ParameterMode.Read, "Beep Group", "For use when you want to execute a beep on a specific group instead of selecting a group");
+        RegisterParameter<bool>(PiShockParameter.Shock, "VRCOSC/PiShock/Shock/*", ParameterMode.Read, "Shock Group", "Shock a specific group\nE.G. VRCOSC/PiShock/Shock/0");
+        RegisterParameter<bool>(PiShockParameter.Vibrate, "VRCOSC/PiShock/Vibrate/*", ParameterMode.Read, "Vibrate Group", "Vibrate a specific group\nE.G. VRCOSC/PiShock/Vibrate/0");
+        RegisterParameter<bool>(PiShockParameter.Beep, "VRCOSC/PiShock/Beep/*", ParameterMode.Read, "Beep Group", "Beep a specific group\nE.G. VRCOSC/PiShock/Beep/0");
         RegisterParameter<bool>(PiShockParameter.Success, "VRCOSC/PiShock/Success", ParameterMode.Write, "Success", "If the execution was successful, this will become true for 1 second to act as a notification");
     }
 
