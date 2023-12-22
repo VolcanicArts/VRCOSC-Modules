@@ -9,7 +9,7 @@ using osu.Framework.Graphics.Containers;
 using VRCOSC.Graphics;
 using VRCOSC.Graphics.UI.Text;
 using VRCOSC.SDK.Attributes.Settings;
-using VRCOSC.SDK.Graphics.Settings;
+using VRCOSC.SDK.Graphics.Settings.Lists;
 
 namespace VRCOSC.Modules.PiShock;
 
