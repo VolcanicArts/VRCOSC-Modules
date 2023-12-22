@@ -24,20 +24,20 @@ public sealed class HardwareStatsModule : AvatarModule
         CreateTextBox(HardwareStatsSetting.SelectedCPU, "Selected CPU", "Enter the (0th based) index of the CPU you want to track", 0);
         CreateTextBox(HardwareStatsSetting.SelectedGPU, "Selected GPU", "Enter the (0th based) index of the GPU you want to track", 0);
 
-        RegisterParameter<float>(HardwareStatsParameter.CpuUsage, "VRCOSC/Hardware/CPUUsage", ParameterMode.Write, "CPU Usage", "The CPU usage (0-1)");
-        RegisterParameter<int>(HardwareStatsParameter.CpuPower, "VRCOSC/Hardware/CPUPower", ParameterMode.Write, "CPU Power", "The CPU power draw (W)");
-        RegisterParameter<int>(HardwareStatsParameter.CpuTemp, "VRCOSC/Hardware/CPUTemp", ParameterMode.Write, "CPU Temp", "The CPU temperature (C)");
-        RegisterParameter<float>(HardwareStatsParameter.GpuUsage, "VRCOSC/Hardware/GPUUsage", ParameterMode.Write, "GPU Usage", "The GPU usage (0-1)");
-        RegisterParameter<int>(HardwareStatsParameter.GpuPower, "VRCOSC/Hardware/GPUPower", ParameterMode.Write, "GPU Power", "The GPU power draw (W)");
-        RegisterParameter<int>(HardwareStatsParameter.GpuTemp, "VRCOSC/Hardware/GPUTemp", ParameterMode.Write, "GPU Temp", "The GPU temperature (C)");
-        RegisterParameter<float>(HardwareStatsParameter.RamUsage, "VRCOSC/Hardware/RAMUsage", ParameterMode.Write, "RAM Usage", "The RAM usage (0-1)");
-        RegisterParameter<int>(HardwareStatsParameter.RamTotal, "VRCOSC/Hardware/RAMTotal", ParameterMode.Write, "RAM Total", "The total RAM amount (GB)");
-        RegisterParameter<int>(HardwareStatsParameter.RamUsed, "VRCOSC/Hardware/RAMUsed", ParameterMode.Write, "RAM Used", "The used RAM amount (GB)");
-        RegisterParameter<int>(HardwareStatsParameter.RamFree, "VRCOSC/Hardware/RAMFree", ParameterMode.Write, "RAM Free", "The free RAM amount (GB)");
-        RegisterParameter<float>(HardwareStatsParameter.VRamUsage, "VRCOSC/Hardware/VRamUsage", ParameterMode.Write, "VRAM Usage", "The VRAM usage (0-1)");
-        RegisterParameter<int>(HardwareStatsParameter.VRamTotal, "VRCOSC/Hardware/VRamTotal", ParameterMode.Write, "VRAM Total", "The total VRAM amount (GB)");
-        RegisterParameter<int>(HardwareStatsParameter.VRamUsed, "VRCOSC/Hardware/VRamUsed", ParameterMode.Write, "VRAM Used", "The used VRAM amount (GB)");
-        RegisterParameter<int>(HardwareStatsParameter.VRamFree, "VRCOSC/Hardware/VRamFree", ParameterMode.Write, "VRAM Free", "The free VRAM amount (GB)");
+        RegisterParameter<float>(HardwareStatsParameter.CpuUsage, "VRCOSC/Hardware/CPU/Usage", ParameterMode.Write, "CPU Usage", "The CPU usage (0-1)");
+        RegisterParameter<int>(HardwareStatsParameter.CpuPower, "VRCOSC/Hardware/CPU/Power", ParameterMode.Write, "CPU Power", "The CPU power draw (W)");
+        RegisterParameter<int>(HardwareStatsParameter.CpuTemp, "VRCOSC/Hardware/CPU/Temp", ParameterMode.Write, "CPU Temp", "The CPU temperature (C)");
+        RegisterParameter<float>(HardwareStatsParameter.GpuUsage, "VRCOSC/Hardware/GPU/Usage", ParameterMode.Write, "GPU Usage", "The GPU usage (0-1)");
+        RegisterParameter<int>(HardwareStatsParameter.GpuPower, "VRCOSC/Hardware/GPU/Power", ParameterMode.Write, "GPU Power", "The GPU power draw (W)");
+        RegisterParameter<int>(HardwareStatsParameter.GpuTemp, "VRCOSC/Hardware/GPU/Temp", ParameterMode.Write, "GPU Temp", "The GPU temperature (C)");
+        RegisterParameter<float>(HardwareStatsParameter.RamUsage, "VRCOSC/Hardware/RAM/Usage", ParameterMode.Write, "RAM Usage", "The RAM usage (0-1)");
+        RegisterParameter<int>(HardwareStatsParameter.RamTotal, "VRCOSC/Hardware/RAM/Total", ParameterMode.Write, "RAM Total", "The total RAM amount (GB)");
+        RegisterParameter<int>(HardwareStatsParameter.RamUsed, "VRCOSC/Hardware/RAM/Used", ParameterMode.Write, "RAM Used", "The used RAM amount (GB)");
+        RegisterParameter<int>(HardwareStatsParameter.RamFree, "VRCOSC/Hardware/RAM/Free", ParameterMode.Write, "RAM Free", "The free RAM amount (GB)");
+        RegisterParameter<float>(HardwareStatsParameter.VRamUsage, "VRCOSC/Hardware/VRAM/Usage", ParameterMode.Write, "VRAM Usage", "The VRAM usage (0-1)");
+        RegisterParameter<int>(HardwareStatsParameter.VRamTotal, "VRCOSC/Hardware/VRAM/Total", ParameterMode.Write, "VRAM Total", "The total VRAM amount (GB)");
+        RegisterParameter<int>(HardwareStatsParameter.VRamUsed, "VRCOSC/Hardware/VRAM/Used", ParameterMode.Write, "VRAM Used", "The used VRAM amount (GB)");
+        RegisterParameter<int>(HardwareStatsParameter.VRamFree, "VRCOSC/Hardware/VRAM/Free", ParameterMode.Write, "VRAM Free", "The free VRAM amount (GB)");
     }
 
     protected override async Task<bool> OnModuleStart()
