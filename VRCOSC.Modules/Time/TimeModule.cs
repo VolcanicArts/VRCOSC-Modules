@@ -30,10 +30,10 @@ public sealed class TimeModule : AvatarModule
         RegisterParameter<int>(TimeParameter.SecondValue, "VRCOSC/Time/Second/Value", ParameterMode.Write, "Second Value", "The current second (0-59)");
         RegisterParameter<float>(TimeParameter.SecondNormalised, "VRCOSC/Time/Second/Normalised", ParameterMode.Write, "Second Normalised", "The current second normalised between 0 and 1");
 
-        RegisterParameter<float>(LegacyTimeParameter.Hours, "VRCOSC/Clock/Hours", ParameterMode.Write, "Hours", "The current hour normalised between 0 and 1", true);
-        RegisterParameter<float>(LegacyTimeParameter.Minutes, "VRCOSC/Clock/Minutes", ParameterMode.Write, "Minutes", "The current minute normalised between 0 and 1", true);
-        RegisterParameter<float>(LegacyTimeParameter.Seconds, "VRCOSC/Clock/Seconds", ParameterMode.Write, "Seconds", "The current second normalised between 0 and 1", true);
-        RegisterParameter<bool>(LegacyTimeParameter.Period, "VRCOSC/Clock/Period", ParameterMode.Write, "Period", "False for AM. True for PM", true);
+        RegisterParameter<float>(TimeParameter.LegacyHours, "VRCOSC/Clock/Hours", ParameterMode.Write, "Hours", "The current hour normalised between 0 and 1", true);
+        RegisterParameter<float>(TimeParameter.LegacyMinutes, "VRCOSC/Clock/Minutes", ParameterMode.Write, "Minutes", "The current minute normalised between 0 and 1", true);
+        RegisterParameter<float>(TimeParameter.LegacySeconds, "VRCOSC/Clock/Seconds", ParameterMode.Write, "Seconds", "The current second normalised between 0 and 1", true);
+        RegisterParameter<bool>(TimeParameter.LegacyPeriod, "VRCOSC/Clock/Period", ParameterMode.Write, "Period", "False for AM. True for PM", true);
 
         CreateGroup("Tweaks", TimeSetting.Mode);
         CreateGroup("Smoothing", TimeSetting.SmoothHour, TimeSetting.SmoothMinute, TimeSetting.SmoothSecond);
@@ -67,10 +67,10 @@ public sealed class TimeModule : AvatarModule
         SendParameter(TimeParameter.MinuteNormalised, minuteNormalised);
         SendParameter(TimeParameter.SecondNormalised, secondNormalised);
 
-        SendParameter(LegacyTimeParameter.Hours, hourNormalised);
-        SendParameter(LegacyTimeParameter.Minutes, minuteNormalised);
-        SendParameter(LegacyTimeParameter.Seconds, secondNormalised);
-        SendParameter(LegacyTimeParameter.Period, string.Equals(time.ToString("tt", CultureInfo.InvariantCulture), "PM", StringComparison.InvariantCultureIgnoreCase));
+        SendParameter(TimeParameter.LegacyHours, hourNormalised);
+        SendParameter(TimeParameter.LegacyMinutes, minuteNormalised);
+        SendParameter(TimeParameter.LegacySeconds, secondNormalised);
+        SendParameter(TimeParameter.LegacyPeriod, string.Equals(time.ToString("tt", CultureInfo.InvariantCulture), "PM", StringComparison.InvariantCultureIgnoreCase));
     }
 
     private static float getSmoothedSecond(DateTime time) => time.Second + time.Millisecond / 1000f;
@@ -86,15 +86,11 @@ public sealed class TimeModule : AvatarModule
         SecondValue,
         HourNormalised,
         MinuteNormalised,
-        SecondNormalised
-    }
-
-    private enum LegacyTimeParameter
-    {
-        Hours,
-        Minutes,
-        Seconds,
-        Period
+        SecondNormalised,
+        LegacyHours,
+        LegacyMinutes,
+        LegacySeconds,
+        LegacyPeriod
     }
 
     private enum TimeSetting
