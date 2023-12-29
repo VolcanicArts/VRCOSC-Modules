@@ -100,7 +100,7 @@ public class ShockerListModuleSetting : ListModuleSetting<Shocker>
     protected override Shocker CreateNewItem() => new();
 }
 
-public partial class DrawableShockerListModuleSetting : DrawableListModuleSetting<Shocker>
+public partial class DrawableShockerListModuleSetting : DrawableListModuleSetting<ShockerListModuleSetting, Shocker>
 {
     public DrawableShockerListModuleSetting(ShockerListModuleSetting moduleSetting)
         : base(moduleSetting)
