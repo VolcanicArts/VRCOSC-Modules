@@ -30,7 +30,7 @@ public class CounterModule : AvatarModule
             "Parameter Name");
 
         CreateCustom(CounterSetting.Milestones, new MilestoneListModuleSetting(new ListModuleSettingMetadata("Milestones",
-            "Set `parameter name` to true when `counter key` reaches `required count`\nThese will be set when the module starts if a counter has already reached the milestone\nParameter names aren't required if you just want to use the ChatBox milestone variables\nYou can access milestones using `_Key` after the variable name",
+            "Set Parameter Name to true when Counter Name reaches Required Count\nThese will be set when the module starts if a counter has already reached the milestone",
             typeof(DrawableMilestoneList), typeof(DrawableMilestone)), new List<Milestone>()));
     }
 

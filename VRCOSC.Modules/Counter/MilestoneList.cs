@@ -76,10 +76,9 @@ public partial class DrawableMilestone : DrawableListModuleSettingItem<Milestone
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
                         RelativeSizeAxes = Axes.X,
-                        Height = 35,
+                        Height = 30,
                         ValidCurrent = item.CounterKey.GetBoundCopy(),
-                        PlaceholderText = "Counter Key",
-                        EmptyIsValid = false
+                        PlaceholderText = "Counter Name"
                     },
                     null,
                     new IntTextBox
@@ -87,7 +86,7 @@ public partial class DrawableMilestone : DrawableListModuleSettingItem<Milestone
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
                         RelativeSizeAxes = Axes.X,
-                        Height = 35,
+                        Height = 30,
                         ValidCurrent = item.RequiredCount.GetBoundCopy(),
                         PlaceholderText = "Required Count",
                     },
@@ -97,10 +96,9 @@ public partial class DrawableMilestone : DrawableListModuleSettingItem<Milestone
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
                         RelativeSizeAxes = Axes.X,
-                        Height = 35,
+                        Height = 30,
                         ValidCurrent = item.ParameterName.GetBoundCopy(),
-                        PlaceholderText = "Parameter Name",
-                        EmptyIsValid = true
+                        PlaceholderText = "Parameter Name"
                     }
                 }
             }
@@ -155,20 +153,7 @@ public partial class DrawableMilestoneList : DrawableListModuleSetting<Milestone
                     {
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
-                        Text = "Parameter Name",
-                        Font = FrameworkFont.Regular.With(size: 20)
-                    }
-                },
-                null,
-                new Container
-                {
-                    RelativeSizeAxes = Axes.X,
-                    AutoSizeAxes = Axes.Y,
-                    Child = new SpriteText
-                    {
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
-                        Text = "Counter Key",
+                        Text = "Counter Name",
                         Font = FrameworkFont.Regular.With(size: 20)
                     }
                 },
@@ -184,7 +169,20 @@ public partial class DrawableMilestoneList : DrawableListModuleSetting<Milestone
                         Text = "Required Count",
                         Font = FrameworkFont.Regular.With(size: 20)
                     }
-                }
+                },
+                null,
+                new Container
+                {
+                    RelativeSizeAxes = Axes.X,
+                    AutoSizeAxes = Axes.Y,
+                    Child = new SpriteText
+                    {
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
+                        Text = "Parameter Name",
+                        Font = FrameworkFont.Regular.With(size: 20)
+                    }
+                },
             }
         }
     };
