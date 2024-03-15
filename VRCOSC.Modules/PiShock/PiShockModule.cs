@@ -1,13 +1,10 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using VRCOSC.Graphics;
-using VRCOSC.SDK;
-using VRCOSC.SDK.Attributes.Settings;
-using VRCOSC.SDK.Attributes.Settings.Addons;
-using VRCOSC.SDK.Avatars;
-using VRCOSC.SDK.Parameters;
-using VRCOSC.SDK.Providers.PiShock;
+using VRCOSC.App.Modules;
+using VRCOSC.App.Modules.Attributes.Settings;
+using VRCOSC.App.Parameters;
+using VRCOSC.App.SDK.Providers.PiShock;
 
 namespace VRCOSC.Modules.PiShock;
 
@@ -30,7 +27,7 @@ public class PiShockModule : AvatarModule
     private bool vibrateExecuted;
     private bool beepExecuted;
 
-    protected override void OnLoad()
+    protected override void OnPreLoad()
     {
         CreateTextBox(PiShockSetting.Username, "Username", "Your PiShock username", string.Empty);
         CreateTextBox(PiShockSetting.APIKey, "API Key", "Your PiShock API key", string.Empty);
@@ -39,9 +36,9 @@ public class PiShockModule : AvatarModule
         CreateSlider(PiShockSetting.MaxDuration, "Max Duration", "The maximum value the duration can be in seconds. This is the upper limit of 100% duration and is local only", 15, 1, 15);
         CreateSlider(PiShockSetting.MaxIntensity, "Max Intensity", "The maximum value the intensity can be in percent. This is the upper limit of 100% intensity and is local only", 100, 1, 100);
 
-        CreateCustom(PiShockSetting.Shockers, new ShockerListModuleSetting(new ListModuleSettingMetadata("Shockers", "Each instance represents a single shocker using a sharecode. The name is used as a readable reference and can be anything you like", typeof(DrawableShockerListModuleSetting), typeof(DrawableShocker)), Array.Empty<Shocker>()));
+        CreateCustom(PiShockSetting.Shockers, new ShockerListModuleSetting(new ModuleSettingMetadata("Shockers", "Each instance represents a single shocker using a sharecode. The name is used as a readable reference and can be anything you like", typeof(DrawableShockerListModuleSetting)), Array.Empty<Shocker>()));
 
-        CreateCustom(PiShockSetting.Groups, new GroupListModuleSetting(new ListModuleSettingMetadata("Groups", "Each instance should contain one or more shocker names separated by a comma. A group can be chosen by setting the Group parameter to the left number", typeof(DrawableGroupListModuleSetting), typeof(DrawableGroup)), Array.Empty<Group>()));
+        CreateCustom(PiShockSetting.Groups, new GroupListModuleSetting(new ModuleSettingMetadata("Groups", "Each instance should contain one or more shocker names separated by a comma. A group can be chosen by setting the Group parameter to the left number", typeof(DrawableGroupListModuleSetting)), Array.Empty<Group>()));
 
         CreateGroup("Credentials", PiShockSetting.Username, PiShockSetting.APIKey);
         CreateGroup("Tweaks", PiShockSetting.Delay, PiShockSetting.MaxDuration, PiShockSetting.MaxIntensity);
@@ -61,8 +58,7 @@ public class PiShockModule : AvatarModule
 
     protected override void OnPostLoad()
     {
-        GetSetting(PiShockSetting.APIKey)!
-            .AddAddon(new ButtonModuleSettingAddon("Generate API Key", Colours.BLUE0, () => OpenUrlExternally("https://pishock.com/#/account")));
+        //GetSetting(PiShockSetting.APIKey)!.AddAddon(new ButtonModuleSettingAddon("Generate API Key", Colours.BLUE0, () => OpenUrlExternally("https://pishock.com/#/account")));
     }
 
     protected override Task<bool> OnModuleStart()

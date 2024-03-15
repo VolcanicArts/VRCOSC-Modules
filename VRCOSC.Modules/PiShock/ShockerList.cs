@@ -3,13 +3,8 @@
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using osu.Framework.Bindables;
-using osu.Framework.Graphics;
-using osu.Framework.Graphics.Containers;
-using VRCOSC.Graphics;
-using VRCOSC.Graphics.UI.Text;
-using VRCOSC.SDK.Attributes.Settings;
-using VRCOSC.SDK.Graphics.Settings.Lists;
+using VRCOSC.App.Modules.Attributes.Settings;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.Modules.PiShock;
 
@@ -18,10 +13,10 @@ public class Shocker : IEquatable<Shocker>
     // TODO: Find a way to get custom things triggering serialisation
 
     [JsonProperty("name")]
-    public Bindable<string> Name = new(string.Empty);
+    public Observable<string> Name = new(string.Empty);
 
     [JsonProperty("sharecode")]
-    public Bindable<string> Sharecode = new(string.Empty);
+    public Observable<string> Sharecode = new(string.Empty);
 
     [JsonConstructor]
     public Shocker()
@@ -42,113 +37,14 @@ public class Shocker : IEquatable<Shocker>
     }
 }
 
-public partial class DrawableShocker : DrawableListModuleSettingItem<Shocker>
-{
-    public DrawableShocker(Shocker item)
-        : base(item)
-    {
-        Add(new GridContainer
-        {
-            RelativeSizeAxes = Axes.X,
-            AutoSizeAxes = Axes.Y,
-            ColumnDimensions = new[]
-            {
-                new Dimension(),
-                new Dimension(GridSizeMode.Absolute, 5),
-                new Dimension()
-            },
-            RowDimensions = new[]
-            {
-                new Dimension(GridSizeMode.AutoSize)
-            },
-            Content = new[]
-            {
-                new Drawable?[]
-                {
-                    new StringTextBox
-                    {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        RelativeSizeAxes = Axes.X,
-                        Height = 35,
-                        ValidCurrent = Item.Name.GetBoundCopy()
-                    },
-                    null,
-                    new StringTextBox
-                    {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        RelativeSizeAxes = Axes.X,
-                        Height = 35,
-                        ValidCurrent = Item.Sharecode.GetBoundCopy()
-                    }
-                }
-            }
-        });
-    }
-}
-
 public class ShockerListModuleSetting : ListModuleSetting<Shocker>
 {
-    public ShockerListModuleSetting(ListModuleSettingMetadata metadata, IEnumerable<Shocker> defaultValues)
-        : base(metadata, defaultValues)
+    public ShockerListModuleSetting(ModuleSettingMetadata metadata, IEnumerable<Shocker> defaultValues)
+        : base(metadata, defaultValues, false)
     {
     }
 
     protected override Shocker CloneValue(Shocker value) => new(value);
     protected override Shocker ConstructValue(JToken token) => token.ToObject<Shocker>()!;
     protected override Shocker CreateNewItem() => new();
-}
-
-public partial class DrawableShockerListModuleSetting : DrawableListModuleSetting<ShockerListModuleSetting, Shocker>
-{
-    public DrawableShockerListModuleSetting(ShockerListModuleSetting moduleSetting)
-        : base(moduleSetting)
-    {
-    }
-
-    protected override Drawable Header => new GridContainer
-    {
-        RelativeSizeAxes = Axes.X,
-        AutoSizeAxes = Axes.Y,
-        ColumnDimensions = new[]
-        {
-            new Dimension(),
-            new Dimension(GridSizeMode.Absolute, 5),
-            new Dimension()
-        },
-        RowDimensions = new[]
-        {
-            new Dimension(GridSizeMode.AutoSize)
-        },
-        Content = new[]
-        {
-            new Drawable?[]
-            {
-                new TextFlowContainer(t =>
-                {
-                    t.Font = Fonts.BOLD.With(size: 25);
-                    t.Colour = Colours.WHITE2;
-                })
-                {
-                    RelativeSizeAxes = Axes.X,
-                    AutoSizeAxes = Axes.Y,
-                    TextAnchor = Anchor.Centre,
-                    Text = "Name"
-                },
-                null,
-                new TextFlowContainer(t =>
-                {
-                    t.Font = Fonts.BOLD.With(size: 25);
-                    t.Colour = Colours.WHITE2;
-                })
-                {
-                    RelativeSizeAxes = Axes.X,
-                    AutoSizeAxes = Axes.Y,
-                    TextAnchor = Anchor.Centre,
-                    Text = "Sharecode"
-                },
-            }
-        }
-    };
 }

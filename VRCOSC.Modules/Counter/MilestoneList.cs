@@ -3,26 +3,21 @@
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using osu.Framework.Bindables;
-using osu.Framework.Graphics;
-using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Sprites;
-using VRCOSC.Graphics.UI.Text;
-using VRCOSC.SDK.Attributes.Settings;
-using VRCOSC.SDK.Graphics.Settings.Lists;
+using VRCOSC.App.Modules.Attributes.Settings;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.Modules.Counter;
 
 public class Milestone : IEquatable<Milestone>
 {
     [JsonProperty("counter_key")]
-    public Bindable<string> CounterKey = new(string.Empty);
+    public Observable<string> CounterKey = new(string.Empty);
 
     [JsonProperty("required_count")]
-    public Bindable<int> RequiredCount = new();
+    public Observable<int> RequiredCount = new();
 
     [JsonProperty("parameter_name")]
-    public Bindable<string> ParameterName = new(string.Empty);
+    public Observable<string> ParameterName = new(string.Empty);
 
     [JsonConstructor]
     public Milestone()
@@ -44,146 +39,14 @@ public class Milestone : IEquatable<Milestone>
     }
 }
 
-public partial class DrawableMilestone : DrawableListModuleSettingItem<Milestone>
-{
-    public DrawableMilestone(Milestone item)
-        : base(item)
-    {
-        Add(new GridContainer
-        {
-            Anchor = Anchor.TopCentre,
-            Origin = Anchor.TopCentre,
-            RelativeSizeAxes = Axes.X,
-            AutoSizeAxes = Axes.Y,
-            ColumnDimensions = new[]
-            {
-                new Dimension(),
-                new Dimension(GridSizeMode.Absolute, 5),
-                new Dimension(),
-                new Dimension(GridSizeMode.Absolute, 5),
-                new Dimension()
-            },
-            RowDimensions = new[]
-            {
-                new Dimension(GridSizeMode.AutoSize)
-            },
-            Content = new[]
-            {
-                new Drawable?[]
-                {
-                    new StringTextBox
-                    {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        RelativeSizeAxes = Axes.X,
-                        Height = 30,
-                        ValidCurrent = item.CounterKey.GetBoundCopy(),
-                        PlaceholderText = "Counter Name"
-                    },
-                    null,
-                    new IntTextBox
-                    {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        RelativeSizeAxes = Axes.X,
-                        Height = 30,
-                        ValidCurrent = item.RequiredCount.GetBoundCopy(),
-                        PlaceholderText = "Required Count",
-                    },
-                    null,
-                    new StringTextBox
-                    {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        RelativeSizeAxes = Axes.X,
-                        Height = 30,
-                        ValidCurrent = item.ParameterName.GetBoundCopy(),
-                        PlaceholderText = "Parameter Name"
-                    }
-                }
-            }
-        });
-    }
-}
-
 public class MilestoneListModuleSetting : ListModuleSetting<Milestone>
 {
-    public MilestoneListModuleSetting(ListModuleSettingMetadata metadata, IEnumerable<Milestone> defaultValues)
-        : base(metadata, defaultValues)
+    public MilestoneListModuleSetting(ModuleSettingMetadata metadata, IEnumerable<Milestone> defaultValues)
+        : base(metadata, defaultValues, false)
     {
     }
 
     protected override Milestone CloneValue(Milestone value) => new(value);
     protected override Milestone ConstructValue(JToken token) => token.ToObject<Milestone>()!;
     protected override Milestone CreateNewItem() => new();
-}
-
-public partial class DrawableMilestoneList : DrawableListModuleSetting<MilestoneListModuleSetting, Milestone>
-{
-    public DrawableMilestoneList(MilestoneListModuleSetting moduleSetting)
-        : base(moduleSetting)
-    {
-    }
-
-    protected override Drawable Header => new GridContainer
-    {
-        RelativeSizeAxes = Axes.X,
-        AutoSizeAxes = Axes.Y,
-        ColumnDimensions = new[]
-        {
-            new Dimension(),
-            new Dimension(GridSizeMode.Absolute, 5),
-            new Dimension(),
-            new Dimension(GridSizeMode.Absolute, 5),
-            new Dimension()
-        },
-        RowDimensions = new[]
-        {
-            new Dimension(GridSizeMode.AutoSize)
-        },
-        Content = new[]
-        {
-            new Drawable?[]
-            {
-                new Container
-                {
-                    RelativeSizeAxes = Axes.X,
-                    AutoSizeAxes = Axes.Y,
-                    Child = new SpriteText
-                    {
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
-                        Text = "Counter Name",
-                        Font = FrameworkFont.Regular.With(size: 20)
-                    }
-                },
-                null,
-                new Container
-                {
-                    RelativeSizeAxes = Axes.X,
-                    AutoSizeAxes = Axes.Y,
-                    Child = new SpriteText
-                    {
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
-                        Text = "Required Count",
-                        Font = FrameworkFont.Regular.With(size: 20)
-                    }
-                },
-                null,
-                new Container
-                {
-                    RelativeSizeAxes = Axes.X,
-                    AutoSizeAxes = Axes.Y,
-                    Child = new SpriteText
-                    {
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
-                        Text = "Parameter Name",
-                        Font = FrameworkFont.Regular.With(size: 20)
-                    }
-                },
-            }
-        }
-    };
 }

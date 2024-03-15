@@ -1,8 +1,8 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using VRCOSC.SDK;
-using VRCOSC.SDK.Modules.Heartrate;
+using VRCOSC.App.Modules;
+using VRCOSC.App.SDK.Modules.Heartrate;
 
 namespace VRCOSC.Modules.Hyperate;
 
@@ -12,13 +12,13 @@ public sealed class HypeRateModule : HeartrateModule<HypeRateProvider>
 {
     protected override HypeRateProvider CreateProvider() => new(GetSettingValue<string>(HypeRateSetting.Id)!, OfficialModuleSecrets.GetSecret(OfficialModuleSecretsKeys.Hyperate));
 
-    protected override void OnLoad()
+    protected override void OnPreLoad()
     {
         CreateTextBox(HypeRateSetting.Id, "HypeRate ID", "Your HypeRate ID given on your device", string.Empty);
 
         CreateGroup("Access", HypeRateSetting.Id);
 
-        base.OnLoad();
+        base.OnPreLoad();
     }
 
     protected override Task<bool> OnModuleStart()

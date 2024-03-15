@@ -2,12 +2,9 @@
 // See the LICENSE file in the repository root for full license text.
 
 using Newtonsoft.Json;
-using osu.Framework.Extensions.IEnumerableExtensions;
-using VRCOSC.SDK;
-using VRCOSC.SDK.Attributes.Settings;
-using VRCOSC.SDK.Attributes.Settings.Types;
-using VRCOSC.SDK.Avatars;
-using VRCOSC.SDK.Parameters;
+using VRCOSC.App.Modules;
+using VRCOSC.App.Modules.Attributes.Settings;
+using VRCOSC.App.Parameters;
 
 namespace VRCOSC.Modules.Counter;
 
@@ -21,7 +18,7 @@ public class CounterModule : AvatarModule
     [ModulePersistent("counts")]
     private Dictionary<string, CountInstance> counts { get; set; } = new();
 
-    protected override void OnLoad()
+    protected override void OnPreLoad()
     {
         CreateToggle(CounterSetting.ResetOnAvatarChange, "Reset On Avatar Change", "Should the counter reset on avatar change?", false);
         CreateToggle(CounterSetting.SaveCounters, "Save Counters", "Should the counters be saved between module restarts?", true);
@@ -29,9 +26,7 @@ public class CounterModule : AvatarModule
         CreateKeyValuePairList(CounterSetting.Parameters, "Parameter List", "What parameters should be monitored for changes?\nCounter names can be reused to allow multiple parameters to add to the same counter", new List<MutableKeyValuePair> { new() { Key = { Value = "Example" }, Value = { Value = "ExampleParameterName" } } }, "Counter Name",
             "Parameter Name");
 
-        CreateCustom(CounterSetting.Milestones, new MilestoneListModuleSetting(new ListModuleSettingMetadata("Milestones",
-            "Set Parameter Name to true when Counter Name reaches Required Count\nThese will be set when the module starts if a counter has already reached the milestone",
-            typeof(DrawableMilestoneList), typeof(DrawableMilestone)), new List<Milestone>()));
+        CreateCustom(CounterSetting.Milestones, new MilestoneListModuleSetting(new ModuleSettingMetadata("Milestones", "Set Parameter Name to true when Counter Name reaches Required Count\nThese will be set when the module starts if a counter has already reached the milestone", typeof(DrawableMilestoneList)), new List<Milestone>()));
     }
 
     protected override Task<bool> OnModuleStart()

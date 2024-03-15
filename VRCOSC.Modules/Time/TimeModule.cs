@@ -2,9 +2,8 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Globalization;
-using VRCOSC.SDK;
-using VRCOSC.SDK.Avatars;
-using VRCOSC.SDK.Parameters;
+using VRCOSC.App.Modules;
+using VRCOSC.App.Parameters;
 
 namespace VRCOSC.Modules.Time;
 
@@ -13,7 +12,7 @@ namespace VRCOSC.Modules.Time;
 [ModuleType(ModuleType.Generic)]
 public sealed class TimeModule : AvatarModule
 {
-    protected override void OnLoad()
+    protected override void OnPreLoad()
     {
         CreateToggle(TimeSetting.SmoothSecond, "Smooth Second", "If the Second Normalised parameter should be smoothed", true);
         CreateToggle(TimeSetting.SmoothMinute, "Smooth Minute", "If the Minute Normalised parameter should be smoothed", true);

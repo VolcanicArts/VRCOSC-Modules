@@ -2,11 +2,10 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Security.Principal;
-using osu.Framework.Extensions.IEnumerableExtensions;
-using VRCOSC.SDK;
-using VRCOSC.SDK.Avatars;
-using VRCOSC.SDK.Parameters;
-using VRCOSC.SDK.Providers.Hardware;
+using VRCOSC.App.Modules;
+using VRCOSC.App.Parameters;
+using VRCOSC.App.SDK.Providers.Hardware;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.Modules.HardwareStats;
 
@@ -19,7 +18,7 @@ public sealed class HardwareStatsModule : AvatarModule
 
     public static bool IsAdministrator => new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
 
-    protected override void OnLoad()
+    protected override void OnPreLoad()
     {
         CreateTextBox(HardwareStatsSetting.SelectedCPU, "Selected CPU", "Enter the (0th based) index of the CPU you want to track", 0);
         CreateTextBox(HardwareStatsSetting.SelectedGPU, "Selected GPU", "Enter the (0th based) index of the GPU you want to track", 0);
@@ -44,7 +43,7 @@ public sealed class HardwareStatsModule : AvatarModule
     {
         Log("Hooking into hardware monitor...");
 
-        if (!IsAdministrator) Log("VRCOSC isn't running as admin so you won't receive power and temp data");
+        if (!IsAdministrator) Log("VRCOSC isn't running as admin so you might not receive power and temp data");
 
         hardwareStatsProvider ??= new HardwareStatsProvider();
         hardwareStatsProvider.Init();

@@ -2,10 +2,9 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Diagnostics;
-using VRCOSC.SDK;
-using VRCOSC.SDK.Avatars;
-using VRCOSC.SDK.Parameters;
-using VRCOSC.SDK.Providers.Weather;
+using VRCOSC.App.Modules;
+using VRCOSC.App.Parameters;
+using VRCOSC.App.SDK.Providers.Weather;
 
 namespace VRCOSC.Modules.Weather;
 
@@ -16,7 +15,7 @@ public class WeatherModule : AvatarModule
 {
     private WeatherProvider? weatherProvider;
 
-    protected override void OnLoad()
+    protected override void OnPreLoad()
     {
         CreateTextBox(WeatherSetting.Location, "Location", "The location to retrieve weather data for\nThis can be a city name, UK/US/Canada postcode, or IP address", string.Empty);
 

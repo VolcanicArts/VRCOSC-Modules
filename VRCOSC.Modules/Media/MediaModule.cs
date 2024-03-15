@@ -1,10 +1,9 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using VRCOSC.SDK;
-using VRCOSC.SDK.Avatars;
-using VRCOSC.SDK.Parameters;
-using VRCOSC.SDK.Providers.Media;
+using VRCOSC.App.Modules;
+using VRCOSC.App.Parameters;
+using VRCOSC.App.SDK.Providers.Media;
 
 namespace VRCOSC.Modules.Media;
 
@@ -24,7 +23,7 @@ public class MediaModule : AvatarModule
         mediaProvider.OnLog += Log;
     }
 
-    protected override void OnLoad()
+    protected override void OnPreLoad()
     {
         RegisterParameter<bool>(MediaParameter.Play, "VRCOSC/Media/Play", ParameterMode.ReadWrite, "Play/Pause", "True for playing. False for paused");
         RegisterParameter<float>(MediaParameter.Volume, "VRCOSC/Media/Volume", ParameterMode.ReadWrite, "Volume", "The volume of the process that is controlling the media");

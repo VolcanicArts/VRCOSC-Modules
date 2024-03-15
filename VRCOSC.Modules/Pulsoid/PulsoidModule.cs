@@ -1,10 +1,8 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using VRCOSC.Graphics;
-using VRCOSC.SDK;
-using VRCOSC.SDK.Attributes.Settings.Addons;
-using VRCOSC.SDK.Modules.Heartrate;
+using VRCOSC.App.Modules;
+using VRCOSC.App.SDK.Modules.Heartrate;
 
 namespace VRCOSC.Modules.Pulsoid;
 
@@ -16,19 +14,18 @@ public sealed class PulsoidModule : HeartrateModule<PulsoidProvider>
 
     protected override PulsoidProvider CreateProvider() => new(GetSettingValue<string>(PulsoidSetting.AccessToken)!);
 
-    protected override void OnLoad()
+    protected override void OnPreLoad()
     {
-        CreateTextBox(PulsoidSetting.AccessToken, "Access Token", "Your Pulsoid access token", string.Empty, true);
+        CreateTextBox(PulsoidSetting.AccessToken, "Access Token", "Your Pulsoid access token", string.Empty);
 
         CreateGroup("Access", PulsoidSetting.AccessToken);
 
-        base.OnLoad();
+        base.OnPreLoad();
     }
 
     protected override void OnPostLoad()
     {
-        GetSetting(PulsoidSetting.AccessToken)!
-            .AddAddon(new ButtonModuleSettingAddon("Obtain Access Token", Colours.BLUE0, () => OpenUrlExternally(pulsoid_access_token_url)));
+        //GetSetting(PulsoidSetting.AccessToken)!.AddAddon(new ButtonModuleSettingAddon("Obtain Access Token", Colours.BLUE0, () => OpenUrlExternally(pulsoid_access_token_url)));
 
         base.OnPostLoad();
     }
