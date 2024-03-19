@@ -38,7 +38,7 @@ public sealed class TimeModule : AvatarModule
         CreateGroup("Smoothing", TimeSetting.SmoothHour, TimeSetting.SmoothMinute, TimeSetting.SmoothSecond);
     }
 
-    [ModuleUpdate(ModuleUpdateMode.Custom)]
+    [ModuleUpdate(ModuleUpdateMode.Custom, true, 100)]
     private void updateVariables()
     {
         var time = DateTime.Now;
