@@ -6,8 +6,8 @@ using VRCOSC.App.SDK.Parameters;
 
 namespace VRCOSC.Modules.OpenVR;
 
-[ModuleTitle("Haptic Control")]
-[ModuleDescription("Lets you set haptic parameters and trigger them for OpenVR controllers")]
+[ModuleTitle("SteamVR Haptic Control")]
+[ModuleDescription("Lets you trigger haptics for SteamVR controllers")]
 [ModuleType(ModuleType.Integrations)]
 public class HapticControlModule : AvatarModule
 {
@@ -17,12 +17,13 @@ public class HapticControlModule : AvatarModule
 
     protected override void OnPreLoad()
     {
-        RegisterParameter<float>(HapticControlParameter.Duration, "VRCOSC/Haptics/Duration", ParameterMode.Read, "Duration", "The duration of the haptic trigger in seconds");
-        RegisterParameter<float>(HapticControlParameter.Frequency, "VRCOSC/Haptics/Frequency", ParameterMode.Read, "Frequency", "The frequency of the haptic trigger");
-        RegisterParameter<float>(HapticControlParameter.Amplitude, "VRCOSC/Haptics/Amplitude", ParameterMode.Read, "Amplitude", "The amplitude of the haptic trigger");
-        RegisterParameter<bool>(HapticControlParameter.Trigger, "VRCOSC/Haptics/Trigger", ParameterMode.Read, "Trigger", "Becoming true causes a haptic trigger in both controllers");
-        RegisterParameter<bool>(HapticControlParameter.TriggerLeft, "VRCOSC/Haptics/TriggerLeft", ParameterMode.Read, "Trigger Left", "Becoming true causes a haptic trigger in the left controller");
-        RegisterParameter<bool>(HapticControlParameter.TriggerRight, "VRCOSC/Haptics/TriggerRight", ParameterMode.Read, "Trigger Right", "Becoming true causes a haptic trigger in the right controller");
+        RegisterParameter<float>(HapticControlParameter.Duration, "VRCOSC/VR/Haptics/Duration", ParameterMode.Read, "Duration", "The duration of the haptic trigger in seconds");
+        RegisterParameter<float>(HapticControlParameter.Frequency, "VRCOSC/VR/Haptics/Frequency", ParameterMode.Read, "Frequency", "The frequency of the haptic trigger");
+        RegisterParameter<float>(HapticControlParameter.Amplitude, "VRCOSC/VR/Haptics/Amplitude", ParameterMode.Read, "Amplitude", "The amplitude of the haptic trigger");
+        RegisterParameter<bool>(HapticControlParameter.TriggerLeft, "VRCOSC/VR/Haptics/TriggerLeft", ParameterMode.Read, "Trigger Left", "Becoming true causes a haptic trigger in the left controller using the above parameters");
+        RegisterParameter<bool>(HapticControlParameter.TriggerRight, "VRCOSC/VR/Haptics/TriggerRight", ParameterMode.Read, "Trigger Right", "Becoming true causes a haptic trigger in the right controller using the above parameters");
+        RegisterParameter<bool>(HapticControlParameter.TriggerLeftDirect, "VRCOSC/VR/Haptics/TriggerLeft/*/*/*", ParameterMode.Read, "Trigger Left Direct", "Becoming true causes a haptic trigger in the left controller using the above parameters\nFor example:\n Writing 'VRCOSC/VR/Haptics/TriggerLeft/2/0.5/0.75' will trigger haptics in the left controller with a 2 second duration, 0.5 frequency, and 0.75 amplitude");
+        RegisterParameter<bool>(HapticControlParameter.TriggerRightDirect, "VRCOSC/VR/Haptics/TriggerRight/*/*/*", ParameterMode.Read, "Trigger Right Direct", "Becoming true causes a haptic trigger in the right controller using the above parameters\nFor example:\n Writing 'VRCOSC/VR/Haptics/TriggerRight/2/0.5/0.75' will trigger haptics in the right controller with a 2 second duration, 0.5 frequency, and 0.75 amplitude");
     }
 
     protected override Task<bool> OnModuleStart()
@@ -43,15 +44,11 @@ public class HapticControlModule : AvatarModule
                 break;
 
             case HapticControlParameter.Frequency:
-                frequency = Math.Clamp(parameter.GetValue<float>(), 0, 1) * 100f;
+                frequency = convertFrequency(parameter.GetValue<float>());
                 break;
 
             case HapticControlParameter.Amplitude:
-                amplitude = Math.Clamp(parameter.GetValue<float>(), 0, 1);
-                break;
-
-            case HapticControlParameter.Trigger when parameter.GetValue<bool>():
-                triggerHaptic(true, true);
+                amplitude = convertAmplitude(parameter.GetValue<float>());
                 break;
 
             case HapticControlParameter.TriggerLeft when parameter.GetValue<bool>():
@@ -61,16 +58,27 @@ public class HapticControlModule : AvatarModule
             case HapticControlParameter.TriggerRight when parameter.GetValue<bool>():
                 triggerHaptic(false, true);
                 break;
+
+            case HapticControlParameter.TriggerLeftDirect when parameter.GetValue<bool>():
+                triggerHaptic(true, false, parameter.WildcardAs<float>(0), convertFrequency(parameter.WildcardAs<float>(1)), convertAmplitude(parameter.WildcardAs<float>(2)));
+                break;
+
+            case HapticControlParameter.TriggerRightDirect when parameter.GetValue<bool>():
+                triggerHaptic(false, true, parameter.WildcardAs<float>(0), convertFrequency(parameter.WildcardAs<float>(1)), convertAmplitude(parameter.WildcardAs<float>(2)));
+                break;
         }
     }
 
-    private async void triggerHaptic(bool left, bool right)
+    private float convertFrequency(float frequency) => Math.Clamp(frequency, 0, 1) * 100f;
+    private float convertAmplitude(float amplitude) => Math.Clamp(amplitude, 0, 1);
+
+    private async void triggerHaptic(bool left, bool right, float? localDuration = null, float? localFrequency = null, float? localAmplitude = null)
     {
         if (!OVRClient.HasInitialised) return;
 
-        if (left) OVRClient.TriggerLeftControllerHaptic(duration, frequency, amplitude);
+        if (left) OVRClient.TriggerLeftControllerHaptic(localDuration ?? duration, localFrequency ?? frequency, localAmplitude ?? amplitude);
         await Task.Delay(10);
-        if (right) OVRClient.TriggerRightControllerHaptic(duration, frequency, amplitude);
+        if (right) OVRClient.TriggerRightControllerHaptic(localDuration ?? duration, localFrequency ?? frequency, localAmplitude ?? amplitude);
     }
 
     private enum HapticControlParameter
@@ -80,6 +88,7 @@ public class HapticControlModule : AvatarModule
         Amplitude,
         TriggerLeft,
         TriggerRight,
-        Trigger
+        TriggerLeftDirect,
+        TriggerRightDirect
     }
 }

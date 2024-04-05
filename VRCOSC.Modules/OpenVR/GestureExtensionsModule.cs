@@ -7,29 +7,17 @@ using VRCOSC.App.SDK.Parameters;
 
 namespace VRCOSC.Modules.OpenVR;
 
-[ModuleTitle("Gesture Extensions")]
+[ModuleTitle("Index Gesture Extensions")]
 [ModuleDescription("Detect a range of custom gestures from Index controllers")]
 [ModuleType(ModuleType.Integrations)]
 public class GestureExtensionsModule : AvatarModule
 {
-    private float lowerThreshold;
-    private float upperThreshold;
-
     protected override void OnPreLoad()
     {
-        CreateSlider(GestureExtensionsSetting.LowerThreshold, "Lower Threshold", "How far down a finger should be until it's not considered up", 0.5f, 0, 1, 0.01f);
-        CreateSlider(GestureExtensionsSetting.UpperThreshold, "Upper Threshold", "How far down a finger should be before it's considered down", 0.5f, 0, 1, 0.01f);
+        CreateSlider(GestureExtensionsSetting.Threshold, "Threshold", "How far down a finger should be to be considered down\n0 being fully up. 1 being full down", 0.5f, 0, 1, 0.01f);
 
-        RegisterParameter<int>(GestureExtensionsParameter.GestureLeft, "VRCOSC/Gestures/Left", ParameterMode.Write, "Left Gestures", "Custom left hand gesture value");
-        RegisterParameter<int>(GestureExtensionsParameter.GestureRight, "VRCOSC/Gestures/Right", ParameterMode.Write, "Right Gestures", "Custom right hand gesture value");
-    }
-
-    protected override Task<bool> OnModuleStart()
-    {
-        lowerThreshold = GetSettingValue<float>(GestureExtensionsSetting.LowerThreshold);
-        upperThreshold = GetSettingValue<float>(GestureExtensionsSetting.UpperThreshold);
-
-        return Task.FromResult(true);
+        RegisterParameter<int>(GestureExtensionsParameter.GestureLeft, "VRCOSC/VR/Gestures/Left", ParameterMode.Write, "Left Gestures", "Custom left hand gesture value");
+        RegisterParameter<int>(GestureExtensionsParameter.GestureRight, "VRCOSC/VR/Gestures/Right", ParameterMode.Write, "Right Gestures", "Custom right hand gesture value");
     }
 
     [ModuleUpdate(ModuleUpdateMode.Custom)]
@@ -50,29 +38,36 @@ public class GestureExtensionsModule : AvatarModule
         return GestureNames.None;
     }
 
+    private float getThreshold() => GetSettingValue<float>(GestureExtensionsSetting.Threshold);
+
     private bool isGestureDoubleGun(InputStates input) =>
-        input.IndexFinger < lowerThreshold
-        && input.MiddleFinger < lowerThreshold
-        && input.RingFinger > upperThreshold
-        && input.PinkyFinger > upperThreshold
+        input.IndexFinger <= getThreshold()
+        && input.MiddleFinger <= getThreshold()
+        && input.RingFinger > getThreshold()
+        && input.PinkyFinger > getThreshold()
         && input.ThumbUp;
 
     private bool isGestureMiddleFinger(InputStates input) =>
-        input.IndexFinger > upperThreshold
-        && input.MiddleFinger < lowerThreshold
-        && input.RingFinger > upperThreshold
-        && input.PinkyFinger > upperThreshold;
+        input.IndexFinger > getThreshold()
+        && input.MiddleFinger <= getThreshold()
+        && input.RingFinger > getThreshold()
+        && input.PinkyFinger > getThreshold();
 
     private bool isGesturePinkyFinger(InputStates input) =>
-        input.IndexFinger > upperThreshold
-        && input.MiddleFinger > upperThreshold
-        && input.RingFinger > upperThreshold
-        && input.PinkyFinger < lowerThreshold;
+        input.IndexFinger > getThreshold()
+        && input.MiddleFinger > getThreshold()
+        && input.RingFinger > getThreshold()
+        && input.PinkyFinger <= getThreshold();
 
     private enum GestureExtensionsSetting
     {
-        LowerThreshold,
-        UpperThreshold
+        Threshold
+    }
+
+    private enum GestureExtensionsParameter
+    {
+        GestureLeft,
+        GestureRight
     }
 
     private enum GestureNames
@@ -81,11 +76,5 @@ public class GestureExtensionsModule : AvatarModule
         DoubleGun,
         MiddleFinger,
         PinkyFinger
-    }
-
-    private enum GestureExtensionsParameter
-    {
-        GestureLeft,
-        GestureRight
     }
 }
