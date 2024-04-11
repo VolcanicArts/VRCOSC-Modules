@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.Specialized;
+using Newtonsoft.Json;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Modules.Attributes.Settings;
 using VRCOSC.App.SDK.Parameters;
@@ -17,7 +18,7 @@ public class CounterModule : ChatBoxModule
     protected override bool ShouldUsePersistence => GetSettingValue<bool>(CounterSetting.SaveCounters);
 
     [ModulePersistent("counts")]
-    private Dictionary<string, int> counts { get; set; } = new();
+    private Dictionary<string, CountTracker> counts { get; set; } = new();
 
     private readonly Dictionary<string, object> parameterValues = new();
 
@@ -62,11 +63,13 @@ public class CounterModule : ChatBoxModule
     {
         CreateEvent($"{countInstance.ID}_countchanged", string.Empty);
         CreateVariable<int>($"{countInstance.ID}_value", string.Empty);
+        CreateVariable<int>($"{countInstance.ID}_valuetoday", string.Empty);
 
         countInstance.Name.Subscribe(_ =>
         {
             GetEvent($"{countInstance.ID}_countchanged")!.DisplayName.Value = $"On '{countInstance.Name.Value}' Changed";
             GetVariable($"{countInstance.ID}_value")!.DisplayName.Value = $"{countInstance.Name.Value.Pluralise()} Value";
+            GetVariable($"{countInstance.ID}_valuetoday")!.DisplayName.Value = $"{countInstance.Name.Value.Pluralise()} Value Today";
         }, true);
     }
 
@@ -74,6 +77,7 @@ public class CounterModule : ChatBoxModule
     {
         DeleteEvent($"{countInstance.ID}_countchanged");
         DeleteVariable($"{countInstance.ID}_value");
+        DeleteVariable($"{countInstance.ID}_valuetoday");
     }
 
     protected override Task<bool> OnModuleStart()
@@ -91,7 +95,7 @@ public class CounterModule : ChatBoxModule
     {
         var countInstances = GetSettingValue<List<CountInstance>>(CounterSetting.CountInstances)!;
 
-        countInstances.ForEach(countInstance => { counts.TryAdd(countInstance.ID, 0); });
+        countInstances.ForEach(countInstance => counts.TryAdd(countInstance.ID, new CountTracker()));
 
         var countsToRemove = new List<string>();
 
@@ -108,7 +112,8 @@ public class CounterModule : ChatBoxModule
     {
         foreach (var countInstance in GetSettingValue<List<CountInstance>>(CounterSetting.CountInstances)!)
         {
-            GetVariable($"{countInstance.ID}_value")!.SetValue(counts[countInstance.ID]);
+            GetVariable($"{countInstance.ID}_value")!.SetValue(counts[countInstance.ID].Value);
+            GetVariable($"{countInstance.ID}_valuetoday")!.SetValue(counts[countInstance.ID].ValueToday);
         }
     }
 
@@ -116,7 +121,11 @@ public class CounterModule : ChatBoxModule
     {
         if (GetSettingValue<bool>(CounterSetting.ResetOnAvatarChange))
         {
-            counts.ForEach(pair => counts[pair.Key] = 0);
+            counts.ForEach(pair =>
+            {
+                counts[pair.Key].Value = 0;
+                counts[pair.Key].ValueToday = 0;
+            });
         }
     }
 
@@ -187,7 +196,8 @@ public class CounterModule : ChatBoxModule
 
     private void updateCounter(CountInstance countInstance)
     {
-        counts[countInstance.ID]++;
+        counts[countInstance.ID].Value++;
+        counts[countInstance.ID].ValueToday++;
         TriggerEvent($"{countInstance.ID}_countchanged");
     }
 
@@ -201,5 +211,19 @@ public class CounterModule : ChatBoxModule
     private enum CounterState
     {
         Default
+    }
+}
+
+[JsonObject(MemberSerialization.OptIn)]
+public class CountTracker
+{
+    [JsonProperty("value")]
+    public int Value { get; set; }
+
+    public int ValueToday { get; set; }
+
+    [JsonConstructor]
+    public CountTracker()
+    {
     }
 }
