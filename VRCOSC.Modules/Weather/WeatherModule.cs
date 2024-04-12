@@ -11,7 +11,7 @@ namespace VRCOSC.Modules.Weather;
 [ModuleTitle("Weather")]
 [ModuleDescription("Retrieves weather information for a specific area")]
 [ModuleType(ModuleType.Generic)]
-public class WeatherModule : AvatarModule
+public class WeatherModule : ChatBoxModule
 {
     private WeatherProvider? weatherProvider;
 
@@ -20,6 +20,16 @@ public class WeatherModule : AvatarModule
         CreateTextBox(WeatherSetting.Location, "Location", "The location to retrieve weather data for\nThis can be a city name, UK/US/Canada postcode, or IP address", string.Empty);
 
         RegisterParameter<int>(WeatherParameter.Code, "VRCOSC/Weather/Code", ParameterMode.Write, "Weather Code", "The current weather's code");
+    }
+
+    protected override void OnPostLoad()
+    {
+        var tempCReference = CreateVariable<float>(WeatherVariable.TempC, "Temp C")!;
+        var tempFReference = CreateVariable<float>(WeatherVariable.TempF, "Temp F")!;
+        CreateVariable<int>(WeatherVariable.Humidity, "Humidity");
+        var conditionReference = CreateVariable<string>(WeatherVariable.Condition, "Condition")!;
+
+        CreateState(WeatherState.Default, "Default", "Local Weather\n{0}\n{1}C - {2}F", new[] { conditionReference, tempCReference, tempFReference });
     }
 
     protected override Task<bool> OnModuleStart()
@@ -31,6 +41,9 @@ public class WeatherModule : AvatarModule
         }
 
         weatherProvider ??= new WeatherProvider(OfficialModuleSecrets.GetSecret(OfficialModuleSecretsKeys.Weather));
+
+        ChangeState(WeatherState.Default);
+
         return Task.FromResult(true);
     }
 
@@ -53,6 +66,11 @@ public class WeatherModule : AvatarModule
         }
 
         SendParameter(WeatherParameter.Code, getConvertedWeatherCode(weather));
+
+        SetVariableValue(WeatherVariable.TempC, weather.TempC);
+        SetVariableValue(WeatherVariable.TempF, weather.TempF);
+        SetVariableValue(WeatherVariable.Humidity, weather.Humidity);
+        SetVariableValue(WeatherVariable.Condition, weather.ConditionString);
     }
 
     private static int getConvertedWeatherCode(CurrentWeather currentWeather) => currentWeather.Condition.Code switch
@@ -116,5 +134,18 @@ public class WeatherModule : AvatarModule
     private enum WeatherParameter
     {
         Code
+    }
+
+    private enum WeatherState
+    {
+        Default
+    }
+
+    private enum WeatherVariable
+    {
+        TempC,
+        TempF,
+        Humidity,
+        Condition
     }
 }

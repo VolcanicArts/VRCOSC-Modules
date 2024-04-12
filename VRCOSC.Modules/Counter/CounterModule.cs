@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.Specialized;
@@ -61,9 +61,10 @@ public class CounterModule : ChatBoxModule
 
     private void createDynamicElements(CountInstance countInstance)
     {
-        CreateEvent($"{countInstance.ID}_countchanged", string.Empty);
-        CreateVariable<int>($"{countInstance.ID}_value", string.Empty);
-        CreateVariable<int>($"{countInstance.ID}_valuetoday", string.Empty);
+        var valueVariable = CreateVariable<int>($"{countInstance.ID}_value", string.Empty)!;
+        var valueTodayVariable = CreateVariable<int>($"{countInstance.ID}_valuetoday", string.Empty)!;
+
+        CreateEvent($"{countInstance.ID}_countchanged", string.Empty, $"{countInstance.Name.Value} - {{0}} ({{1}})", new[] { valueVariable, valueTodayVariable });
 
         countInstance.Name.Subscribe(_ =>
         {
@@ -112,8 +113,8 @@ public class CounterModule : ChatBoxModule
     {
         foreach (var countInstance in GetSettingValue<List<CountInstance>>(CounterSetting.CountInstances)!)
         {
-            GetVariable($"{countInstance.ID}_value")!.SetValue(counts[countInstance.ID].Value);
-            GetVariable($"{countInstance.ID}_valuetoday")!.SetValue(counts[countInstance.ID].ValueToday);
+            SetVariableValue($"{countInstance.ID}_value", counts[countInstance.ID].Value);
+            SetVariableValue($"{countInstance.ID}_valuetoday", counts[countInstance.ID].ValueToday);
         }
     }
 

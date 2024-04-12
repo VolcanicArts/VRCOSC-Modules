@@ -20,15 +20,15 @@ public class AFKTrackerModule : ChatBoxModule
 
     protected override void OnPreLoad()
     {
-        CreateDropdown(AFKTrackerSetting.Source, "Source", "What source should the AFK tracker track?", AFKTrackerSource.SteamVR);
+        CreateDropdown(AFKTrackerSetting.Source, "Source", "What source should the AFK tracker track?", AFKTrackerSource.VRChat);
 
         RegisterParameter<bool>(AFKTrackerParameter.ManualAFK, "VRCOSC/AFKTracker/AFK", ParameterMode.Read, "Manual AFK", "Setting this to true will override any AFK detection to allow you to manually set that you're AFK");
 
-        CreateVariable<TimeSpan>(AFKTrackerVariable.Duration, "Duration");
+        var durationReference = CreateVariable<TimeSpan>(AFKTrackerVariable.Duration, "Duration")!;
         CreateVariable<DateTime>(AFKTrackerVariable.StartTime, "Start Time");
 
         CreateState(AFKTrackerState.NotAFK, "Not AFK");
-        CreateState(AFKTrackerState.AFK, "AFK");
+        CreateState(AFKTrackerState.AFK, "AFK", "AFK for {0}", new[] { durationReference });
 
         CreateEvent(AFKTrackerEvent.AFKStopped, "AFK Stopped", "AFK has ended");
         CreateEvent(AFKTrackerEvent.AFKStarted, "AFK Started", "AFK has begun");
@@ -39,8 +39,6 @@ public class AFKTrackerModule : ChatBoxModule
         manualAFK = false;
         afkBegan = null;
         previousAFKState = false;
-
-        Log(GetSettingValue<AFKTrackerSource>(AFKTrackerSetting.Source).ToString());
 
         return Task.FromResult(true);
     }
@@ -58,8 +56,8 @@ public class AFKTrackerModule : ChatBoxModule
     [ModuleUpdate(ModuleUpdateMode.ChatBox)]
     private void moduleChatBoxUpdate()
     {
-        GetVariable(AFKTrackerVariable.Duration)!.SetValue(afkBegan is null ? TimeSpan.Zero : DateTime.Now - afkBegan.Value);
-        GetVariable(AFKTrackerVariable.StartTime)!.SetValue(afkBegan ?? DateTime.UnixEpoch);
+        SetVariableValue(AFKTrackerVariable.Duration, afkBegan is null ? TimeSpan.Zero : DateTime.Now - afkBegan.Value);
+        SetVariableValue(AFKTrackerVariable.StartTime, afkBegan ?? DateTime.UnixEpoch);
         ChangeState(afkBegan is null ? AFKTrackerState.NotAFK : AFKTrackerState.AFK);
     }
 
@@ -94,7 +92,7 @@ public class AFKTrackerModule : ChatBoxModule
                 return isVRChatAFK();
 
             case AFKTrackerSource.SteamVR when OVRClient.HasInitialised:
-                return OVRClient.System.IsUserPresent();
+                return isSteamVRAFK();
 
             default:
                 throw new ArgumentOutOfRangeException();

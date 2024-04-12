@@ -10,7 +10,7 @@ namespace VRCOSC.Modules.Time;
 [ModuleTitle("Time")]
 [ModuleDescription("Sends your current time to VRChat")]
 [ModuleType(ModuleType.Generic)]
-public sealed class TimeModule : AvatarModule
+public sealed class TimeModule : ChatBoxModule
 {
     protected override void OnPreLoad()
     {
@@ -36,6 +36,20 @@ public sealed class TimeModule : AvatarModule
 
         CreateGroup("Tweaks", TimeSetting.Mode);
         CreateGroup("Smoothing", TimeSetting.SmoothHour, TimeSetting.SmoothMinute, TimeSetting.SmoothSecond);
+    }
+
+    protected override void OnPostLoad()
+    {
+        var timeReference = CreateVariable<DateTime>(TimeVariable.Time, "Time")!;
+
+        CreateState(TimeState.Default, "Default", "{0}", new[] { timeReference });
+    }
+
+    protected override Task<bool> OnModuleStart()
+    {
+        ChangeState(TimeState.Default);
+
+        return Task.FromResult(true);
     }
 
     [ModuleUpdate(ModuleUpdateMode.Custom, true, 100)]
@@ -70,6 +84,8 @@ public sealed class TimeModule : AvatarModule
         SendParameter(TimeParameter.LegacyMinutes, minuteNormalised);
         SendParameter(TimeParameter.LegacySeconds, secondNormalised);
         SendParameter(TimeParameter.LegacyPeriod, string.Equals(time.ToString("tt", CultureInfo.InvariantCulture), "PM", StringComparison.InvariantCultureIgnoreCase));
+
+        SetVariableValue(TimeVariable.Time, time);
     }
 
     private static float getSmoothedSecond(DateTime time) => time.Second + time.Millisecond / 1000f;
@@ -98,5 +114,15 @@ public sealed class TimeModule : AvatarModule
         SmoothSecond,
         SmoothMinute,
         SmoothHour
+    }
+
+    private enum TimeState
+    {
+        Default
+    }
+
+    private enum TimeVariable
+    {
+        Time
     }
 }

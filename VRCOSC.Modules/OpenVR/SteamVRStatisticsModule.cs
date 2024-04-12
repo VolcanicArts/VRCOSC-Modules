@@ -55,6 +55,20 @@ public class SteamVRStatisticsModule : ChatBoxModule
         }
     }
 
+    protected override void OnPostLoad()
+    {
+        CreateVariable<float>(SteamVRVariable.FPS, "FPS");
+        CreateVariable<bool>(SteamVRVariable.HMDCharging, "HMD Charging");
+        var hmdBatteryReference = CreateVariable<int>(SteamVRVariable.HMDBattery, "HMD Battery (%)")!;
+        CreateVariable<bool>(SteamVRVariable.LeftControllerCharging, "Left Controller Charging");
+        var lcBatteryReference = CreateVariable<int>(SteamVRVariable.LeftControllerBattery, "Left Controller Battery (%)")!;
+        CreateVariable<bool>(SteamVRVariable.RightControllerCharging, "Right Controller Charging");
+        var rcBatteryReference = CreateVariable<int>(SteamVRVariable.RightControllerBattery, "Right Controller Battery (%)")!;
+        var averageTrackerBatteryReference = CreateVariable<int>(SteamVRVariable.AverageTrackerBattery, "Average Tracker Battery (%)")!;
+
+        CreateState(SteamVRState.Default, "Default", "HMD: {0}\nLC: {1}\nRC: {2}\nTrackers: {3}", new[] { hmdBatteryReference, lcBatteryReference, rcBatteryReference, averageTrackerBatteryReference });
+    }
+
     [ModuleUpdate(ModuleUpdateMode.Custom, true, 5000)]
     private void updateVariablesAndParameters()
     {
@@ -65,9 +79,36 @@ public class SteamVRStatisticsModule : ChatBoxModule
             updateLeftController();
             updateRightController();
             updateTrackers();
+
+            var activeTrackers = OVRClient.Trackers.Where(tracker => tracker.IsConnected).ToList();
+
+            var trackerBatteryAverage = 0f;
+
+            if (activeTrackers.Any())
+            {
+                trackerBatteryAverage = activeTrackers.Sum(tracker => tracker.BatteryPercentage) / activeTrackers.Count;
+            }
+
+            SetVariableValue(SteamVRVariable.FPS, OVRClient.System.FPS);
+            SetVariableValue(SteamVRVariable.HMDCharging, OVRClient.HMD.IsCharging);
+            SetVariableValue(SteamVRVariable.HMDBattery, (int)(OVRClient.HMD.BatteryPercentage * 100));
+            SetVariableValue(SteamVRVariable.LeftControllerCharging, OVRClient.LeftController.IsCharging);
+            SetVariableValue(SteamVRVariable.LeftControllerBattery, (int)(OVRClient.LeftController.BatteryPercentage * 100));
+            SetVariableValue(SteamVRVariable.RightControllerCharging, OVRClient.RightController.IsCharging);
+            SetVariableValue(SteamVRVariable.RightControllerBattery, (int)(OVRClient.RightController.BatteryPercentage * 100));
+            SetVariableValue(SteamVRVariable.AverageTrackerBattery, (int)(trackerBatteryAverage * 100));
         }
         else
         {
+            SetVariableValue(SteamVRVariable.FPS, 0f);
+            SetVariableValue(SteamVRVariable.HMDCharging, false);
+            SetVariableValue(SteamVRVariable.HMDBattery, 0);
+            SetVariableValue(SteamVRVariable.LeftControllerCharging, false);
+            SetVariableValue(SteamVRVariable.LeftControllerBattery, 0);
+            SetVariableValue(SteamVRVariable.RightControllerCharging, false);
+            SetVariableValue(SteamVRVariable.RightControllerBattery, 0);
+            SetVariableValue(SteamVRVariable.AverageTrackerBattery, 0);
+
             SendParameter(SteamVRParameter.FPS, 0f);
 
             SendParameter(SteamVRParameter.HMD_Connected, false);
