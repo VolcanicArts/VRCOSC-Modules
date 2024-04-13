@@ -1,0 +1,139 @@
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// See the LICENSE file in the repository root for full license text.
+
+using System.Globalization;
+using VRCOSC.App.SDK.Modules;
+using VRCOSC.App.SDK.Parameters;
+
+namespace VRCOSC.Modules.Datetime;
+
+[ModuleTitle("DateTime")]
+[ModuleDescription("Sends your current date and time to VRChat")]
+[ModuleType(ModuleType.Generic)]
+public sealed class DateTimeModule : ChatBoxModule
+{
+    protected override void OnPreLoad()
+    {
+        CreateToggle(DateTimeSetting.SmoothSecond, "Smooth Second", "If the Second Normalised parameter should be smoothed", true);
+        CreateToggle(DateTimeSetting.SmoothMinute, "Smooth Minute", "If the Minute Normalised parameter should be smoothed", true);
+        CreateToggle(DateTimeSetting.SmoothHour, "Smooth Hour", "If the Hour Normalised parameter should be smoothed", true);
+        CreateToggle(DateTimeSetting.Mode, "12/24 Mode", "Off for 12 hour. On for 24 hour", false);
+
+        RegisterParameter<bool>(DateTimeParameter.Period, "VRCOSC/Time/Period", ParameterMode.Write, "Period", "False for AM. True for PM");
+        RegisterParameter<bool>(DateTimeParameter.Mode, "VRCOSC/Time/Mode", ParameterMode.Write, "Mode", "False for 12 hour. True for 24 hour");
+
+        RegisterParameter<int>(DateTimeParameter.HourValue, "VRCOSC/Time/Hour/Value", ParameterMode.Write, "Hour Value", "The current hour (0-11/23)");
+        RegisterParameter<float>(DateTimeParameter.HourNormalised, "VRCOSC/Time/Hour/Normalised", ParameterMode.Write, "Hour Normalised", "The current hour normalised between 0 and 1");
+        RegisterParameter<int>(DateTimeParameter.MinuteValue, "VRCOSC/Time/Minute/Value", ParameterMode.Write, "Minute Value", "The current minute (0-59)");
+        RegisterParameter<float>(DateTimeParameter.MinuteNormalised, "VRCOSC/Time/Minute/Normalised", ParameterMode.Write, "Minute Normalised", "The current minute normalised between 0 and 1");
+        RegisterParameter<int>(DateTimeParameter.SecondValue, "VRCOSC/Time/Second/Value", ParameterMode.Write, "Second Value", "The current second (0-59)");
+        RegisterParameter<float>(DateTimeParameter.SecondNormalised, "VRCOSC/Time/Second/Normalised", ParameterMode.Write, "Second Normalised", "The current second normalised between 0 and 1");
+
+        RegisterParameter<float>(DateTimeParameter.LegacyHours, "VRCOSC/Clock/Hours", ParameterMode.Write, "Hours", "The current hour normalised between 0 and 1", true);
+        RegisterParameter<float>(DateTimeParameter.LegacyMinutes, "VRCOSC/Clock/Minutes", ParameterMode.Write, "Minutes", "The current minute normalised between 0 and 1", true);
+        RegisterParameter<float>(DateTimeParameter.LegacySeconds, "VRCOSC/Clock/Seconds", ParameterMode.Write, "Seconds", "The current second normalised between 0 and 1", true);
+        RegisterParameter<bool>(DateTimeParameter.LegacyPeriod, "VRCOSC/Clock/Period", ParameterMode.Write, "Period", "False for AM. True for PM", true);
+
+        CreateGroup("Tweaks", DateTimeSetting.Mode);
+        CreateGroup("Smoothing", DateTimeSetting.SmoothHour, DateTimeSetting.SmoothMinute, DateTimeSetting.SmoothSecond);
+    }
+
+    protected override void OnPostLoad()
+    {
+        var timeReference = CreateVariable<DateTimeOffset>(DateTimeVariable.Now, "Now")!;
+
+        CreateState(DateTimeState.Default, "Default", "{0}", new[] { timeReference });
+
+        //CreateEvent(DateTimeEvent.OnYearChange, "On Year Change", "Happy New Year!", null, (float)TimeSpan.FromHours(1).TotalSeconds);
+    }
+
+    protected override Task<bool> OnModuleStart()
+    {
+        ChangeState(DateTimeState.Default);
+
+        return Task.FromResult(true);
+    }
+
+    [ModuleUpdate(ModuleUpdateMode.ChatBox)]
+    private void chatBoxUpdate()
+    {
+        SetVariableValue(DateTimeVariable.Now, DateTimeOffset.UtcNow);
+    }
+
+    [ModuleUpdate(ModuleUpdateMode.Custom, true, 100)]
+    private void updateVariables()
+    {
+        var time = DateTime.Now;
+
+        var hourValue = GetSettingValue<bool>(DateTimeSetting.Mode) ? time.Hour : time.Hour % 12;
+        var minuteValue = GetSettingValue<bool>(DateTimeSetting.Mode) ? time.Minute : time.Minute % 60;
+        var secondValue = GetSettingValue<bool>(DateTimeSetting.Mode) ? time.Second : time.Second % 60;
+
+        var smoothedHours = GetSettingValue<bool>(DateTimeSetting.SmoothHour) ? getSmoothedHour(time) : time.Hour;
+        var smoothedMinutes = GetSettingValue<bool>(DateTimeSetting.SmoothMinute) ? getSmoothedMinute(time) : time.Minute;
+        var smoothedSeconds = GetSettingValue<bool>(DateTimeSetting.SmoothSecond) ? getSmoothedSecond(time) : time.Second;
+
+        var hourNormalised = GetSettingValue<bool>(DateTimeSetting.Mode) ? smoothedHours / 24f : smoothedHours % 12f / 12f;
+        var minuteNormalised = smoothedMinutes / 60f;
+        var secondNormalised = smoothedSeconds / 60f;
+
+        SendParameter(DateTimeParameter.Period, string.Equals(time.ToString("tt", CultureInfo.InvariantCulture), "PM", StringComparison.InvariantCultureIgnoreCase));
+        SendParameter(DateTimeParameter.Mode, GetSettingValue<bool>(DateTimeSetting.Mode));
+
+        SendParameter(DateTimeParameter.HourValue, hourValue);
+        SendParameter(DateTimeParameter.MinuteValue, minuteValue);
+        SendParameter(DateTimeParameter.SecondValue, secondValue);
+
+        SendParameter(DateTimeParameter.HourNormalised, hourNormalised);
+        SendParameter(DateTimeParameter.MinuteNormalised, minuteNormalised);
+        SendParameter(DateTimeParameter.SecondNormalised, secondNormalised);
+
+        SendParameter(DateTimeParameter.LegacyHours, hourNormalised);
+        SendParameter(DateTimeParameter.LegacyMinutes, minuteNormalised);
+        SendParameter(DateTimeParameter.LegacySeconds, secondNormalised);
+        SendParameter(DateTimeParameter.LegacyPeriod, string.Equals(time.ToString("tt", CultureInfo.InvariantCulture), "PM", StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    private static float getSmoothedSecond(DateTime time) => time.Second + time.Millisecond / 1000f;
+    private static float getSmoothedMinute(DateTime time) => time.Minute + getSmoothedSecond(time) / 60f;
+    private static float getSmoothedHour(DateTime time) => time.Hour + getSmoothedMinute(time) / 60f;
+
+    private enum DateTimeParameter
+    {
+        Period,
+        Mode,
+        HourValue,
+        MinuteValue,
+        SecondValue,
+        HourNormalised,
+        MinuteNormalised,
+        SecondNormalised,
+        LegacyHours,
+        LegacyMinutes,
+        LegacySeconds,
+        LegacyPeriod
+    }
+
+    private enum DateTimeSetting
+    {
+        Mode,
+        SmoothSecond,
+        SmoothMinute,
+        SmoothHour
+    }
+
+    private enum DateTimeState
+    {
+        Default
+    }
+
+    private enum DateTimeEvent
+    {
+        OnYearChange
+    }
+
+    private enum DateTimeVariable
+    {
+        Now
+    }
+}
