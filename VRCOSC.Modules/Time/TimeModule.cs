@@ -40,7 +40,7 @@ public sealed class TimeModule : ChatBoxModule
 
     protected override void OnPostLoad()
     {
-        var timeReference = CreateVariable<DateTime>(TimeVariable.Time, "Time")!;
+        var timeReference = CreateVariable<DateTimeOffset>(TimeVariable.Time, "Time")!;
 
         CreateState(TimeState.Default, "Default", "{0}", new[] { timeReference });
     }
@@ -50,6 +50,12 @@ public sealed class TimeModule : ChatBoxModule
         ChangeState(TimeState.Default);
 
         return Task.FromResult(true);
+    }
+
+    [ModuleUpdate(ModuleUpdateMode.ChatBox)]
+    private void chatBoxUpdate()
+    {
+        SetVariableValue(TimeVariable.Time, DateTimeOffset.UtcNow);
     }
 
     [ModuleUpdate(ModuleUpdateMode.Custom, true, 100)]
@@ -84,8 +90,6 @@ public sealed class TimeModule : ChatBoxModule
         SendParameter(TimeParameter.LegacyMinutes, minuteNormalised);
         SendParameter(TimeParameter.LegacySeconds, secondNormalised);
         SendParameter(TimeParameter.LegacyPeriod, string.Equals(time.ToString("tt", CultureInfo.InvariantCulture), "PM", StringComparison.InvariantCultureIgnoreCase));
-
-        SetVariableValue(TimeVariable.Time, time);
     }
 
     private static float getSmoothedSecond(DateTime time) => time.Second + time.Millisecond / 1000f;

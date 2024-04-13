@@ -11,10 +11,10 @@ namespace VRCOSC.Modules.AFKDetection;
 [ModuleTitle("AFK Detection")]
 [ModuleDescription("Tracks if you're AFK in VRChat or SteamVR")]
 [ModuleType(ModuleType.Integrations)]
-public class AFKTrackerModule : ChatBoxModule
+public class AFKDetectionModule : ChatBoxModule
 {
     private bool manualAFK;
-    private DateTime? afkBegan;
+    private DateTimeOffset? afkBegan;
 
     private bool previousAFKState;
 
@@ -25,7 +25,7 @@ public class AFKTrackerModule : ChatBoxModule
         RegisterParameter<bool>(AFKTrackerParameter.ManualAFK, "VRCOSC/AFKTracker/AFK", ParameterMode.Read, "Manual AFK", "Setting this to true will override any AFK detection to allow you to manually set that you're AFK");
 
         var durationReference = CreateVariable<TimeSpan>(AFKTrackerVariable.Duration, "Duration")!;
-        CreateVariable<DateTime>(AFKTrackerVariable.StartTime, "Start Time");
+        CreateVariable<DateTimeOffset>(AFKTrackerVariable.StartTime, "Start Time");
 
         CreateState(AFKTrackerState.NotAFK, "Not AFK");
         CreateState(AFKTrackerState.AFK, "AFK", "AFK for {0}", new[] { durationReference });
@@ -56,8 +56,8 @@ public class AFKTrackerModule : ChatBoxModule
     [ModuleUpdate(ModuleUpdateMode.ChatBox)]
     private void moduleChatBoxUpdate()
     {
-        SetVariableValue(AFKTrackerVariable.Duration, afkBegan is null ? TimeSpan.Zero : DateTime.Now - afkBegan.Value);
-        SetVariableValue(AFKTrackerVariable.StartTime, afkBegan ?? DateTime.UnixEpoch);
+        SetVariableValue(AFKTrackerVariable.Duration, afkBegan is null ? TimeSpan.Zero : DateTimeOffset.UtcNow - afkBegan.Value);
+        SetVariableValue(AFKTrackerVariable.StartTime, afkBegan ?? DateTimeOffset.UnixEpoch);
         ChangeState(afkBegan is null ? AFKTrackerState.NotAFK : AFKTrackerState.AFK);
     }
 
@@ -69,7 +69,7 @@ public class AFKTrackerModule : ChatBoxModule
         if (isUserAFK && !previousAFKState)
         {
             Log("AFK detected");
-            afkBegan = DateTime.Now;
+            afkBegan = DateTimeOffset.UtcNow;
             previousAFKState = true;
         }
 
