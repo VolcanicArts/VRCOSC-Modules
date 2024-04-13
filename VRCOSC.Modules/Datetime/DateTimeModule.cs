@@ -29,6 +29,12 @@ public sealed class DateTimeModule : ChatBoxModule
         RegisterParameter<int>(DateTimeParameter.SecondValue, "VRCOSC/Time/Second/Value", ParameterMode.Write, "Second Value", "The current second (0-59)");
         RegisterParameter<float>(DateTimeParameter.SecondNormalised, "VRCOSC/Time/Second/Normalised", ParameterMode.Write, "Second Normalised", "The current second normalised between 0 and 1");
 
+        RegisterParameter<int>(DateTimeParameter.Day, "VRCOSC/Date/Day", ParameterMode.Write, "Day", "The current day (1-31)");
+        RegisterParameter<int>(DateTimeParameter.Month, "VRCOSC/Date/Month", ParameterMode.Write, "Month", "The current month (1-12)");
+        RegisterParameter<int>(DateTimeParameter.Year, "VRCOSC/Date/Year", ParameterMode.Write, "Year", "The current year (2024 = 24)");
+
+        RegisterParameter<int>(DateTimeParameter.Weekday, "VRCOSC/Date/Weekday", ParameterMode.Write, "Weekday", "The current weekday (1-7 Mon-Sun)");
+
         RegisterParameter<float>(DateTimeParameter.LegacyHours, "VRCOSC/Clock/Hours", ParameterMode.Write, "Hours", "The current hour normalised between 0 and 1", true);
         RegisterParameter<float>(DateTimeParameter.LegacyMinutes, "VRCOSC/Clock/Minutes", ParameterMode.Write, "Minutes", "The current minute normalised between 0 and 1", true);
         RegisterParameter<float>(DateTimeParameter.LegacySeconds, "VRCOSC/Clock/Seconds", ParameterMode.Write, "Seconds", "The current second normalised between 0 and 1", true);
@@ -92,6 +98,12 @@ public sealed class DateTimeModule : ChatBoxModule
         SendParameter(DateTimeParameter.LegacyMinutes, minuteNormalised);
         SendParameter(DateTimeParameter.LegacySeconds, secondNormalised);
         SendParameter(DateTimeParameter.LegacyPeriod, string.Equals(time.ToString("tt", CultureInfo.InvariantCulture), "PM", StringComparison.InvariantCultureIgnoreCase));
+
+        SendParameter(DateTimeParameter.Day, time.Day);
+        SendParameter(DateTimeParameter.Month, time.Month);
+        SendParameter(DateTimeParameter.Year, time.Year % 100);
+
+        SendParameter(DateTimeParameter.Weekday, ((int)time.DayOfWeek + 6) % 7 + 1);
     }
 
     private static float getSmoothedSecond(DateTime time) => time.Second + time.Millisecond / 1000f;
@@ -108,6 +120,10 @@ public sealed class DateTimeModule : ChatBoxModule
         HourNormalised,
         MinuteNormalised,
         SecondNormalised,
+        Day,
+        Month,
+        Year,
+        Weekday,
         LegacyHours,
         LegacyMinutes,
         LegacySeconds,
