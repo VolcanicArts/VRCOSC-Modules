@@ -27,6 +27,8 @@ public class CounterModule : ChatBoxModule
         CreateToggle(CounterSetting.ResetOnAvatarChange, "Reset On Avatar Change", "Should the counter reset on avatar change?", false);
         CreateToggle(CounterSetting.SaveCounters, "Save Counters", "Should the counters be saved between module restarts?", true);
 
+        CreateSlider(CounterSetting.FloatThreshold, "Float Threshold", "What value needs to be crossed for the count to increase?\nFor example, a value of 0.9 will mean each time the float goes from below 0.9 to above 0.9, the count will increase", 0.9f, 0f, 1f, 0.01f);
+
         CreateCustom(CounterSetting.CountInstances, new CountInstanceModuleSetting(new ModuleSettingMetadata("Counts", "The count instances", typeof(CountInstancePage))));
 
         CreateState(CounterState.Default, "Default");
@@ -185,7 +187,7 @@ public class CounterModule : ChatBoxModule
 
                 var newValue = parameter.GetValue<float>();
 
-                if (currentValue < 0.9f && newValue >= 0.9f)
+                if (currentValue < GetSettingValue<float>(CounterSetting.FloatThreshold) && newValue >= GetSettingValue<float>(CounterSetting.FloatThreshold))
                 {
                     updateCounter(countInstance);
                 }
@@ -206,7 +208,8 @@ public class CounterModule : ChatBoxModule
     {
         ResetOnAvatarChange,
         SaveCounters,
-        CountInstances
+        CountInstances,
+        FloatThreshold
     }
 
     private enum CounterState
