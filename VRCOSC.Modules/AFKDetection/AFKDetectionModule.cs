@@ -20,9 +20,9 @@ public class AFKDetectionModule : ChatBoxModule
 
     protected override void OnPreLoad()
     {
-        CreateDropdown(AFKTrackerSetting.Source, "Source", "What source should the AFK tracker track?", AFKTrackerSource.VRChat);
+        CreateDropdown(AFKTrackerSetting.Source, "Source", "What source should be queried for if you're AFK?", AFKTrackerSource.VRChat);
 
-        RegisterParameter<bool>(AFKTrackerParameter.ManualAFK, "VRCOSC/AFKTracker/AFK", ParameterMode.Read, "Manual AFK", "Setting this to true will override any AFK detection to allow you to manually set that you're AFK");
+        RegisterParameter<bool>(AFKTrackerParameter.ManualAFK, "VRCOSC/AFKDetection/AFK", ParameterMode.Read, "Manual AFK", "Setting this to true will override the AKF source to allow you to manually set that you're AFK");
 
         var durationReference = CreateVariable<TimeSpan>(AFKTrackerVariable.Duration, "Duration")!;
         CreateVariable<DateTimeOffset>(AFKTrackerVariable.StartTime, "Start Time");
@@ -99,7 +99,7 @@ public class AFKDetectionModule : ChatBoxModule
         }
     }
 
-    private bool isVRChatAFK() => Player.AFK is not null && Player.AFK.Value;
+    private bool isVRChatAFK() => VRChatClient.Player.AFK is not null && VRChatClient.Player.AFK.Value;
     private bool isSteamVRAFK() => !OVRClient.System.IsUserPresent();
 
     private enum AFKTrackerSetting
