@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.ObjectModel;
@@ -16,6 +16,7 @@ public class CountInstanceModuleSetting : ModuleSetting
     public CountInstanceModuleSetting(ModuleSettingMetadata metadata)
         : base(metadata)
     {
+        Instances.CollectionChanged += (_, _) => RequestSerialisation?.Invoke();
     }
 
     public override void Load()
@@ -51,7 +52,10 @@ public class CountInstanceModuleSetting : ModuleSetting
 
     public CountInstance Create()
     {
-        var instance = new CountInstance();
+        var instance = new CountInstance
+        {
+            Name = { Value = "New Count" }
+        };
 
         instance.Name.Subscribe(_ => RequestSerialisation?.Invoke());
         instance.ParameterNames.CollectionChanged += (_, _) => RequestSerialisation?.Invoke();
@@ -70,7 +74,7 @@ public class CountInstance
     public string ID { get; set; } = Guid.NewGuid().ToString();
 
     [JsonProperty("name")]
-    public Observable<string> Name { get; set; } = new();
+    public Observable<string> Name { get; set; } = new(string.Empty);
 
     [JsonProperty("parameter_names")]
     public ObservableCollection<string> ParameterNames { get; set; } = new();

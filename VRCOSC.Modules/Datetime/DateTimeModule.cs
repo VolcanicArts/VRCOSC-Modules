@@ -41,7 +41,7 @@ public sealed class DateTimeModule : ChatBoxModule
         RegisterParameter<bool>(DateTimeParameter.LegacyPeriod, "VRCOSC/Clock/Period", ParameterMode.Write, "Period", "False for AM. True for PM", true);
 
         CreateGroup("Tweaks", DateTimeSetting.Mode);
-        CreateGroup("Smoothing", DateTimeSetting.SmoothHour, DateTimeSetting.SmoothMinute, DateTimeSetting.SmoothSecond);
+        CreateGroup("Smoothing", DateTimeSetting.SmoothSecond, DateTimeSetting.SmoothMinute, DateTimeSetting.SmoothHour);
     }
 
     protected override void OnPostLoad()

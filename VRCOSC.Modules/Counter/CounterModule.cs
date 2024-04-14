@@ -66,11 +66,11 @@ public class CounterModule : ChatBoxModule
 
         CreateEvent($"{countInstance.ID}_countchanged", string.Empty, $"{countInstance.Name.Value} - {{0}} ({{1}})", new[] { valueVariable, valueTodayVariable });
 
-        countInstance.Name.Subscribe(_ =>
+        countInstance.Name.Subscribe(newName =>
         {
-            GetEvent($"{countInstance.ID}_countchanged")!.DisplayName.Value = $"On '{countInstance.Name.Value}' Changed";
-            GetVariable($"{countInstance.ID}_value")!.DisplayName.Value = $"{countInstance.Name.Value.Pluralise()} Value";
-            GetVariable($"{countInstance.ID}_valuetoday")!.DisplayName.Value = $"{countInstance.Name.Value.Pluralise()} Value Today";
+            GetEvent($"{countInstance.ID}_countchanged")!.DisplayName.Value = $"On '{newName}' Changed";
+            GetVariable($"{countInstance.ID}_value")!.DisplayName.Value = $"{newName.Pluralise()} Value";
+            GetVariable($"{countInstance.ID}_valuetoday")!.DisplayName.Value = $"{newName.Pluralise()} Value Today";
         }, true);
     }
 
