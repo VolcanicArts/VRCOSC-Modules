@@ -29,9 +29,11 @@ public class CounterModule : ChatBoxModule
 
         CreateSlider(CounterSetting.FloatThreshold, "Float Threshold", "What value needs to be crossed for the count to increase?\nFor example, a value of 0.9 will mean each time the float goes from below 0.9 to above 0.9, the count will increase", 0.9f, 0f, 1f, 0.01f);
 
-        CreateCustom(CounterSetting.CountInstances, new CountInstanceModuleSetting(new ModuleSettingMetadata("Counts", "The count instances", typeof(CountInstancePage))));
+        CreateCustom(CounterSetting.CountInstances, new CountInstanceModuleSetting(new ModuleSettingMetadata("Counts", "The count instances", typeof(CountInstanceModuleSettingPage))));
 
         CreateState(CounterState.Default, "Default");
+
+        CreateGroup("Counters", CounterSetting.CountInstances);
     }
 
     protected override void OnPostLoad()

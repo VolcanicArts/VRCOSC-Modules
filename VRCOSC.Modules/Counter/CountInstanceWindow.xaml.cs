@@ -3,9 +3,9 @@
 
 namespace VRCOSC.Modules.Counter;
 
-public partial class CountInstancePage
+public partial class CountInstanceWindow
 {
-    public CountInstancePage(CountInstanceModuleSetting moduleSetting)
+    public CountInstanceWindow(CountInstanceModuleSetting moduleSetting)
     {
         InitializeComponent();
 

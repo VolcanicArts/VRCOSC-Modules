@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.ObjectModel;
@@ -9,6 +9,7 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.Modules.Counter;
 
+// TODO: Can I change this to ListModuleSetting?
 public class CountInstanceModuleSetting : ModuleSetting
 {
     #region Required
@@ -48,7 +49,7 @@ public class CountInstanceModuleSetting : ModuleSetting
 
     #region Custom
 
-    public ObservableCollection<CountInstance> Instances = new();
+    public ObservableCollection<CountInstance> Instances { get; } = new();
 
     public CountInstance Create()
     {
