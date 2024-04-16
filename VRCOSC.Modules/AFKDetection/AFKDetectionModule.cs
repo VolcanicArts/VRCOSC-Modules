@@ -22,7 +22,7 @@ public class AFKDetectionModule : ChatBoxModule
     {
         CreateDropdown(AFKTrackerSetting.Source, "Source", "What source should be queried for if you're AFK?", AFKTrackerSource.VRChat);
 
-        RegisterParameter<bool>(AFKTrackerParameter.ManualAFK, "VRCOSC/AFKDetection/AFK", ParameterMode.Read, "Manual AFK", "Setting this to true will override the AKF source to allow you to manually set that you're AFK");
+        RegisterParameter<bool>(AFKTrackerParameter.ManualAFK, "VRCOSC/AFKDetection/AFK", ParameterMode.Read, "Manual AFK", "Setting this to true will override the AFK source to allow you to manually set that you're AFK");
 
         var durationReference = CreateVariable<TimeSpan>(AFKTrackerVariable.Duration, "Duration")!;
         CreateVariable<DateTimeOffset>(AFKTrackerVariable.StartTime, "Start Time");

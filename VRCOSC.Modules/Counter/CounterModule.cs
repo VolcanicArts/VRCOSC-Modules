@@ -27,7 +27,7 @@ public class CounterModule : ChatBoxModule
         CreateToggle(CounterSetting.ResetOnAvatarChange, "Reset On Avatar Change", "Should the counter reset on avatar change?", false);
         CreateToggle(CounterSetting.SaveCounters, "Save Counters", "Should the counters be saved between module restarts?", true);
 
-        CreateSlider(CounterSetting.FloatThreshold, "Float Threshold", "What value needs to be crossed for the count to increase?\nFor example, a value of 0.9 will mean each time the float goes from below 0.9 to above 0.9, the count will increase", 0.9f, 0f, 1f, 0.01f);
+        CreateSlider(CounterSetting.FloatThreshold, "Float Threshold", "For float parameters, what value needs to be crossed for the count to increase?\nFor example, a value of 0.9 will mean each time the float goes from below 0.9 to above 0.9 the count will increase", 0.9f, 0f, 1f, 0.01f);
 
         CreateCustom(CounterSetting.CountInstances, new CountInstanceModuleSetting(new ModuleSettingMetadata("Counts", "The count instances", typeof(CountInstanceModuleSettingPage))));
 
@@ -112,16 +112,6 @@ public class CounterModule : ChatBoxModule
         countsToRemove.ForEach(id => counts.Remove(id));
     }
 
-    [ModuleUpdate(ModuleUpdateMode.ChatBox)]
-    private void chatBoxUpdate()
-    {
-        foreach (var countInstance in GetSettingValue<List<CountInstance>>(CounterSetting.CountInstances)!)
-        {
-            SetVariableValue($"{countInstance.ID}_value", counts[countInstance.ID].Value);
-            SetVariableValue($"{countInstance.ID}_valuetoday", counts[countInstance.ID].ValueToday);
-        }
-    }
-
     protected override void OnAvatarChange()
     {
         if (GetSettingValue<bool>(CounterSetting.ResetOnAvatarChange))
@@ -203,6 +193,10 @@ public class CounterModule : ChatBoxModule
     {
         counts[countInstance.ID].Value++;
         counts[countInstance.ID].ValueToday++;
+
+        SetVariableValue($"{countInstance.ID}_value", counts[countInstance.ID].Value);
+        SetVariableValue($"{countInstance.ID}_valuetoday", counts[countInstance.ID].ValueToday);
+
         TriggerEvent($"{countInstance.ID}_countchanged");
     }
 
