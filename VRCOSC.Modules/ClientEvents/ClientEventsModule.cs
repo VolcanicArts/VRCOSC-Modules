@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using VRCOSC.App.SDK.Handlers;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Parameters;
 
@@ -9,7 +10,7 @@ namespace VRCOSC.Modules.ClientEvents;
 [ModuleTitle("Client Events")]
 [ModuleDescription("Sets parameters when the VRChat client does something")]
 [ModuleType(ModuleType.Generic)]
-public class ClientEventsModule : ChatBoxModule
+public class ClientEventsModule : ChatBoxModule, IVRCClientEventHandler
 {
     protected override void OnPreLoad()
     {
@@ -20,13 +21,13 @@ public class ClientEventsModule : ChatBoxModule
         CreateEvent(ClientEventsEvent.OnWorldEnter, "On World Enter", "Hello!");
     }
 
-    protected override void Client_OnWorldExit()
+    public void OnWorldExit()
     {
         SendParameter(ClientEventsParameter.OnWorldExit, true);
         TriggerEvent(ClientEventsEvent.OnWorldExit);
     }
 
-    protected override async void Client_OnWorldEnter(string worldID)
+    public async void OnWorldEnter(string worldID)
     {
         // delay to sure avatar is loaded in
         await Task.Delay(500);
