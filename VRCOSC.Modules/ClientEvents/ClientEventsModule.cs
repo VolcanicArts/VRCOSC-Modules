@@ -13,9 +13,11 @@ public class ClientEventsModule : ChatBoxModule
 {
     protected override void OnPreLoad()
     {
-        RegisterParameter<bool>(ClientEventsParameter.OnWorldExit, "VRCOSC/ClientEvents/World/Exit", ParameterMode.Write, "On World Exit", "Sends true the moment you exit a world, allowing you to trigger an exit animation");
+        RegisterParameter<bool>(ClientEventsParameter.OnWorldExit, "VRCOSC/ClientEvents/WorldExit", ParameterMode.Write, "On World Exit", "Sends true the moment you exit a world, allowing you to trigger an exit animation");
+        RegisterParameter<bool>(ClientEventsParameter.OnWorldEnter, "VRCOSC/ClientEvents/WorldEnter", ParameterMode.Write, "On World Enter", "Sends true the moment you enter a world, allowing you to trigger an enter animation");
 
         CreateEvent(ClientEventsEvent.OnWorldExit, "On World Exit", "Goodbye!");
+        CreateEvent(ClientEventsEvent.OnWorldEnter, "On World Enter", "Hello!");
     }
 
     protected override void Client_OnWorldExit()
@@ -24,13 +26,23 @@ public class ClientEventsModule : ChatBoxModule
         TriggerEvent(ClientEventsEvent.OnWorldExit);
     }
 
+    protected override async void Client_OnWorldEnter(string worldID)
+    {
+        // delay to sure avatar is loaded in
+        await Task.Delay(500);
+        SendParameter(ClientEventsParameter.OnWorldEnter, true);
+        TriggerEvent(ClientEventsEvent.OnWorldEnter);
+    }
+
     public enum ClientEventsParameter
     {
-        OnWorldExit
+        OnWorldExit,
+        OnWorldEnter
     }
 
     public enum ClientEventsEvent
     {
-        OnWorldExit
+        OnWorldExit,
+        OnWorldEnter
     }
 }
