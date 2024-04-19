@@ -29,7 +29,7 @@ public class CounterModule : ChatBoxModule
 
         CreateSlider(CounterSetting.FloatThreshold, "Float Threshold", "For float parameters, what value needs to be crossed for the count to increase?\nFor example, a value of 0.9 will mean each time the float goes from below 0.9 to above 0.9 the count will increase", 0.9f, 0f, 1f, 0.01f);
 
-        CreateCustom(CounterSetting.CountInstances, new CountInstanceModuleSetting(new ModuleSettingMetadata("Counts", "The count instances", typeof(CountInstanceModuleSettingPage))));
+        CreateCustom(CounterSetting.CountInstances, new CounterInstanceModuleSetting(new ModuleSettingMetadata("Counters", "The counter instances", typeof(CountInstanceModuleSettingPage))));
 
         CreateState(CounterState.Default, "Default");
 
@@ -38,7 +38,7 @@ public class CounterModule : ChatBoxModule
 
     protected override void OnPostLoad()
     {
-        var moduleSetting = GetSetting<CountInstanceModuleSetting>(CounterSetting.CountInstances)!;
+        var moduleSetting = GetSetting<CounterInstanceModuleSetting>(CounterSetting.CountInstances)!;
 
         moduleSetting.Instances.CollectionChanged += countInstancesCollectionChanged;
         countInstancesCollectionChanged(null, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, moduleSetting.Instances));
@@ -48,7 +48,7 @@ public class CounterModule : ChatBoxModule
     {
         if (e.NewItems is not null)
         {
-            foreach (CountInstance newCountInstance in e.NewItems)
+            foreach (CounterInstance newCountInstance in e.NewItems)
             {
                 createDynamicElements(newCountInstance);
             }
@@ -56,33 +56,33 @@ public class CounterModule : ChatBoxModule
 
         if (e.OldItems is not null)
         {
-            foreach (CountInstance oldCountInstance in e.OldItems)
+            foreach (CounterInstance oldCountInstance in e.OldItems)
             {
                 deleteDynamicElements(oldCountInstance);
             }
         }
     }
 
-    private void createDynamicElements(CountInstance countInstance)
+    private void createDynamicElements(CounterInstance counterInstance)
     {
-        var valueVariable = CreateVariable<int>($"{countInstance.ID}_value", string.Empty)!;
-        var valueTodayVariable = CreateVariable<int>($"{countInstance.ID}_valuetoday", string.Empty)!;
+        var valueVariable = CreateVariable<int>($"{counterInstance.ID}_value", string.Empty)!;
+        var valueTodayVariable = CreateVariable<int>($"{counterInstance.ID}_valuetoday", string.Empty)!;
 
-        CreateEvent($"{countInstance.ID}_countchanged", string.Empty, $"{countInstance.Name.Value} - {{0}} ({{1}})", new[] { valueVariable, valueTodayVariable });
+        CreateEvent($"{counterInstance.ID}_countchanged", string.Empty, $"{counterInstance.Name.Value} - {{0}} ({{1}})", new[] { valueVariable, valueTodayVariable });
 
-        countInstance.Name.Subscribe(newName =>
+        counterInstance.Name.Subscribe(newName =>
         {
-            GetEvent($"{countInstance.ID}_countchanged")!.DisplayName.Value = $"On '{newName}' Changed";
-            GetVariable($"{countInstance.ID}_value")!.DisplayName.Value = $"{newName.Pluralise()} Value";
-            GetVariable($"{countInstance.ID}_valuetoday")!.DisplayName.Value = $"{newName.Pluralise()} Value Today";
+            GetEvent($"{counterInstance.ID}_countchanged")!.DisplayName.Value = $"On '{newName}' Changed";
+            GetVariable($"{counterInstance.ID}_value")!.DisplayName.Value = $"{newName.Pluralise()} Value";
+            GetVariable($"{counterInstance.ID}_valuetoday")!.DisplayName.Value = $"{newName.Pluralise()} Value Today";
         }, true);
     }
 
-    private void deleteDynamicElements(CountInstance countInstance)
+    private void deleteDynamicElements(CounterInstance counterInstance)
     {
-        DeleteEvent($"{countInstance.ID}_countchanged");
-        DeleteVariable($"{countInstance.ID}_value");
-        DeleteVariable($"{countInstance.ID}_valuetoday");
+        DeleteEvent($"{counterInstance.ID}_countchanged");
+        DeleteVariable($"{counterInstance.ID}_value");
+        DeleteVariable($"{counterInstance.ID}_valuetoday");
     }
 
     protected override Task<bool> OnModuleStart()
@@ -98,18 +98,9 @@ public class CounterModule : ChatBoxModule
 
     private void auditCounts()
     {
-        var countInstances = GetSettingValue<List<CountInstance>>(CounterSetting.CountInstances)!;
-
-        countInstances.ForEach(countInstance => counts.TryAdd(countInstance.ID, new CountTracker()));
-
-        var countsToRemove = new List<string>();
-
-        counts.ForEach(pair =>
-        {
-            if (countInstances.All(countInstance => countInstance.ID != pair.Key)) countsToRemove.Add(pair.Key);
-        });
-
-        countsToRemove.ForEach(id => counts.Remove(id));
+        var counterInstances = GetSettingValue<List<CounterInstance>>(CounterSetting.CountInstances)!;
+        counterInstances.ForEach(countInstance => counts.TryAdd(countInstance.ID, new CountTracker()));
+        counts.RemoveIf(pair => counterInstances.All(instance => instance.ID != pair.Key));
     }
 
     protected override void OnAvatarChange()
@@ -126,7 +117,7 @@ public class CounterModule : ChatBoxModule
 
     protected override void OnAnyParameterReceived(ReceivedParameter parameter)
     {
-        var countInstances = GetSettingValue<List<CountInstance>>(CounterSetting.CountInstances)!.Where(countInstance => countInstance.ParameterNames.Select(instance => instance.Value).Contains(parameter.Name));
+        var countInstances = GetSettingValue<List<CounterInstance>>(CounterSetting.CountInstances)!.Where(countInstance => countInstance.ParameterNames.Select(instance => instance.Value).Contains(parameter.Name));
 
         countInstances.ForEach(countInstance =>
         {
@@ -189,15 +180,15 @@ public class CounterModule : ChatBoxModule
         });
     }
 
-    private void updateCounter(CountInstance countInstance)
+    private void updateCounter(CounterInstance counterInstance)
     {
-        counts[countInstance.ID].Value++;
-        counts[countInstance.ID].ValueToday++;
+        counts[counterInstance.ID].Value++;
+        counts[counterInstance.ID].ValueToday++;
 
-        SetVariableValue($"{countInstance.ID}_value", counts[countInstance.ID].Value);
-        SetVariableValue($"{countInstance.ID}_valuetoday", counts[countInstance.ID].ValueToday);
+        SetVariableValue($"{counterInstance.ID}_value", counts[counterInstance.ID].Value);
+        SetVariableValue($"{counterInstance.ID}_valuetoday", counts[counterInstance.ID].ValueToday);
 
-        TriggerEvent($"{countInstance.ID}_countchanged");
+        TriggerEvent($"{counterInstance.ID}_countchanged");
     }
 
     private enum CounterSetting

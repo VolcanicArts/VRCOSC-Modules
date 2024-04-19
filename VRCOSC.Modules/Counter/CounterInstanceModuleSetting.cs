@@ -11,11 +11,11 @@ using VRCOSC.App.Utils;
 namespace VRCOSC.Modules.Counter;
 
 // TODO: Can I change this to ListModuleSetting?
-public class CountInstanceModuleSetting : ModuleSetting
+public class CounterInstanceModuleSetting : ModuleSetting
 {
-    public ObservableCollection<CountInstance> Instances { get; } = new();
+    public ObservableCollection<CounterInstance> Instances { get; } = new();
 
-    public CountInstanceModuleSetting(ModuleSettingMetadata metadata)
+    public CounterInstanceModuleSetting(ModuleSettingMetadata metadata)
         : base(metadata)
     {
     }
@@ -35,7 +35,7 @@ public class CountInstanceModuleSetting : ModuleSetting
     {
         if (e.NewItems is not null)
         {
-            foreach (CountInstance newInstance in e.NewItems)
+            foreach (CounterInstance newInstance in e.NewItems)
             {
                 newInstance.Name.Subscribe(_ => RequestSerialisation?.Invoke());
                 newInstance.ParameterNames.CollectionChanged += ParameterNamesOnCollectionChanged;
@@ -68,7 +68,7 @@ public class CountInstanceModuleSetting : ModuleSetting
 
         Instances.Clear();
 
-        foreach (var item in ingestArray.Select(jObject => jObject.ToObject<CountInstance>()))
+        foreach (var item in ingestArray.Select(jObject => jObject.ToObject<CounterInstance>()))
         {
             if (item is null) continue;
 
@@ -82,19 +82,19 @@ public class CountInstanceModuleSetting : ModuleSetting
 }
 
 [JsonObject(MemberSerialization.OptIn)]
-public class CountInstance
+public class CounterInstance
 {
     [JsonProperty("id")]
     public string ID { get; set; } = Guid.NewGuid().ToString();
 
     [JsonProperty("name")]
-    public Observable<string> Name { get; set; } = new("New Count");
+    public Observable<string> Name { get; set; } = new("New Counter");
 
     [JsonProperty("parameter_names")]
     public ObservableCollection<Observable<string>> ParameterNames { get; set; } = new();
 
     [JsonConstructor]
-    public CountInstance()
+    public CounterInstance()
     {
     }
 }
