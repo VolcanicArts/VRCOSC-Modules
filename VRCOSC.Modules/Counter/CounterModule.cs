@@ -126,7 +126,7 @@ public class CounterModule : ChatBoxModule
 
     protected override void OnAnyParameterReceived(ReceivedParameter parameter)
     {
-        var countInstances = GetSettingValue<List<CountInstance>>(CounterSetting.CountInstances)!.Where(countInstance => countInstance.ParameterNames.Contains(parameter.Name));
+        var countInstances = GetSettingValue<List<CountInstance>>(CounterSetting.CountInstances)!.Where(countInstance => countInstance.ParameterNames.Select(instance => instance.Value).Contains(parameter.Name));
 
         countInstances.ForEach(countInstance =>
         {

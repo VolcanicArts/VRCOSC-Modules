@@ -29,7 +29,7 @@ public class ClientEventsModule : ChatBoxModule, IVRCClientEventHandler
 
     public async void OnWorldEnter(string worldID)
     {
-        // delay to sure avatar is loaded in
+        // delay to make sure avatar is loaded in
         await Task.Delay(500);
         SendParameter(ClientEventsParameter.OnWorldEnter, true);
         TriggerEvent(ClientEventsEvent.OnWorldEnter);

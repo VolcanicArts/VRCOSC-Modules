@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using VRCOSC.App.SDK.Modules.Attributes.Settings;
@@ -12,16 +13,50 @@ namespace VRCOSC.Modules.Counter;
 // TODO: Can I change this to ListModuleSetting?
 public class CountInstanceModuleSetting : ModuleSetting
 {
-    #region Required
+    public ObservableCollection<CountInstance> Instances { get; } = new();
 
     public CountInstanceModuleSetting(ModuleSettingMetadata metadata)
         : base(metadata)
     {
-        Instances.CollectionChanged += (_, _) => RequestSerialisation?.Invoke();
     }
 
-    public override void Load()
+    private bool postDeserialise;
+
+    public override void PostDeserialise()
     {
+        Instances.CollectionChanged += InstancesOnCollectionChanged;
+
+        postDeserialise = true;
+        InstancesOnCollectionChanged(null, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, Instances));
+        postDeserialise = false;
+    }
+
+    private void InstancesOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (e.NewItems is not null)
+        {
+            foreach (CountInstance newInstance in e.NewItems)
+            {
+                newInstance.Name.Subscribe(_ => RequestSerialisation?.Invoke());
+                newInstance.ParameterNames.CollectionChanged += ParameterNamesOnCollectionChanged;
+                if (postDeserialise) ParameterNamesOnCollectionChanged(null, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, newInstance.ParameterNames));
+            }
+        }
+
+        RequestSerialisation?.Invoke();
+    }
+
+    private void ParameterNamesOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (e.NewItems is not null)
+        {
+            foreach (Observable<string> newParameterName in e.NewItems)
+            {
+                newParameterName.Subscribe(_ => RequestSerialisation?.Invoke());
+            }
+        }
+
+        RequestSerialisation?.Invoke();
     }
 
     public override void SetDefault() => Instances.Clear();
@@ -44,28 +79,6 @@ public class CountInstanceModuleSetting : ModuleSetting
     }
 
     public override object GetRawValue() => Instances.ToList();
-
-    #endregion
-
-    #region Custom
-
-    public ObservableCollection<CountInstance> Instances { get; } = new();
-
-    public CountInstance Create()
-    {
-        var instance = new CountInstance
-        {
-            Name = { Value = "New Count" }
-        };
-
-        instance.Name.Subscribe(_ => RequestSerialisation?.Invoke());
-        instance.ParameterNames.CollectionChanged += (_, _) => RequestSerialisation?.Invoke();
-
-        Instances.Add(instance);
-        return instance;
-    }
-
-    #endregion
 }
 
 [JsonObject(MemberSerialization.OptIn)]
@@ -75,10 +88,10 @@ public class CountInstance
     public string ID { get; set; } = Guid.NewGuid().ToString();
 
     [JsonProperty("name")]
-    public Observable<string> Name { get; set; } = new(string.Empty);
+    public Observable<string> Name { get; set; } = new("New Count");
 
     [JsonProperty("parameter_names")]
-    public ObservableCollection<string> ParameterNames { get; set; } = new();
+    public ObservableCollection<Observable<string>> ParameterNames { get; set; } = new();
 
     [JsonConstructor]
     public CountInstance()
