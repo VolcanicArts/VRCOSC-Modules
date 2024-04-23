@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.App.SDK.Modules;
@@ -14,7 +14,8 @@ public class SteamVRStatisticsModule : ChatBoxModule
 {
     protected override void OnPreLoad()
     {
-        RegisterParameter<float>(SteamVRParameter.FPS, "VRCOSC/VR/FPS", ParameterMode.Write, "FPS", "Your measured FPS normalised from 0-240 to 0-1");
+        RegisterParameter<int>(SteamVRParameter.FPS, "VRCOSC/VR/FPS/Value", ParameterMode.Write, "FPS", "Your measured FPS");
+        RegisterParameter<float>(SteamVRParameter.FPSNormalised, "VRCOSC/VR/FPS/Normalised", ParameterMode.Write, "FPS", "Your measured FPS normalised from 0-240 to 0-1");
 
         RegisterParameter<bool>(SteamVRParameter.HMD_Connected, "VRCOSC/VR/HMD/Connected", ParameterMode.Write, "HMD Connected", "Whether your headset is connected");
         RegisterParameter<float>(SteamVRParameter.HMD_Battery, "VRCOSC/VR/HMD/Battery", ParameterMode.Write, "HMD Battery", "The battery percentage normalised of your headset");
@@ -81,7 +82,8 @@ public class SteamVRStatisticsModule : ChatBoxModule
     {
         if (OVRClient.HasInitialised)
         {
-            SendParameter(SteamVRParameter.FPS, OVRClient.System.FPS / 240.0f);
+            SendParameter(SteamVRParameter.FPS, (int)MathF.Round(OVRClient.System.FPS));
+            SendParameter(SteamVRParameter.FPSNormalised, OVRClient.System.FPS / 240.0f);
             updateHmd();
             updateLeftController();
             updateRightController();
@@ -247,6 +249,7 @@ public class SteamVRStatisticsModule : ChatBoxModule
     private enum SteamVRParameter
     {
         FPS,
+        FPSNormalised,
         HMD_Connected,
         LC_Connected,
         RC_Connected,
