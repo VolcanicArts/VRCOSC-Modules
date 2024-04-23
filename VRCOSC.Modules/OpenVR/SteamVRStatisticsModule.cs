@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.App.SDK.Modules;
@@ -67,6 +67,13 @@ public class SteamVRStatisticsModule : ChatBoxModule
         var averageTrackerBatteryReference = CreateVariable<int>(SteamVRVariable.AverageTrackerBattery, "Average Tracker Battery (%)")!;
 
         CreateState(SteamVRState.Default, "Default", "HMD: {0}\nLC: {1}\nRC: {2}\nTrackers: {3}", new[] { hmdBatteryReference, lcBatteryReference, rcBatteryReference, averageTrackerBatteryReference });
+    }
+
+    protected override Task<bool> OnModuleStart()
+    {
+        ChangeState(SteamVRState.Default);
+
+        return Task.FromResult(true);
     }
 
     [ModuleUpdate(ModuleUpdateMode.Custom, true, 5000)]
