@@ -6,10 +6,10 @@
       xmlns:ui="clr-namespace:VRCOSC.App.UI;assembly=VRCOSC.App"
       xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
       xmlns:fa5="http://schemas.fontawesome.com/icons/"
-      xmlns:counter="clr-namespace:VRCOSC.Modules.Counter"
       mc:Ignorable="d">
     <Page.Resources>
-        <counter:BackgroundConverter x:Key="BackgroundConverter" />
+        <ui:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
+                                       Colour2="{StaticResource CBackground2}" />
     </Page.Resources>
     <Grid>
         <ui:SpacedStackPanel Orientation="Vertical" Spacing="5">
@@ -116,7 +116,7 @@
                                                                     <Setter.Value>
                                                                         <ControlTemplate>
                                                                             <Border
-                                                                                Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource BackgroundConverter}}"
+                                                                                Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}"
                                                                                 Padding="5">
                                                                                 <Grid>
                                                                                     <Grid.ColumnDefinitions>

@@ -37,7 +37,7 @@ public class PiShockModule : AvatarModule
         CreateSlider(PiShockSetting.MaxIntensity, "Max Intensity", "The maximum value the intensity can be in percent. This is the upper limit of 100% intensity and is local only", 100, 1, 100);
 
         CreateKeyValuePairList(PiShockSetting.Shockers, "Shockers", "Each instance represents a single shocker using a sharecode. The name is used as a readable reference and can be anything you like", new List<MutableKeyValuePair>(), "Name", "Sharecode");
-        CreateTextBoxList(PiShockSetting.Groups, "Groups", "Each instance should contain one or more shocker names separated by a comma. A group can be chosen by setting the Group parameter to the left number", new List<string>());
+        CreateTextBoxList(PiShockSetting.Groups, "Groups", "Each instance should contain one or more shocker names separated by a comma.\nEach group is chosen identified by its position in the list. 0, 1, 2, etc...", new List<string>());
 
         CreateGroup("Credentials", PiShockSetting.Username, PiShockSetting.APIKey);
         CreateGroup("Tweaks", PiShockSetting.Delay, PiShockSetting.MaxDuration, PiShockSetting.MaxIntensity);
