@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.App.SDK.Modules;
@@ -46,6 +46,7 @@ public class MediaModule : ChatBoxModule
     {
         var titleReference = CreateVariable<string>(MediaVariable.Title, "Title")!;
         var artistReference = CreateVariable<string>(MediaVariable.Artist, "Artist")!;
+        CreateVariable<string>(MediaVariable.ArtistTitle, "Artist + Title");
         var currentTimeReference = CreateVariable<TimeSpan>(MediaVariable.Time, "Current Time")!;
         CreateVariable<TimeSpan>(MediaVariable.TimeRemaining, "Time Remaining");
         var durationReference = CreateVariable<TimeSpan>(MediaVariable.Duration, "Duration")!;
@@ -111,6 +112,7 @@ public class MediaModule : ChatBoxModule
     {
         SetVariableValue(MediaVariable.Title, mediaProvider.State.Title);
         SetVariableValue(MediaVariable.Artist, mediaProvider.State.Artist);
+        SetVariableValue(MediaVariable.ArtistTitle, $"{mediaProvider.State.Artist} - {mediaProvider.State.Title}");
         SetVariableValue(MediaVariable.TrackNumber, mediaProvider.State.TrackNumber);
         SetVariableValue(MediaVariable.AlbumTitle, mediaProvider.State.AlbumTitle);
         SetVariableValue(MediaVariable.AlbumArtist, mediaProvider.State.AlbumArtist);
@@ -250,6 +252,7 @@ public class MediaModule : ChatBoxModule
     {
         Title,
         Artist,
+        ArtistTitle,
         Time,
         TimeRemaining,
         Duration,
