@@ -60,7 +60,7 @@ public class MediaModule : ChatBoxModule
 
         CreateState(MediaState.Playing, "Playing", "[{0}/{1}]\n{2} - {3}\n{4}", new[] { currentTimeReference, durationReference, artistReference, titleReference, progressVisualReference });
         CreateState(MediaState.Paused, "Paused", "[Paused]\n{0} - {1}", new[] { artistReference, titleReference });
-        CreateState(MediaState.Unavailable, "Unavailable", "[No Source]");
+        CreateState(MediaState.Stopped, "Stopped", "[No Source]");
 
         CreateEvent(MediaEvent.OnTrackChange, "On Track Change", "Now Playing\n{0} - {1}", new[] { artistReference, titleReference });
         CreateEvent(MediaEvent.OnPlay, "On Play", "[Playing]\n{0} - {1}", new[] { artistReference, titleReference });
@@ -77,7 +77,7 @@ public class MediaModule : ChatBoxModule
             return false;
         }
 
-        ChangeState(mediaProvider.State.IsPlaying ? MediaState.Playing : MediaState.Paused);
+        setState();
 
         return true;
     }
@@ -154,7 +154,11 @@ public class MediaModule : ChatBoxModule
     private void onPlaybackStateChange()
     {
         sendMediaParameters();
+        setState();
+    }
 
+    private void setState()
+    {
         if (mediaProvider.State.IsPaused)
         {
             ChangeState(MediaState.Paused);
@@ -165,6 +169,11 @@ public class MediaModule : ChatBoxModule
         {
             ChangeState(MediaState.Playing);
             TriggerEvent(MediaEvent.OnPlay);
+        }
+
+        if (mediaProvider.State.IsStopped)
+        {
+            ChangeState(MediaState.Stopped);
         }
     }
 
@@ -246,7 +255,7 @@ public class MediaModule : ChatBoxModule
     {
         Playing,
         Paused,
-        Unavailable
+        Stopped
     }
 
     private enum MediaEvent
