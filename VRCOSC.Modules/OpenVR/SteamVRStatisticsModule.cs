@@ -17,6 +17,7 @@ public class SteamVRStatisticsModule : ChatBoxModule
         RegisterParameter<int>(SteamVRParameter.FPS, "VRCOSC/VR/FPS/Value", ParameterMode.Write, "FPS", "Your measured FPS");
         RegisterParameter<float>(SteamVRParameter.FPSNormalised, "VRCOSC/VR/FPS/Normalised", ParameterMode.Write, "FPS", "Your measured FPS normalised from 0-240 to 0-1");
 
+        RegisterParameter<bool>(SteamVRParameter.UserPresent, "VRCOSC/VR/UserPresent", ParameterMode.Write, "User Present", "Whether you are currently wearing your headset");
         RegisterParameter<bool>(SteamVRParameter.DashboardVisible, "VRCOSC/VR/DashboardVisible", ParameterMode.Write, "Dashboard Visible", "Whether the dashboard is currently visible");
 
         RegisterParameter<bool>(SteamVRParameter.HMD_Connected, "VRCOSC/VR/HMD/Connected", ParameterMode.Write, "HMD Connected", "Whether your headset is connected");
@@ -122,6 +123,7 @@ public class SteamVRStatisticsModule : ChatBoxModule
     {
         if (OVRClient.HasInitialised)
         {
+            SendParameter(SteamVRParameter.UserPresent, OVRClient.IsUserPresent());
             SendParameter(SteamVRParameter.DashboardVisible, OVRClient.IsDashboardVisible());
 
             SendParameter(SteamVRParameter.HMD_Connected, OVRClient.HMD.IsConnected);
@@ -185,6 +187,7 @@ public class SteamVRStatisticsModule : ChatBoxModule
         }
         else
         {
+            SendParameter(SteamVRParameter.UserPresent, false);
             SendParameter(SteamVRParameter.DashboardVisible, false);
 
             SendParameter(SteamVRParameter.HMD_Connected, false);
@@ -275,6 +278,7 @@ public class SteamVRStatisticsModule : ChatBoxModule
     {
         FPS,
         FPSNormalised,
+        UserPresent,
         DashboardVisible,
         HMD_Connected,
         LC_Connected,
