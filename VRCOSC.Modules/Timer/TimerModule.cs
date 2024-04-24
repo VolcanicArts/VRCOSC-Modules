@@ -12,7 +12,7 @@ public class TimerModule : ChatBoxModule
 {
     protected override void OnPreLoad()
     {
-        CreateDateTime(TimerSetting.DateTime, "Time", "The date/time to count to.\nWorks with future and past dates/times", DateTime.Today);
+        CreateDateTime(TimerSetting.DateTime, "Date/Time", "The date/time to count to.\nWorks with future and past dates/times", DateTimeOffset.Now);
 
         var dateTimeReference = CreateVariable<TimeSpan>(TimerVariable.TimeSpan, "Time Span")!;
         CreateState(TimerState.Default, "Default", "{0}", new[] { dateTimeReference });
@@ -28,9 +28,8 @@ public class TimerModule : ChatBoxModule
     [ModuleUpdate(ModuleUpdateMode.ChatBox)]
     private void onChatBoxUpdate()
     {
-        var dateTime = GetSettingValue<DateTime>(TimerSetting.DateTime);
-
-        var diff = dateTime - DateTime.Now;
+        var dateTime = GetSettingValue<DateTimeOffset>(TimerSetting.DateTime);
+        var diff = dateTime - DateTimeOffset.Now;
         SetVariableValue(TimerVariable.TimeSpan, diff);
     }
 
