@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.App.SDK.Modules;
@@ -17,7 +17,6 @@ public class MediaModule : ChatBoxModule
     private const char progress_dot = '\u25CF';
     private const char progress_start = '\u2523';
     private const char progress_end = '\u252B';
-    private const int progress_resolution = 10;
 
     private readonly MediaProvider mediaProvider = new WindowsMediaProvider();
     private bool currentlySeeking;
@@ -32,6 +31,8 @@ public class MediaModule : ChatBoxModule
 
     protected override void OnPreLoad()
     {
+        CreateTextBox(MediaSetting.ProgressResolution, "Progress Resolution", "What resolution should the progress visual render at?", 10);
+
         RegisterParameter<bool>(MediaParameter.Play, "VRCOSC/Media/Play", ParameterMode.ReadWrite, "Play/Pause", "True for playing. False for paused");
         RegisterParameter<float>(MediaParameter.Volume, "VRCOSC/Media/Volume", ParameterMode.ReadWrite, "Volume", "The volume of the process that is controlling the media");
         RegisterParameter<int>(MediaParameter.Repeat, "VRCOSC/Media/Repeat", ParameterMode.ReadWrite, "Repeat", "0 - Disabled\n1 - Single\n2 - List");
@@ -126,13 +127,15 @@ public class MediaModule : ChatBoxModule
 
     private string getProgressVisual()
     {
-        var progressPercentage = progress_resolution * mediaProvider.State.Timeline.Progress;
+        var progressResolution = GetSettingValue<int>(MediaSetting.ProgressResolution);
+
+        var progressPercentage = progressResolution * mediaProvider.State.Timeline.Progress;
         var dotPosition = (int)(MathF.Floor(progressPercentage * 10f) / 10f);
 
         var visual = string.Empty;
         visual += progress_start;
 
-        for (var i = 0; i < progress_resolution; i++)
+        for (var i = 0; i < progressResolution; i++)
         {
             visual += i == dotPosition ? progress_dot : progress_line;
         }
@@ -220,6 +223,11 @@ public class MediaModule : ChatBoxModule
                 if (!currentlySeeking) mediaProvider.ChangePlaybackPosition(targetPosition);
                 break;
         }
+    }
+
+    private enum MediaSetting
+    {
+        ProgressResolution
     }
 
     private enum MediaParameter
