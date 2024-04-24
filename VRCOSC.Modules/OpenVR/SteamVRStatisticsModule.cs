@@ -17,6 +17,8 @@ public class SteamVRStatisticsModule : ChatBoxModule
         RegisterParameter<int>(SteamVRParameter.FPS, "VRCOSC/VR/FPS/Value", ParameterMode.Write, "FPS", "Your measured FPS");
         RegisterParameter<float>(SteamVRParameter.FPSNormalised, "VRCOSC/VR/FPS/Normalised", ParameterMode.Write, "FPS", "Your measured FPS normalised from 0-240 to 0-1");
 
+        RegisterParameter<bool>(SteamVRParameter.DashboardVisible, "VRCOSC/VR/DashboardVisible", ParameterMode.Write, "Dashboard Visible", "Whether the dashboard is currently visible");
+
         RegisterParameter<bool>(SteamVRParameter.HMD_Connected, "VRCOSC/VR/HMD/Connected", ParameterMode.Write, "HMD Connected", "Whether your headset is connected");
         RegisterParameter<float>(SteamVRParameter.HMD_Battery, "VRCOSC/VR/HMD/Battery", ParameterMode.Write, "HMD Battery", "The battery percentage normalised of your headset");
         RegisterParameter<bool>(SteamVRParameter.HMD_Charging, "VRCOSC/VR/HMD/Charging", ParameterMode.Write, "HMD Charging", "Weather your headset is charging");
@@ -59,6 +61,7 @@ public class SteamVRStatisticsModule : ChatBoxModule
     protected override void OnPostLoad()
     {
         CreateVariable<float>(SteamVRVariable.FPS, "FPS");
+        CreateVariable<bool>(SteamVRVariable.DashboardVisible, "Dashboard Visible");
         CreateVariable<bool>(SteamVRVariable.HMDCharging, "HMD Charging");
         var hmdBatteryReference = CreateVariable<int>(SteamVRVariable.HMDBattery, "HMD Battery (%)")!;
         CreateVariable<bool>(SteamVRVariable.LeftControllerCharging, "Left Controller Charging");
@@ -91,6 +94,7 @@ public class SteamVRStatisticsModule : ChatBoxModule
             }
 
             SetVariableValue(SteamVRVariable.FPS, OVRClient.System.FPS);
+            SetVariableValue(SteamVRVariable.DashboardVisible, OVRClient.IsDashboardVisible());
             SetVariableValue(SteamVRVariable.HMDCharging, OVRClient.HMD.IsCharging);
             SetVariableValue(SteamVRVariable.HMDBattery, (int)(OVRClient.HMD.BatteryPercentage * 100));
             SetVariableValue(SteamVRVariable.LeftControllerCharging, OVRClient.LeftController.IsCharging);
@@ -102,6 +106,7 @@ public class SteamVRStatisticsModule : ChatBoxModule
         else
         {
             SetVariableValue(SteamVRVariable.FPS, 0f);
+            SetVariableValue(SteamVRVariable.DashboardVisible, false);
             SetVariableValue(SteamVRVariable.HMDCharging, false);
             SetVariableValue(SteamVRVariable.HMDBattery, 0);
             SetVariableValue(SteamVRVariable.LeftControllerCharging, false);
@@ -117,6 +122,8 @@ public class SteamVRStatisticsModule : ChatBoxModule
     {
         if (OVRClient.HasInitialised)
         {
+            SendParameter(SteamVRParameter.DashboardVisible, OVRClient.IsDashboardVisible());
+
             SendParameter(SteamVRParameter.HMD_Connected, OVRClient.HMD.IsConnected);
 
             if (OVRClient.HMD.IsConnected && OVRClient.HMD.ProvidesBatteryStatus)
@@ -178,6 +185,8 @@ public class SteamVRStatisticsModule : ChatBoxModule
         }
         else
         {
+            SendParameter(SteamVRParameter.DashboardVisible, false);
+
             SendParameter(SteamVRParameter.HMD_Connected, false);
             SendParameter(SteamVRParameter.HMD_Battery, 0f);
             SendParameter(SteamVRParameter.HMD_Charging, false);
@@ -266,6 +275,7 @@ public class SteamVRStatisticsModule : ChatBoxModule
     {
         FPS,
         FPSNormalised,
+        DashboardVisible,
         HMD_Connected,
         LC_Connected,
         RC_Connected,
@@ -325,6 +335,7 @@ public class SteamVRStatisticsModule : ChatBoxModule
     private enum SteamVRVariable
     {
         FPS,
+        DashboardVisible,
         HMDBattery,
         LeftControllerBattery,
         RightControllerBattery,

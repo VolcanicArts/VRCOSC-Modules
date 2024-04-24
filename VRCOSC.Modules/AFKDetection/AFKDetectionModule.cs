@@ -100,7 +100,7 @@ public class AFKDetectionModule : ChatBoxModule
     }
 
     private bool isVRChatAFK() => VRChatClient.Player.AFK is not null && VRChatClient.Player.AFK.Value;
-    private bool isSteamVRAFK() => !OVRClient.System.IsUserPresent();
+    private bool isSteamVRAFK() => !OVRClient.IsUserPresent();
 
     private enum AFKTrackerSetting
     {
