@@ -77,20 +77,12 @@ public class SteamVRStatisticsModule : ChatBoxModule
         return Task.FromResult(true);
     }
 
-    [ModuleUpdate(ModuleUpdateMode.Custom, true, 5000)]
-    private void updateVariablesAndParameters()
+    [ModuleUpdate(ModuleUpdateMode.ChatBox)]
+    private void updateVariables()
     {
         if (OVRClient.HasInitialised)
         {
-            SendParameter(SteamVRParameter.FPS, (int)MathF.Round(OVRClient.System.FPS));
-            SendParameter(SteamVRParameter.FPSNormalised, OVRClient.System.FPS / 240.0f);
-            updateHmd();
-            updateLeftController();
-            updateRightController();
-            updateTrackers();
-
             var activeTrackers = OVRClient.Trackers.Where(tracker => tracker.IsConnected).ToList();
-
             var trackerBatteryAverage = 0f;
 
             if (activeTrackers.Any())
@@ -117,9 +109,75 @@ public class SteamVRStatisticsModule : ChatBoxModule
             SetVariableValue(SteamVRVariable.RightControllerCharging, false);
             SetVariableValue(SteamVRVariable.RightControllerBattery, 0);
             SetVariableValue(SteamVRVariable.AverageTrackerBattery, 0);
+        }
+    }
 
-            SendParameter(SteamVRParameter.FPS, 0f);
+    [ModuleUpdate(ModuleUpdateMode.Custom, true, 1000)]
+    private void updateMetadataParameters()
+    {
+        if (OVRClient.HasInitialised)
+        {
+            SendParameter(SteamVRParameter.HMD_Connected, OVRClient.HMD.IsConnected);
 
+            if (OVRClient.HMD.IsConnected && OVRClient.HMD.ProvidesBatteryStatus)
+            {
+                SendParameter(SteamVRParameter.HMD_Battery, OVRClient.HMD.BatteryPercentage);
+                SendParameter(SteamVRParameter.HMD_Charging, OVRClient.HMD.IsCharging);
+            }
+            else
+            {
+                SendParameter(SteamVRParameter.HMD_Battery, 0f);
+                SendParameter(SteamVRParameter.HMD_Charging, false);
+            }
+
+            SendParameter(SteamVRParameter.LC_Connected, OVRClient.LeftController.IsConnected);
+
+            if (OVRClient.LeftController.IsConnected && OVRClient.LeftController.ProvidesBatteryStatus)
+            {
+                SendParameter(SteamVRParameter.LC_Battery, OVRClient.LeftController.BatteryPercentage);
+                SendParameter(SteamVRParameter.LC_Charging, OVRClient.LeftController.IsCharging);
+            }
+            else
+            {
+                SendParameter(SteamVRParameter.LC_Battery, 0f);
+                SendParameter(SteamVRParameter.LC_Charging, false);
+            }
+
+            SendParameter(SteamVRParameter.RC_Connected, OVRClient.RightController.IsConnected);
+
+            if (OVRClient.RightController.IsConnected && OVRClient.RightController.ProvidesBatteryStatus)
+            {
+                SendParameter(SteamVRParameter.RC_Battery, OVRClient.RightController.BatteryPercentage);
+                SendParameter(SteamVRParameter.RC_Charging, OVRClient.RightController.IsCharging);
+            }
+            else
+            {
+                SendParameter(SteamVRParameter.RC_Battery, 0f);
+                SendParameter(SteamVRParameter.RC_Charging, false);
+            }
+
+            var trackers = OVRClient.Trackers.ToList();
+
+            for (int i = 0; i < OVRSystem.MAX_TRACKER_COUNT; i++)
+            {
+                var tracker = trackers[i];
+
+                SendParameter(SteamVRParameter.Tracker1_Connected + i, tracker.IsConnected);
+
+                if (tracker.IsConnected && tracker.ProvidesBatteryStatus)
+                {
+                    SendParameter(SteamVRParameter.Tracker1_Battery + i, tracker.BatteryPercentage);
+                    SendParameter(SteamVRParameter.Tracker1_Charging + i, tracker.IsCharging);
+                }
+                else
+                {
+                    SendParameter(SteamVRParameter.Tracker1_Battery + i, 0f);
+                    SendParameter(SteamVRParameter.Tracker1_Charging + i, false);
+                }
+            }
+        }
+        else
+        {
             SendParameter(SteamVRParameter.HMD_Connected, false);
             SendParameter(SteamVRParameter.HMD_Battery, 0f);
             SendParameter(SteamVRParameter.HMD_Charging, false);
@@ -141,34 +199,22 @@ public class SteamVRStatisticsModule : ChatBoxModule
         }
     }
 
-    private void updateHmd()
+    [ModuleUpdate(ModuleUpdateMode.Custom, true, 1000f / 60f)]
+    private void updateRealtimeParameters()
     {
-        SendParameter(SteamVRParameter.HMD_Connected, OVRClient.HMD.IsConnected);
-
-        if (OVRClient.HMD.IsConnected && OVRClient.HMD.ProvidesBatteryStatus)
+        if (OVRClient.HasInitialised)
         {
-            SendParameter(SteamVRParameter.HMD_Battery, OVRClient.HMD.BatteryPercentage);
-            SendParameter(SteamVRParameter.HMD_Charging, OVRClient.HMD.IsCharging);
+            SendParameter(SteamVRParameter.FPS, (int)MathF.Round(OVRClient.System.FPS));
+            SendParameter(SteamVRParameter.FPSNormalised, OVRClient.System.FPS / 240.0f);
         }
-    }
-
-    private void updateLeftController()
-    {
-        SendParameter(SteamVRParameter.LC_Connected, OVRClient.LeftController.IsConnected);
-
-        if (OVRClient.LeftController.IsConnected)
+        else
         {
-            if (OVRClient.LeftController.ProvidesBatteryStatus)
-            {
-                SendParameter(SteamVRParameter.LC_Battery, OVRClient.LeftController.BatteryPercentage);
-                SendParameter(SteamVRParameter.LC_Charging, OVRClient.LeftController.IsCharging);
-            }
-            else
-            {
-                SendParameter(SteamVRParameter.LC_Battery, 0f);
-                SendParameter(SteamVRParameter.LC_Charging, false);
-            }
+            SendParameter(SteamVRParameter.FPS, 0);
+            SendParameter(SteamVRParameter.FPSNormalised, 0f);
+        }
 
+        if (OVRClient.HasInitialised && OVRClient.LeftController.IsConnected)
+        {
             var input = OVRClient.LeftController.Input;
             SendParameter(SteamVRParameter.LeftATouch, input.A.Touched);
             SendParameter(SteamVRParameter.LeftBTouch, input.B.Touched);
@@ -181,68 +227,38 @@ public class SteamVRStatisticsModule : ChatBoxModule
         }
         else
         {
-            SendParameter(SteamVRParameter.LC_Battery, 0f);
-            SendParameter(SteamVRParameter.LC_Charging, false);
+            SendParameter(SteamVRParameter.LeftATouch, false);
+            SendParameter(SteamVRParameter.LeftBTouch, false);
+            SendParameter(SteamVRParameter.LeftPadTouch, false);
+            SendParameter(SteamVRParameter.LeftStickTouch, false);
+            SendParameter(SteamVRParameter.LeftIndex, 0f);
+            SendParameter(SteamVRParameter.LeftMiddle, 0f);
+            SendParameter(SteamVRParameter.LeftRing, 0f);
+            SendParameter(SteamVRParameter.LeftPinky, 0f);
         }
-    }
 
-    private void updateRightController()
-    {
-        SendParameter(SteamVRParameter.RC_Connected, OVRClient.RightController.IsConnected);
-
-        if (OVRClient.RightController.IsConnected)
+        if (OVRClient.HasInitialised && OVRClient.RightController.IsConnected)
         {
-            if (OVRClient.RightController.ProvidesBatteryStatus)
-            {
-                SendParameter(SteamVRParameter.RC_Battery, OVRClient.RightController.BatteryPercentage);
-                SendParameter(SteamVRParameter.RC_Charging, OVRClient.RightController.IsCharging);
-            }
-            else
-            {
-                SendParameter(SteamVRParameter.RC_Battery, 0f);
-                SendParameter(SteamVRParameter.RC_Charging, false);
-            }
-
-            if (OVRClient.RightController.IsConnected)
-            {
-                var input = OVRClient.RightController.Input;
-                SendParameter(SteamVRParameter.RightATouch, input.A.Touched);
-                SendParameter(SteamVRParameter.RightBTouch, input.B.Touched);
-                SendParameter(SteamVRParameter.RightPadTouch, input.PadTouched);
-                SendParameter(SteamVRParameter.RightStickTouch, input.StickTouched);
-                SendParameter(SteamVRParameter.RightIndex, input.IndexFinger);
-                SendParameter(SteamVRParameter.RightMiddle, input.MiddleFinger);
-                SendParameter(SteamVRParameter.RightRing, input.RingFinger);
-                SendParameter(SteamVRParameter.RightPinky, input.PinkyFinger);
-            }
+            var input = OVRClient.RightController.Input;
+            SendParameter(SteamVRParameter.RightATouch, input.A.Touched);
+            SendParameter(SteamVRParameter.RightBTouch, input.B.Touched);
+            SendParameter(SteamVRParameter.RightPadTouch, input.PadTouched);
+            SendParameter(SteamVRParameter.RightStickTouch, input.StickTouched);
+            SendParameter(SteamVRParameter.RightIndex, input.IndexFinger);
+            SendParameter(SteamVRParameter.RightMiddle, input.MiddleFinger);
+            SendParameter(SteamVRParameter.RightRing, input.RingFinger);
+            SendParameter(SteamVRParameter.RightPinky, input.PinkyFinger);
         }
         else
         {
-            SendParameter(SteamVRParameter.RC_Battery, 0f);
-            SendParameter(SteamVRParameter.RC_Charging, false);
-        }
-    }
-
-    private void updateTrackers()
-    {
-        var trackers = OVRClient.Trackers.ToList();
-
-        for (int i = 0; i < OVRSystem.MAX_TRACKER_COUNT; i++)
-        {
-            var tracker = trackers[i];
-
-            SendParameter(SteamVRParameter.Tracker1_Connected + i, tracker.IsConnected);
-
-            if (tracker.IsConnected && tracker.ProvidesBatteryStatus)
-            {
-                SendParameter(SteamVRParameter.Tracker1_Battery + i, tracker.BatteryPercentage);
-                SendParameter(SteamVRParameter.Tracker1_Charging + i, tracker.IsCharging);
-            }
-            else
-            {
-                SendParameter(SteamVRParameter.Tracker1_Battery + i, 0f);
-                SendParameter(SteamVRParameter.Tracker1_Charging + i, false);
-            }
+            SendParameter(SteamVRParameter.RightATouch, false);
+            SendParameter(SteamVRParameter.RightBTouch, false);
+            SendParameter(SteamVRParameter.RightPadTouch, false);
+            SendParameter(SteamVRParameter.RightStickTouch, false);
+            SendParameter(SteamVRParameter.RightIndex, 0f);
+            SendParameter(SteamVRParameter.RightMiddle, 0f);
+            SendParameter(SteamVRParameter.RightRing, 0f);
+            SendParameter(SteamVRParameter.RightPinky, 0f);
         }
     }
 
