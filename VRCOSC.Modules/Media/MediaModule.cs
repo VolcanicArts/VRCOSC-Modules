@@ -62,7 +62,7 @@ public class MediaModule : ChatBoxModule
         CreateState(MediaState.Paused, "Paused", "[Paused]\n{0} - {1}", new[] { artistReference, titleReference });
         CreateState(MediaState.Stopped, "Stopped", "[No Source]");
 
-        CreateEvent(MediaEvent.OnTrackChange, "On Track Change", "Now Playing\n{0} - {1}", new[] { artistReference, titleReference });
+        CreateEvent(MediaEvent.OnTrackChange, "On Track Change", "Now Playing\n{0} - {1}", new[] { artistReference, titleReference }, true);
         CreateEvent(MediaEvent.OnPlay, "On Play", "[Playing]\n{0} - {1}", new[] { artistReference, titleReference });
         CreateEvent(MediaEvent.OnPause, "On Paused", "[Paused]\n{0} - {1}", new[] { artistReference, titleReference });
     }
