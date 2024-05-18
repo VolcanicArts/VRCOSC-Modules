@@ -156,7 +156,7 @@ public sealed class HardwareStatsModule : ChatBoxModule
         SetVariableValue(HardwareStatsVariable.RAMUsed, ram.Used);
         SetVariableValue(HardwareStatsVariable.RAMFree, ram.Available);
 
-        SetVariableValue(HardwareStatsVariable.VRAMUsage, gpu.MemoryUsage);
+        SetVariableValue(HardwareStatsVariable.VRAMUsage, gpu.MemoryUsage * 100f);
         SetVariableValue(HardwareStatsVariable.VRAMTotal, gpu.MemoryTotal);
         SetVariableValue(HardwareStatsVariable.VRAMUsed, gpu.MemoryUsed);
         SetVariableValue(HardwareStatsVariable.VRAMFree, gpu.MemoryFree);
