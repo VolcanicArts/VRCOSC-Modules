@@ -69,9 +69,15 @@ public class SteamVRStatisticsModule : ChatBoxModule
         var lcBatteryReference = CreateVariable<int>(SteamVRVariable.LeftControllerBattery, "Left Controller Battery (%)")!;
         CreateVariable<bool>(SteamVRVariable.RightControllerCharging, "Right Controller Charging");
         var rcBatteryReference = CreateVariable<int>(SteamVRVariable.RightControllerBattery, "Right Controller Battery (%)")!;
-        var averageTrackerBatteryReference = CreateVariable<int>(SteamVRVariable.AverageTrackerBattery, "Average Tracker Battery (%)")!;
 
-        CreateState(SteamVRState.Default, "Default", "HMD: {0}\nLC: {1}\nRC: {2}\nTrackers: {3}", new[] { hmdBatteryReference, lcBatteryReference, rcBatteryReference, averageTrackerBatteryReference });
+        for (int i = 0; i < OVRSystem.MAX_TRACKER_COUNT; i++)
+        {
+            CreateVariable<int>(SteamVRVariable.Tracker1Battery + i, $"Tracker {i + 1} Battery");
+        }
+
+        var trackerAverageBattery = CreateVariable<int>(SteamVRVariable.TrackerAverageBattery, "Tracker Average Battery")!;
+
+        CreateState(SteamVRState.Default, "Default", "HMD: {0}\nLC: {1}\nRC: {2}\nTrackers: {3}", new[] { hmdBatteryReference, lcBatteryReference, rcBatteryReference, trackerAverageBattery });
     }
 
     protected override Task<bool> OnModuleStart()
@@ -102,7 +108,13 @@ public class SteamVRStatisticsModule : ChatBoxModule
             SetVariableValue(SteamVRVariable.LeftControllerBattery, (int)(OVRClient.LeftController.BatteryPercentage * 100));
             SetVariableValue(SteamVRVariable.RightControllerCharging, OVRClient.RightController.IsCharging);
             SetVariableValue(SteamVRVariable.RightControllerBattery, (int)(OVRClient.RightController.BatteryPercentage * 100));
-            SetVariableValue(SteamVRVariable.AverageTrackerBattery, (int)(trackerBatteryAverage * 100));
+
+            for (int i = 0; i < OVRSystem.MAX_TRACKER_COUNT; i++)
+            {
+                SetVariableValue(SteamVRVariable.Tracker1Battery + i, (int)(OVRClient.Trackers.ElementAt(i).BatteryPercentage * 100));
+            }
+
+            SetVariableValue(SteamVRVariable.TrackerAverageBattery, trackerBatteryAverage);
         }
         else
         {
@@ -114,7 +126,13 @@ public class SteamVRStatisticsModule : ChatBoxModule
             SetVariableValue(SteamVRVariable.LeftControllerBattery, 0);
             SetVariableValue(SteamVRVariable.RightControllerCharging, false);
             SetVariableValue(SteamVRVariable.RightControllerBattery, 0);
-            SetVariableValue(SteamVRVariable.AverageTrackerBattery, 0);
+
+            for (int i = 0; i < OVRSystem.MAX_TRACKER_COUNT; i++)
+            {
+                SetVariableValue(SteamVRVariable.Tracker1Battery + i, 0);
+            }
+
+            SetVariableValue(SteamVRVariable.TrackerAverageBattery, 0);
         }
     }
 
@@ -343,7 +361,15 @@ public class SteamVRStatisticsModule : ChatBoxModule
         HMDBattery,
         LeftControllerBattery,
         RightControllerBattery,
-        AverageTrackerBattery,
+        Tracker1Battery,
+        Tracker2Battery,
+        Tracker3Battery,
+        Tracker4Battery,
+        Tracker5Battery,
+        Tracker6Battery,
+        Tracker7Battery,
+        Tracker8Battery,
+        TrackerAverageBattery,
         HMDCharging,
         LeftControllerCharging,
         RightControllerCharging
