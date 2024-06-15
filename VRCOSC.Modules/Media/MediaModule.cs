@@ -18,15 +18,17 @@ public class MediaModule : ChatBoxModule
     private const char progress_start = '\u2523';
     private const char progress_end = '\u252B';
 
-    private readonly MediaProvider mediaProvider = new WindowsMediaProvider();
+    public WindowsMediaProvider MediaProvider { get; } = new();
     private bool currentlySeeking;
     private TimeSpan targetPosition;
 
+    private MediaModuleRuntimePage runtimePage = null!;
+
     public MediaModule()
     {
-        mediaProvider.OnPlaybackStateChange += onPlaybackStateChange;
-        mediaProvider.OnTrackChange += onTrackChange;
-        mediaProvider.OnLog += Log;
+        MediaProvider.OnPlaybackStateChange += onPlaybackStateChange;
+        MediaProvider.OnTrackChange += onTrackChange;
+        MediaProvider.OnLog += Log;
     }
 
     protected override void OnPreLoad()
@@ -41,6 +43,8 @@ public class MediaModule : ChatBoxModule
         RegisterParameter<bool>(MediaParameter.Previous, "VRCOSC/Media/Previous", ParameterMode.Read, "Previous", "Becoming true causes the previous track to play");
         RegisterParameter<bool>(MediaParameter.Seeking, "VRCOSC/Media/Seeking", ParameterMode.Read, "Seeking", "Whether the user is currently seeking");
         RegisterParameter<float>(MediaParameter.Position, "VRCOSC/Media/Position", ParameterMode.ReadWrite, "Position", "The position of the song as a percentage");
+
+        SetRuntimePage(runtimePage = new MediaModuleRuntimePage(this));
     }
 
     protected override void OnPostLoad()
@@ -69,7 +73,7 @@ public class MediaModule : ChatBoxModule
 
     protected override async Task<bool> OnModuleStart()
     {
-        var hookResult = await mediaProvider.InitialiseAsync();
+        var hookResult = await MediaProvider.InitialiseAsync();
 
         if (!hookResult)
         {
@@ -84,7 +88,7 @@ public class MediaModule : ChatBoxModule
 
     protected override async Task OnModuleStop()
     {
-        await mediaProvider.TerminateAsync();
+        await MediaProvider.TerminateAsync();
     }
 
     protected override void OnAvatarChange()
@@ -96,40 +100,40 @@ public class MediaModule : ChatBoxModule
     [ModuleUpdate(ModuleUpdateMode.Custom, true, 100)]
     private void fixedUpdate()
     {
-        if (mediaProvider.State.IsPlaying)
+        if (MediaProvider.State.IsPlaying)
         {
             // Hack to allow browsers to have time info
-            mediaProvider.Update(TimeSpan.FromMilliseconds(100));
+            MediaProvider.Update(TimeSpan.FromMilliseconds(100));
         }
 
         if (!currentlySeeking)
         {
-            SendParameter(MediaParameter.Position, mediaProvider.State.Timeline.Progress);
+            SendParameter(MediaParameter.Position, MediaProvider.State.Timeline.Progress);
         }
     }
 
     [ModuleUpdate(ModuleUpdateMode.ChatBox)]
     private void updateVariables()
     {
-        SetVariableValue(MediaVariable.Title, mediaProvider.State.Title);
-        SetVariableValue(MediaVariable.Artist, mediaProvider.State.Artist);
-        SetVariableValue(MediaVariable.ArtistTitle, $"{mediaProvider.State.Artist} - {mediaProvider.State.Title}");
-        SetVariableValue(MediaVariable.TrackNumber, mediaProvider.State.TrackNumber);
-        SetVariableValue(MediaVariable.AlbumTitle, mediaProvider.State.AlbumTitle);
-        SetVariableValue(MediaVariable.AlbumArtist, mediaProvider.State.AlbumArtist);
-        SetVariableValue(MediaVariable.AlbumTrackCount, mediaProvider.State.AlbumTrackCount);
-        SetVariableValue(MediaVariable.Volume, (int)MathF.Round(mediaProvider.TryGetVolume() * 100));
+        SetVariableValue(MediaVariable.Title, MediaProvider.State.Title);
+        SetVariableValue(MediaVariable.Artist, MediaProvider.State.Artist);
+        SetVariableValue(MediaVariable.ArtistTitle, $"{MediaProvider.State.Artist} - {MediaProvider.State.Title}");
+        SetVariableValue(MediaVariable.TrackNumber, MediaProvider.State.TrackNumber);
+        SetVariableValue(MediaVariable.AlbumTitle, MediaProvider.State.AlbumTitle);
+        SetVariableValue(MediaVariable.AlbumArtist, MediaProvider.State.AlbumArtist);
+        SetVariableValue(MediaVariable.AlbumTrackCount, MediaProvider.State.AlbumTrackCount);
+        SetVariableValue(MediaVariable.Volume, (int)MathF.Round(MediaProvider.TryGetVolume() * 100));
         SetVariableValue(MediaVariable.ProgressVisual, getProgressVisual());
-        SetVariableValue(MediaVariable.Time, mediaProvider.State.Timeline.Position);
-        SetVariableValue(MediaVariable.TimeRemaining, mediaProvider.State.Timeline.End - mediaProvider.State.Timeline.Position);
-        SetVariableValue(MediaVariable.Duration, mediaProvider.State.Timeline.End);
+        SetVariableValue(MediaVariable.Time, MediaProvider.State.Timeline.Position);
+        SetVariableValue(MediaVariable.TimeRemaining, MediaProvider.State.Timeline.End - MediaProvider.State.Timeline.Position);
+        SetVariableValue(MediaVariable.Duration, MediaProvider.State.Timeline.End);
     }
 
     private string getProgressVisual()
     {
         var progressResolution = GetSettingValue<int>(MediaSetting.ProgressResolution);
 
-        var progressPercentage = progressResolution * mediaProvider.State.Timeline.Progress;
+        var progressPercentage = progressResolution * MediaProvider.State.Timeline.Progress;
         var dotPosition = (int)(MathF.Floor(progressPercentage * 10f) / 10f);
 
         var visual = string.Empty;
@@ -148,7 +152,7 @@ public class MediaModule : ChatBoxModule
     [ModuleUpdate(ModuleUpdateMode.Custom, true, 1000)]
     private void sendUpdatableParameters()
     {
-        SendParameter(MediaParameter.Volume, mediaProvider.TryGetVolume());
+        SendParameter(MediaParameter.Volume, MediaProvider.TryGetVolume());
     }
 
     private void onPlaybackStateChange()
@@ -159,19 +163,19 @@ public class MediaModule : ChatBoxModule
 
     private void setState()
     {
-        if (mediaProvider.State.IsPaused)
+        if (MediaProvider.State.IsPaused)
         {
             ChangeState(MediaState.Paused);
             TriggerEvent(MediaEvent.OnPause);
         }
 
-        if (mediaProvider.State.IsPlaying)
+        if (MediaProvider.State.IsPlaying)
         {
             ChangeState(MediaState.Playing);
             TriggerEvent(MediaEvent.OnPlay);
         }
 
-        if (mediaProvider.State.IsStopped)
+        if (MediaProvider.State.IsStopped)
         {
             ChangeState(MediaState.Stopped);
         }
@@ -184,9 +188,9 @@ public class MediaModule : ChatBoxModule
 
     private void sendMediaParameters()
     {
-        SendParameter(MediaParameter.Play, mediaProvider.State.IsPlaying);
-        SendParameter(MediaParameter.Shuffle, mediaProvider.State.IsShuffle);
-        SendParameter(MediaParameter.Repeat, (int)mediaProvider.State.RepeatMode);
+        SendParameter(MediaParameter.Play, MediaProvider.State.IsPlaying);
+        SendParameter(MediaParameter.Shuffle, MediaProvider.State.IsShuffle);
+        SendParameter(MediaParameter.Repeat, (int)MediaProvider.State.RepeatMode);
     }
 
     protected override void OnRegisteredParameterReceived(AvatarParameter parameter)
@@ -194,42 +198,42 @@ public class MediaModule : ChatBoxModule
         switch (parameter.Lookup)
         {
             case MediaParameter.Volume:
-                mediaProvider.TryChangeVolume(parameter.GetValue<float>());
+                MediaProvider.TryChangeVolume(parameter.GetValue<float>());
                 break;
 
             case MediaParameter.Position:
                 if (!currentlySeeking) return;
 
-                var position = mediaProvider.State.Timeline;
+                var position = MediaProvider.State.Timeline;
                 targetPosition = (position.End - position.Start) * parameter.GetValue<float>();
                 break;
 
             case MediaParameter.Repeat:
-                mediaProvider.ChangeRepeatMode((MediaRepeatMode)parameter.GetValue<int>());
+                MediaProvider.ChangeRepeatMode((MediaRepeatMode)parameter.GetValue<int>());
                 break;
 
             case MediaParameter.Play:
                 if (parameter.GetValue<bool>())
-                    mediaProvider.Play();
+                    MediaProvider.Play();
                 else
-                    mediaProvider.Pause();
+                    MediaProvider.Pause();
                 break;
 
             case MediaParameter.Shuffle:
-                mediaProvider.ChangeShuffle(parameter.GetValue<bool>());
+                MediaProvider.ChangeShuffle(parameter.GetValue<bool>());
                 break;
 
             case MediaParameter.Next when parameter.GetValue<bool>():
-                mediaProvider.SkipNext();
+                MediaProvider.SkipNext();
                 break;
 
             case MediaParameter.Previous when parameter.GetValue<bool>():
-                mediaProvider.SkipPrevious();
+                MediaProvider.SkipPrevious();
                 break;
 
             case MediaParameter.Seeking:
                 currentlySeeking = parameter.GetValue<bool>();
-                if (!currentlySeeking) mediaProvider.ChangePlaybackPosition(targetPosition);
+                if (!currentlySeeking) MediaProvider.ChangePlaybackPosition(targetPosition);
                 break;
         }
     }
