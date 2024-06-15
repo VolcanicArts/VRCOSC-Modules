@@ -6,14 +6,15 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <LangVersion>11</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="VolcanicArts.VRCOSC.SDK" Version="2024.615.0" />
+        <PackageReference Include="VolcanicArts.VRCOSC.SDK" Version="2024.615.6" />
     </ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-        <Exec Command="copy /Y &quot;$(TargetDir)$(TargetName).dll&quot; &quot;%25appdata%25\VRCOSC-V2-Dev\packages\local\$(TargetName).dll&quot;" />
+        <Exec Command="copy /Y &quot;$(TargetDir)$(TargetName).dll&quot; &quot;%25appdata%25\VRCOSC-V2-Dev\packages\local\$(TargetName).dll&quot;"/>
     </Target>
 
 </Project>
