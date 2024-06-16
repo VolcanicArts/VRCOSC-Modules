@@ -12,7 +12,7 @@ namespace VRCOSC.Modules.Media;
 public partial class MediaModuleRuntimePage
 {
     public MediaModule Module { get; }
-    public ObservableCollection<GlobalSystemMediaTransportControlsSession> SessionProxy = new();
+    public ObservableCollection<GlobalSystemMediaTransportControlsSession> SessionProxy { get; } = new();
 
     public MediaModuleRuntimePage(MediaModule module)
     {
@@ -47,10 +47,6 @@ public partial class MediaModuleRuntimePage
         var comboBox = (ComboBox)sender;
         var selectedValue = (string)comboBox.SelectedValue;
 
-        Module.MediaProvider.SetAutoSwitch(false);
-
-        var session = Module.MediaProvider.Sessions.FirstOrDefault(session => session.SourceAppUserModelId == selectedValue);
-        if (session is not null)
-            Module.MediaProvider.SetManualSession(session);
+        Module.MediaProvider.SetFocusedSession(selectedValue);
     }
 }

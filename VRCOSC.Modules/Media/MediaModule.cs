@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using Windows.Media;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.Providers.Media;
@@ -26,9 +27,8 @@ public class MediaModule : ChatBoxModule
 
     public MediaModule()
     {
-        MediaProvider.OnPlaybackStateChange += onPlaybackStateChange;
-        MediaProvider.OnTrackChange += onTrackChange;
-        MediaProvider.OnLog += Log;
+        MediaProvider.OnPlaybackStateChanged += onPlaybackStateChanged;
+        MediaProvider.OnTrackChanged += onTrackChanged;
     }
 
     protected override void OnPreLoad()
@@ -100,7 +100,7 @@ public class MediaModule : ChatBoxModule
     [ModuleUpdate(ModuleUpdateMode.Custom, true, 100)]
     private void fixedUpdate()
     {
-        if (MediaProvider.State.IsPlaying)
+        if (MediaProvider.CurrentState.IsPlaying)
         {
             // Hack to allow browsers to have time info
             MediaProvider.Update(TimeSpan.FromMilliseconds(100));
@@ -108,32 +108,32 @@ public class MediaModule : ChatBoxModule
 
         if (!currentlySeeking)
         {
-            SendParameter(MediaParameter.Position, MediaProvider.State.Timeline.Progress);
+            SendParameter(MediaParameter.Position, MediaProvider.CurrentState.Timeline.Progress);
         }
     }
 
     [ModuleUpdate(ModuleUpdateMode.ChatBox)]
     private void updateVariables()
     {
-        SetVariableValue(MediaVariable.Title, MediaProvider.State.Title);
-        SetVariableValue(MediaVariable.Artist, MediaProvider.State.Artist);
-        SetVariableValue(MediaVariable.ArtistTitle, $"{MediaProvider.State.Artist} - {MediaProvider.State.Title}");
-        SetVariableValue(MediaVariable.TrackNumber, MediaProvider.State.TrackNumber);
-        SetVariableValue(MediaVariable.AlbumTitle, MediaProvider.State.AlbumTitle);
-        SetVariableValue(MediaVariable.AlbumArtist, MediaProvider.State.AlbumArtist);
-        SetVariableValue(MediaVariable.AlbumTrackCount, MediaProvider.State.AlbumTrackCount);
+        SetVariableValue(MediaVariable.Title, MediaProvider.CurrentState.Title);
+        SetVariableValue(MediaVariable.Artist, MediaProvider.CurrentState.Artist);
+        SetVariableValue(MediaVariable.ArtistTitle, $"{MediaProvider.CurrentState.Artist} - {MediaProvider.CurrentState.Title}");
+        SetVariableValue(MediaVariable.TrackNumber, MediaProvider.CurrentState.TrackNumber);
+        SetVariableValue(MediaVariable.AlbumTitle, MediaProvider.CurrentState.AlbumTitle);
+        SetVariableValue(MediaVariable.AlbumArtist, MediaProvider.CurrentState.AlbumArtist);
+        SetVariableValue(MediaVariable.AlbumTrackCount, MediaProvider.CurrentState.AlbumTrackCount);
         SetVariableValue(MediaVariable.Volume, (int)MathF.Round(MediaProvider.TryGetVolume() * 100));
         SetVariableValue(MediaVariable.ProgressVisual, getProgressVisual());
-        SetVariableValue(MediaVariable.Time, MediaProvider.State.Timeline.Position);
-        SetVariableValue(MediaVariable.TimeRemaining, MediaProvider.State.Timeline.End - MediaProvider.State.Timeline.Position);
-        SetVariableValue(MediaVariable.Duration, MediaProvider.State.Timeline.End);
+        SetVariableValue(MediaVariable.Time, MediaProvider.CurrentState.Timeline.Position);
+        SetVariableValue(MediaVariable.TimeRemaining, MediaProvider.CurrentState.Timeline.End - MediaProvider.CurrentState.Timeline.Position);
+        SetVariableValue(MediaVariable.Duration, MediaProvider.CurrentState.Timeline.End);
     }
 
     private string getProgressVisual()
     {
         var progressResolution = GetSettingValue<int>(MediaSetting.ProgressResolution);
 
-        var progressPercentage = progressResolution * MediaProvider.State.Timeline.Progress;
+        var progressPercentage = progressResolution * MediaProvider.CurrentState.Timeline.Progress;
         var dotPosition = (int)(MathF.Floor(progressPercentage * 10f) / 10f);
 
         var visual = string.Empty;
@@ -155,7 +155,7 @@ public class MediaModule : ChatBoxModule
         SendParameter(MediaParameter.Volume, MediaProvider.TryGetVolume());
     }
 
-    private void onPlaybackStateChange()
+    private void onPlaybackStateChanged()
     {
         sendMediaParameters();
         setState();
@@ -163,34 +163,34 @@ public class MediaModule : ChatBoxModule
 
     private void setState()
     {
-        if (MediaProvider.State.IsPaused)
+        if (MediaProvider.CurrentState.IsPaused)
         {
             ChangeState(MediaState.Paused);
             TriggerEvent(MediaEvent.OnPause);
         }
 
-        if (MediaProvider.State.IsPlaying)
+        if (MediaProvider.CurrentState.IsPlaying)
         {
             ChangeState(MediaState.Playing);
             TriggerEvent(MediaEvent.OnPlay);
         }
 
-        if (MediaProvider.State.IsStopped)
+        if (MediaProvider.CurrentState.IsStopped)
         {
             ChangeState(MediaState.Stopped);
         }
     }
 
-    private void onTrackChange()
+    private void onTrackChanged()
     {
         TriggerEvent(MediaEvent.OnTrackChange);
     }
 
     private void sendMediaParameters()
     {
-        SendParameter(MediaParameter.Play, MediaProvider.State.IsPlaying);
-        SendParameter(MediaParameter.Shuffle, MediaProvider.State.IsShuffle);
-        SendParameter(MediaParameter.Repeat, (int)MediaProvider.State.RepeatMode);
+        SendParameter(MediaParameter.Play, MediaProvider.CurrentState.IsPlaying);
+        SendParameter(MediaParameter.Shuffle, MediaProvider.CurrentState.IsShuffle);
+        SendParameter(MediaParameter.Repeat, (int)MediaProvider.CurrentState.RepeatMode);
     }
 
     protected override void OnRegisteredParameterReceived(AvatarParameter parameter)
@@ -204,12 +204,12 @@ public class MediaModule : ChatBoxModule
             case MediaParameter.Position:
                 if (!currentlySeeking) return;
 
-                var position = MediaProvider.State.Timeline;
+                var position = MediaProvider.CurrentState.Timeline;
                 targetPosition = (position.End - position.Start) * parameter.GetValue<float>();
                 break;
 
             case MediaParameter.Repeat:
-                MediaProvider.ChangeRepeatMode((MediaRepeatMode)parameter.GetValue<int>());
+                MediaProvider.ChangeRepeatMode((MediaPlaybackAutoRepeatMode)parameter.GetValue<int>());
                 break;
 
             case MediaParameter.Play:
