@@ -92,29 +92,31 @@ public class SteamVRStatisticsModule : ChatBoxModule
     {
         if (OVRClient.HasInitialised)
         {
-            var activeTrackers = OVRClient.Trackers.Where(tracker => tracker.IsConnected).ToList();
-            var trackerBatteryAverage = 0f;
-
-            if (activeTrackers.Any())
-            {
-                trackerBatteryAverage = activeTrackers.Sum(tracker => tracker.BatteryPercentage) / activeTrackers.Count;
-            }
-
             SetVariableValue(SteamVRVariable.FPS, OVRClient.System.FPS);
             SetVariableValue(SteamVRVariable.DashboardVisible, OVRClient.IsDashboardVisible());
             SetVariableValue(SteamVRVariable.HMDCharging, OVRClient.HMD.IsCharging);
-            SetVariableValue(SteamVRVariable.HMDBattery, (int)(OVRClient.HMD.BatteryPercentage * 100));
+            SetVariableValue(SteamVRVariable.HMDBattery, (int)(OVRClient.HMD.BatteryPercentage * 100f));
             SetVariableValue(SteamVRVariable.LeftControllerCharging, OVRClient.LeftController.IsCharging);
-            SetVariableValue(SteamVRVariable.LeftControllerBattery, (int)(OVRClient.LeftController.BatteryPercentage * 100));
+            SetVariableValue(SteamVRVariable.LeftControllerBattery, (int)(OVRClient.LeftController.BatteryPercentage * 100f));
             SetVariableValue(SteamVRVariable.RightControllerCharging, OVRClient.RightController.IsCharging);
-            SetVariableValue(SteamVRVariable.RightControllerBattery, (int)(OVRClient.RightController.BatteryPercentage * 100));
+            SetVariableValue(SteamVRVariable.RightControllerBattery, (int)(OVRClient.RightController.BatteryPercentage * 100f));
 
             for (int i = 0; i < OVRSystem.MAX_TRACKER_COUNT; i++)
             {
-                SetVariableValue(SteamVRVariable.Tracker1Battery + i, (int)(OVRClient.Trackers.ElementAt(i).BatteryPercentage * 100));
+                SetVariableValue(SteamVRVariable.Tracker1Battery + i, (int)(OVRClient.Trackers.ElementAt(i).BatteryPercentage * 100f));
             }
 
-            SetVariableValue(SteamVRVariable.TrackerAverageBattery, trackerBatteryAverage);
+            var activeTrackers = OVRClient.Trackers.Where(tracker => tracker.IsConnected).ToList();
+
+            if (activeTrackers.Any())
+            {
+                var trackerAverageBattery = activeTrackers.Sum(tracker => tracker.BatteryPercentage) / activeTrackers.Count;
+                SetVariableValue(SteamVRVariable.TrackerAverageBattery, (int)(trackerAverageBattery * 100f));
+            }
+            else
+            {
+                SetVariableValue(SteamVRVariable.TrackerAverageBattery, 0);
+            }
         }
         else
         {
