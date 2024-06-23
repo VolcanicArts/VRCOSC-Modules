@@ -50,6 +50,8 @@ public class MediaModule : ChatBoxModule
     protected override void OnPostLoad()
     {
         var titleReference = CreateVariable<string>(MediaVariable.Title, "Title")!;
+        CreateVariable<string>(MediaVariable.Subtitle, "Subtitle");
+        CreateVariable<string>(MediaVariable.Genres, "Genres");
         var artistReference = CreateVariable<string>(MediaVariable.Artist, "Artist")!;
         CreateVariable<string>(MediaVariable.ArtistTitle, "Artist + Title");
         var currentTimeReference = CreateVariable<TimeSpan>(MediaVariable.Time, "Current Time")!;
@@ -116,6 +118,8 @@ public class MediaModule : ChatBoxModule
     private void updateVariables()
     {
         SetVariableValue(MediaVariable.Title, MediaProvider.CurrentState.Title);
+        SetVariableValue(MediaVariable.Subtitle, MediaProvider.CurrentState.Subtitle);
+        SetVariableValue(MediaVariable.Genres, MediaProvider.CurrentState.Genres.Count != 0 ? string.Join(", ", MediaProvider.CurrentState.Genres) : string.Empty);
         SetVariableValue(MediaVariable.Artist, MediaProvider.CurrentState.Artist);
         SetVariableValue(MediaVariable.ArtistTitle, $"{MediaProvider.CurrentState.Artist} - {MediaProvider.CurrentState.Title}");
         SetVariableValue(MediaVariable.TrackNumber, MediaProvider.CurrentState.TrackNumber);
@@ -282,6 +286,8 @@ public class MediaModule : ChatBoxModule
         AlbumTitle,
         AlbumArtist,
         AlbumTrackCount,
-        ProgressVisual
+        ProgressVisual,
+        Subtitle,
+        Genres
     }
 }
