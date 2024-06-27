@@ -32,7 +32,7 @@ public sealed class PulsoidProvider : WebSocketHeartrateProvider
         try
         {
             var data = JsonConvert.DeserializeObject<PulsoidResponse>(message);
-            if (data is null) throw new InvalidOperationException();
+            if (data is null) return;
 
             OnHeartrateUpdate?.Invoke(data.Data.HeartRate);
         }

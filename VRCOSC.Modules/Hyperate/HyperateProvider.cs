@@ -35,12 +35,7 @@ public sealed class HypeRateProvider : WebSocketHeartrateProvider
         try
         {
             var eventModel = JsonConvert.DeserializeObject<EventModel>(message);
-
-            if (eventModel is null)
-            {
-                Log($"Received an unrecognised message:\n{message}");
-                return;
-            }
+            if (eventModel is null) return;
 
             switch (eventModel.Event)
             {
@@ -49,7 +44,7 @@ public sealed class HypeRateProvider : WebSocketHeartrateProvider
                     break;
             }
         }
-        catch (JsonReaderException)
+        catch (Exception)
         {
             Log("Error receiving heartrate result");
         }
