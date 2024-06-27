@@ -88,9 +88,10 @@ public class MediaModule : ChatBoxModule
         return true;
     }
 
-    protected override async Task OnModuleStop()
+    protected override Task OnModuleStop()
     {
-        await MediaProvider.TerminateAsync();
+        MediaProvider.Terminate();
+        return Task.CompletedTask;
     }
 
     protected override void OnAvatarChange()

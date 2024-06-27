@@ -4,7 +4,6 @@
 using System.Collections.ObjectModel;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Windows.Media.Control;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.Modules.Media;
@@ -12,7 +11,7 @@ namespace VRCOSC.Modules.Media;
 public partial class MediaModuleRuntimePage
 {
     public MediaModule Module { get; }
-    public ObservableCollection<GlobalSystemMediaTransportControlsSession> SessionProxy { get; } = new();
+    public ObservableCollection<string> Sessions { get; } = new();
 
     public MediaModuleRuntimePage(MediaModule module)
     {
@@ -25,15 +24,18 @@ public partial class MediaModuleRuntimePage
         {
             if (e.NewItems is not null)
             {
-                foreach (GlobalSystemMediaTransportControlsSession newSession in e.NewItems)
+                foreach (string newSession in e.NewItems)
                 {
-                    SessionProxy.Add(newSession);
+                    Sessions.Add(newSession);
                 }
             }
 
             if (e.OldItems is not null)
             {
-                SessionProxy.RemoveIf(session => e.OldItems.Contains(session));
+                foreach (string oldSession in e.OldItems)
+                {
+                    Sessions.RemoveIf(session => session == oldSession);
+                }
             }
         });
     }

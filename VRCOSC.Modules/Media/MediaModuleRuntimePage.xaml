@@ -6,6 +6,6 @@
       xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
       mc:Ignorable="d">
     <Grid>
-        <xctk:WatermarkComboBox Watermark="Auto-Switching" Name="SourceSelection" ItemsSource="{Binding SessionProxy}" SelectedValuePath="SourceAppUserModelId" DisplayMemberPath="SourceAppUserModelId" LostMouseCapture="SourceSelection_OnLostMouseCapture" SelectionChanged="SourceSelection_OnSelectionChanged" Background="{StaticResource CBackground3}" FontSize="16" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" Margin="0 5" />
+        <xctk:WatermarkComboBox Watermark="Auto-Switching" Name="SourceSelection" ItemsSource="{Binding Sessions}" LostMouseCapture="SourceSelection_OnLostMouseCapture" SelectionChanged="SourceSelection_OnSelectionChanged" Background="{StaticResource CBackground3}" FontSize="16" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" Margin="0 5" />
     </Grid>
 </Page>
