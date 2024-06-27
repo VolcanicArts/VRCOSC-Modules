@@ -1,8 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Globalization;
-using VRCOSC.App.Audio;
 using VRCOSC.App.SDK.Handlers;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Parameters;
@@ -20,7 +18,6 @@ public class SpeechToTextModule : ChatBoxModule, ISpeechHandler
     protected override void OnPreLoad()
     {
         CreateDropdown(SpeechToTextSetting.ListenCriteria, "Listen Criteria", "When should STT be listening?", SpeechToTextListenCriteria.Anytime);
-        CreateSlider(SpeechToTextSetting.Confidence, "Confidence", "How confident should STT be to put a result in the ChatBox? (%)", 75, 0, 100);
 
         RegisterParameter<bool>(SpeechToTextParameter.Listen, "VRCOSC/SpeechToText/Listen", ParameterMode.ReadWrite, "Listen", "Whether Speech To Text is currently listening");
     }
@@ -29,8 +26,7 @@ public class SpeechToTextModule : ChatBoxModule, ISpeechHandler
     {
         var textVariable = CreateVariable<string>(SpeechToTextVariable.Text, "Text")!;
 
-        CreateEvent(SpeechToTextEvent.PartialResult, "Generating", "{0}", new[] { textVariable }, true);
-        CreateEvent(SpeechToTextEvent.FinalResult, "Generated", "{0}", new[] { textVariable }, false, 20);
+        CreateEvent(SpeechToTextEvent.Result, "Result", "{0}", new[] { textVariable }, true, 10f);
     }
 
     protected override Task<bool> OnModuleStart()
@@ -63,28 +59,12 @@ public class SpeechToTextModule : ChatBoxModule, ISpeechHandler
         }
     }
 
-    public void OnPartialResult(string text)
+    public void OnSpeechResult(string text)
     {
         if (!shouldHandleResult()) return;
 
-        SetVariableValue(SpeechToTextVariable.Text, formatText(text));
-        TriggerEvent(SpeechToTextEvent.PartialResult);
-    }
-
-    public void OnFinalResult(SpeechResult result)
-    {
-        if (!shouldHandleResult()) return;
-        if (result.Confidence < GetSettingValue<int>(SpeechToTextSetting.Confidence) / 100f) return;
-
-        if (result.Success)
-        {
-            SetVariableValue(SpeechToTextVariable.Text, formatText(result.Text));
-            TriggerEvent(SpeechToTextEvent.FinalResult);
-        }
-        else
-        {
-            reset();
-        }
+        SetVariableValue(SpeechToTextVariable.Text, text);
+        TriggerEvent(SpeechToTextEvent.Result);
     }
 
     private bool shouldHandleResult() => listening &&
@@ -99,8 +79,6 @@ public class SpeechToTextModule : ChatBoxModule, ISpeechHandler
         SetVariableValue(SpeechToTextVariable.Text, string.Empty);
     }
 
-    private static string formatText(string text) => text.Length > 1 ? text[..1].ToUpper(CultureInfo.CurrentCulture) + text[1..] : text.ToUpper(CultureInfo.CurrentCulture);
-
     private enum SpeechToTextSetting
     {
         ListenCriteria,
@@ -114,8 +92,7 @@ public class SpeechToTextModule : ChatBoxModule, ISpeechHandler
 
     private enum SpeechToTextEvent
     {
-        PartialResult,
-        FinalResult
+        Result,
     }
 
     private enum SpeechToTextVariable
