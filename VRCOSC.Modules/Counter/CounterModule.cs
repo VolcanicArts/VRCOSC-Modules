@@ -13,10 +13,8 @@ namespace VRCOSC.Modules.Counter;
 [ModuleTitle("Counter")]
 [ModuleDescription("Counts how many times parameters are changed")]
 [ModuleType(ModuleType.Generic)]
-public class CounterModule : ChatBoxModule
+public class CounterModule : Module
 {
-    protected override bool ShouldUsePersistence => GetSettingValue<bool>(CounterSetting.SaveCounters);
-
     [ModulePersistent("counts")]
     private Dictionary<string, CountTracker> counts { get; set; } = new();
 
@@ -25,10 +23,7 @@ public class CounterModule : ChatBoxModule
     protected override void OnPreLoad()
     {
         CreateToggle(CounterSetting.ResetOnAvatarChange, "Reset On Avatar Change", "Should the counter reset on avatar change?", false);
-        CreateToggle(CounterSetting.SaveCounters, "Save Counters", "Should the counters be saved between module restarts?", true);
-
         CreateSlider(CounterSetting.FloatThreshold, "Float Threshold", "For float parameters, what value needs to be crossed for the count to increase?\nFor example, a value of 0.9 will mean each time the float goes from below 0.9 to above 0.9 the count will increase", 0.9f, 0f, 1f, 0.01f);
-
         CreateCustom(CounterSetting.CountInstances, new CounterInstanceModuleSetting(new ModuleSettingMetadata("Counters", "The counter instances", typeof(CountInstanceModuleSettingPage))));
 
         CreateState(CounterState.Default, "Default");

@@ -11,7 +11,7 @@ namespace VRCOSC.Modules.AFKDetection;
 [ModuleTitle("AFK Detection")]
 [ModuleDescription("Tracks if you're AFK in VRChat or SteamVR")]
 [ModuleType(ModuleType.Integrations)]
-public class AFKDetectionModule : ChatBoxModule
+public class AFKDetectionModule : Module
 {
     private bool manualAFK;
     private DateTimeOffset? afkBegan;
@@ -43,12 +43,12 @@ public class AFKDetectionModule : ChatBoxModule
         return Task.FromResult(true);
     }
 
-    protected override void OnRegisteredParameterReceived(AvatarParameter avatarParameter)
+    protected override void OnRegisteredParameterReceived(RegisteredParameter parameter)
     {
-        switch (avatarParameter.Lookup)
+        switch (parameter.Lookup)
         {
             case AFKDetectionParameter.ManualAFK:
-                manualAFK = avatarParameter.GetValue<bool>();
+                manualAFK = parameter.GetValue<bool>();
                 break;
         }
     }

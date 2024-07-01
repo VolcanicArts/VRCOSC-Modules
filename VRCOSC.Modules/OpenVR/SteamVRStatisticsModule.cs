@@ -10,7 +10,7 @@ namespace VRCOSC.Modules.OpenVR;
 [ModuleTitle("SteamVR Stats")]
 [ModuleDescription("Gathers various stats from SteamVR")]
 [ModuleType(ModuleType.Integrations)]
-public class SteamVRStatisticsModule : ChatBoxModule
+public class SteamVRStatisticsModule : Module
 {
     protected override void OnPreLoad()
     {

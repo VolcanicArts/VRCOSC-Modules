@@ -10,7 +10,7 @@ namespace VRCOSC.Modules.SpeechToText;
 [ModuleTitle("Speech To Text")]
 [ModuleDescription("Uses VRCOSC's speech engine for STT to the ChatBox")]
 [ModuleType(ModuleType.Generic)]
-public class SpeechToTextModule : ChatBoxModule, ISpeechHandler
+public class SpeechToTextModule : Module, ISpeechHandler
 {
     private bool listening;
     private bool playerMuted;
@@ -49,7 +49,7 @@ public class SpeechToTextModule : ChatBoxModule, ISpeechHandler
         if (GetSettingValue<SpeechToTextListenCriteria>(SpeechToTextSetting.ListenCriteria) == SpeechToTextListenCriteria.OnlyWhenMuted && !playerMuted) reset();
     }
 
-    protected override void OnRegisteredParameterReceived(AvatarParameter parameter)
+    protected override void OnRegisteredParameterReceived(RegisteredParameter parameter)
     {
         switch (parameter.Lookup)
         {

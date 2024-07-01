@@ -12,7 +12,7 @@ namespace VRCOSC.Modules.Media;
 [ModuleDescription("Integration with Windows Media")]
 [ModuleType(ModuleType.Integrations)]
 [ModulePrefab("VRCOSC-Media", "https://github.com/VolcanicArts/VRCOSC/releases/download/latest/VRCOSC-Media.unitypackage")]
-public class MediaModule : ChatBoxModule
+public class MediaModule : Module
 {
     private const char progress_line = '\u2501';
     private const char progress_dot = '\u25CF';
@@ -198,7 +198,7 @@ public class MediaModule : ChatBoxModule
         SendParameter(MediaParameter.Repeat, (int)MediaProvider.CurrentState.RepeatMode);
     }
 
-    protected override void OnRegisteredParameterReceived(AvatarParameter parameter)
+    protected override void OnRegisteredParameterReceived(RegisteredParameter parameter)
     {
         switch (parameter.Lookup)
         {

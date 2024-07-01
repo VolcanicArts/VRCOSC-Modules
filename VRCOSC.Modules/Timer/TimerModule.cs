@@ -8,7 +8,7 @@ namespace VRCOSC.Modules.Timer;
 [ModuleTitle("Timer")]
 [ModuleDescription("Counts to a specified time to be put in the ChatBox")]
 [ModuleType(ModuleType.Generic)]
-public class TimerModule : ChatBoxModule
+public class TimerModule : Module
 {
     protected override void OnPreLoad()
     {

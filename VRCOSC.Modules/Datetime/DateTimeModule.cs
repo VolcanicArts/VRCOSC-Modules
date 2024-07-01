@@ -10,7 +10,7 @@ namespace VRCOSC.Modules.Datetime;
 [ModuleTitle("DateTime")]
 [ModuleDescription("Sends your current date and time to VRChat")]
 [ModuleType(ModuleType.Generic)]
-public sealed class DateTimeModule : ChatBoxModule
+public sealed class DateTimeModule : Module
 {
     protected override void OnPreLoad()
     {

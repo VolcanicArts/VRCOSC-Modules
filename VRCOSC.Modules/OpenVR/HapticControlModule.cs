@@ -9,7 +9,7 @@ namespace VRCOSC.Modules.OpenVR;
 [ModuleTitle("SteamVR Haptic Control")]
 [ModuleDescription("Lets you trigger haptics for SteamVR controllers")]
 [ModuleType(ModuleType.Integrations)]
-public class HapticControlModule : AvatarModule
+public class HapticControlModule : Module
 {
     private float duration;
     private float frequency;
@@ -35,7 +35,7 @@ public class HapticControlModule : AvatarModule
         return Task.FromResult(true);
     }
 
-    protected override void OnRegisteredParameterReceived(AvatarParameter parameter)
+    protected override void OnRegisteredParameterReceived(RegisteredParameter parameter)
     {
         switch (parameter.Lookup)
         {

@@ -10,7 +10,7 @@ namespace VRCOSC.Modules.OpenVR;
 [ModuleTitle("Index Gesture Extensions")]
 [ModuleDescription("Detect a range of custom gestures from Index controllers")]
 [ModuleType(ModuleType.Integrations)]
-public class GestureExtensionsModule : AvatarModule
+public class GestureExtensionsModule : Module
 {
     protected override void OnPreLoad()
     {

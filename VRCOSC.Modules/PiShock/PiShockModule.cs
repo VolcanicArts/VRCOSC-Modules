@@ -12,7 +12,7 @@ namespace VRCOSC.Modules.PiShock;
 [ModuleDescription("Allows for controlling PiShock shockers")]
 [ModuleType(ModuleType.NSFW)]
 [ModulePrefab("VRCOSC-PiShock", "https://github.com/VolcanicArts/VRCOSC/releases/download/latest/VRCOSC-PiShock.unitypackage")]
-public class PiShockModule : AvatarModule
+public class PiShockModule : Module
 {
     private PiShockProvider? piShockProvider;
 
@@ -159,7 +159,7 @@ public class PiShockModule : AvatarModule
         return null;
     }
 
-    protected override void OnRegisteredParameterReceived(AvatarParameter parameter)
+    protected override void OnRegisteredParameterReceived(RegisteredParameter parameter)
     {
         switch (parameter.Lookup)
         {

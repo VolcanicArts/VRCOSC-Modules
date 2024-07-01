@@ -12,7 +12,7 @@ namespace VRCOSC.Modules.HardwareStats;
 [ModuleTitle("Hardware Stats")]
 [ModuleDescription("Sends hardware stats as avatar parameters and allows for displaying them in the ChatBox")]
 [ModuleType(ModuleType.Generic)]
-public sealed class HardwareStatsModule : ChatBoxModule
+public sealed class HardwareStatsModule : Module
 {
     private HardwareStatsProvider? hardwareStatsProvider;
 

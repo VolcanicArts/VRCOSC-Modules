@@ -10,7 +10,7 @@ namespace VRCOSC.Modules.ProcessManager;
 [ModuleTitle("Process Manager")]
 [ModuleDescription("Allows for starting and stopping processes from avatar parameters")]
 [ModuleType(ModuleType.Integrations)]
-public class ProcessManagerModule : AvatarModule
+public class ProcessManagerModule : Module
 {
     protected override void OnPreLoad()
     {
@@ -18,7 +18,7 @@ public class ProcessManagerModule : AvatarModule
         RegisterParameter<bool>(ProcessManagerParameter.Stop, "VRCOSC/ProcessManager/Stop/*", ParameterMode.Read, "Stop", "Becoming true will stop the process named in the '*' that you set on your avatar\nFor example, on your avatar you put: VRCOSC/ProcessManager/Stop/vrchat");
     }
 
-    protected override void OnRegisteredParameterReceived(AvatarParameter parameter)
+    protected override void OnRegisteredParameterReceived(RegisteredParameter parameter)
     {
         var processName = parameter.WildcardAs<string>(0);
 

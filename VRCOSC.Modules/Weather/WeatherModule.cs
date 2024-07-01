@@ -11,7 +11,7 @@ namespace VRCOSC.Modules.Weather;
 [ModuleTitle("Weather")]
 [ModuleDescription("Retrieves weather information for a specific area")]
 [ModuleType(ModuleType.Generic)]
-public class WeatherModule : ChatBoxModule
+public class WeatherModule : Module
 {
     private WeatherProvider? weatherProvider;
 

@@ -10,7 +10,7 @@ namespace VRCOSC.Modules.ClientEvents;
 [ModuleTitle("Client Events")]
 [ModuleDescription("Sets parameters when the VRChat client does something")]
 [ModuleType(ModuleType.Generic)]
-public class ClientEventsModule : ChatBoxModule, IVRCClientEventHandler
+public class ClientEventsModule : Module, IVRCClientEventHandler
 {
     protected override void OnPreLoad()
     {
