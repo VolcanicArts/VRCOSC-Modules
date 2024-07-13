@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using Windows.Media;
+using VRCOSC.App.ChatBox.Clips.Variables.Instances;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.Providers.Media;
@@ -14,11 +15,6 @@ namespace VRCOSC.Modules.Media;
 [ModulePrefab("VRCOSC-Media", "https://github.com/VolcanicArts/VRCOSC/releases/download/latest/VRCOSC-Media.unitypackage")]
 public class MediaModule : Module
 {
-    private const char progress_line = '\u2501';
-    private const char progress_dot = '\u25CF';
-    private const char progress_start = '\u2523';
-    private const char progress_end = '\u252B';
-
     public WindowsMediaProvider MediaProvider { get; } = new();
     private bool currentlySeeking;
     private TimeSpan targetPosition;
@@ -33,8 +29,6 @@ public class MediaModule : Module
 
     protected override void OnPreLoad()
     {
-        CreateTextBox(MediaSetting.ProgressResolution, "Progress Resolution", "What resolution should the progress visual render at?", 10);
-
         RegisterParameter<bool>(MediaParameter.Play, "VRCOSC/Media/Play", ParameterMode.ReadWrite, "Play/Pause", "True for playing. False for paused");
         RegisterParameter<float>(MediaParameter.Volume, "VRCOSC/Media/Volume", ParameterMode.ReadWrite, "Volume", "The volume of the process that is controlling the media");
         RegisterParameter<int>(MediaParameter.Repeat, "VRCOSC/Media/Repeat", ParameterMode.ReadWrite, "Repeat", "0 - Disabled\n1 - Single\n2 - List");
@@ -62,7 +56,7 @@ public class MediaModule : Module
         CreateVariable<string>(MediaVariable.AlbumTitle, "Album Title");
         CreateVariable<string>(MediaVariable.AlbumArtist, "Album Artist");
         CreateVariable<int>(MediaVariable.AlbumTrackCount, "Album Track Count");
-        var progressVisualReference = CreateVariable<string>(MediaVariable.ProgressVisual, "Progress Visual")!;
+        var progressVisualReference = CreateVariable<float>(MediaVariable.ProgressVisual, "Progress Visual", typeof(ProgressClipVariable))!;
 
         CreateState(MediaState.Playing, "Playing", "[{0}/{1}]\n{2} - {3}\n{4}", new[] { currentTimeReference, durationReference, artistReference, titleReference, progressVisualReference });
         CreateState(MediaState.Paused, "Paused", "[Paused]\n{0} - {1}", new[] { artistReference, titleReference });
@@ -128,30 +122,10 @@ public class MediaModule : Module
         SetVariableValue(MediaVariable.AlbumArtist, MediaProvider.CurrentState.AlbumArtist);
         SetVariableValue(MediaVariable.AlbumTrackCount, MediaProvider.CurrentState.AlbumTrackCount);
         SetVariableValue(MediaVariable.Volume, (int)MathF.Round(MediaProvider.TryGetVolume() * 100));
-        SetVariableValue(MediaVariable.ProgressVisual, getProgressVisual());
+        SetVariableValue(MediaVariable.ProgressVisual, MediaProvider.CurrentState.Timeline.Progress);
         SetVariableValue(MediaVariable.Time, MediaProvider.CurrentState.Timeline.Position);
         SetVariableValue(MediaVariable.TimeRemaining, MediaProvider.CurrentState.Timeline.End - MediaProvider.CurrentState.Timeline.Position);
         SetVariableValue(MediaVariable.Duration, MediaProvider.CurrentState.Timeline.End);
-    }
-
-    private string getProgressVisual()
-    {
-        var progressResolution = GetSettingValue<int>(MediaSetting.ProgressResolution);
-
-        var progressPercentage = progressResolution * MediaProvider.CurrentState.Timeline.Progress;
-        var dotPosition = (int)(MathF.Floor(progressPercentage * 10f) / 10f);
-
-        var visual = string.Empty;
-        visual += progress_start;
-
-        for (var i = 0; i < progressResolution; i++)
-        {
-            visual += i == dotPosition ? progress_dot : progress_line;
-        }
-
-        visual += progress_end;
-
-        return visual;
     }
 
     [ModuleUpdate(ModuleUpdateMode.Custom, true, 1000)]
@@ -241,11 +215,6 @@ public class MediaModule : Module
                 if (!currentlySeeking) MediaProvider.ChangePlaybackPosition(targetPosition);
                 break;
         }
-    }
-
-    private enum MediaSetting
-    {
-        ProgressResolution
     }
 
     private enum MediaParameter
