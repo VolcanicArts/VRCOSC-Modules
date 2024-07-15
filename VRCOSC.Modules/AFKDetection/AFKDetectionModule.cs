@@ -87,11 +87,11 @@ public class AFKDetectionModule : Module
 
         switch (GetSettingValue<AFKDetectionSource>(AFKDetectionSetting.Source))
         {
-            case AFKDetectionSource.SteamVR when !OVRClient.HasInitialised:
+            case AFKDetectionSource.SteamVR when !GetOVRClient().HasInitialised:
             case AFKDetectionSource.VRChat:
                 return isVRChatAFK();
 
-            case AFKDetectionSource.SteamVR when OVRClient.HasInitialised:
+            case AFKDetectionSource.SteamVR when GetOVRClient().HasInitialised:
                 return isSteamVRAFK();
 
             default:
@@ -99,8 +99,8 @@ public class AFKDetectionModule : Module
         }
     }
 
-    private bool isVRChatAFK() => VRChatClient.Player.AFK is not null && VRChatClient.Player.AFK.Value;
-    private bool isSteamVRAFK() => !OVRClient.IsUserPresent();
+    private bool isVRChatAFK() => GetPlayer().AFK is not null && GetPlayer().AFK!.Value;
+    private bool isSteamVRAFK() => !GetOVRClient().IsUserPresent();
 
     private enum AFKDetectionSetting
     {

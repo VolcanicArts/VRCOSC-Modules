@@ -40,7 +40,7 @@ public class SpeechToTextModule : Module, ISpeechHandler
 
     protected override void OnPlayerUpdate()
     {
-        var isPlayerMuted = VRChatClient.Player.IsMuted.GetValueOrDefault();
+        var isPlayerMuted = GetPlayer().IsMuted.GetValueOrDefault();
         if (playerMuted == isPlayerMuted) return;
 
         playerMuted = isPlayerMuted;

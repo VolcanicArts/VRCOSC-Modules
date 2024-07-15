@@ -5,6 +5,7 @@ using System.Diagnostics;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.Providers.Weather;
+using VRCOSC.App.SDK.VRChat;
 
 namespace VRCOSC.Modules.Weather;
 
@@ -47,7 +48,7 @@ public class WeatherModule : Module
         return Task.FromResult(true);
     }
 
-    protected override void OnAvatarChange()
+    protected override void OnAvatarChange(AvatarConfig? avatarConfig)
     {
         updateParameters();
     }

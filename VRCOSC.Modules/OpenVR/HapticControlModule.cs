@@ -74,11 +74,11 @@ public class HapticControlModule : Module
 
     private async void triggerHaptic(bool left, bool right, float? localDuration = null, float? localFrequency = null, float? localAmplitude = null)
     {
-        if (!OVRClient.HasInitialised) return;
+        if (!GetOVRClient().HasInitialised) return;
 
-        if (left) OVRClient.TriggerLeftControllerHaptic(localDuration ?? duration, localFrequency ?? frequency, localAmplitude ?? amplitude);
+        if (left) GetOVRClient().TriggerLeftControllerHaptic(localDuration ?? duration, localFrequency ?? frequency, localAmplitude ?? amplitude);
         await Task.Delay(10);
-        if (right) OVRClient.TriggerRightControllerHaptic(localDuration ?? duration, localFrequency ?? frequency, localAmplitude ?? amplitude);
+        if (right) GetOVRClient().TriggerRightControllerHaptic(localDuration ?? duration, localFrequency ?? frequency, localAmplitude ?? amplitude);
     }
 
     private enum HapticControlParameter

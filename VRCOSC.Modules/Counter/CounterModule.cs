@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Modules.Attributes.Settings;
 using VRCOSC.App.SDK.Parameters;
+using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.Modules.Counter;
@@ -98,7 +99,7 @@ public class CounterModule : Module
         counts.RemoveIf(pair => counterInstances.All(instance => instance.ID != pair.Key));
     }
 
-    protected override void OnAvatarChange()
+    protected override void OnAvatarChange(AvatarConfig? avatarConfig)
     {
         if (GetSettingValue<bool>(CounterSetting.ResetOnAvatarChange))
         {

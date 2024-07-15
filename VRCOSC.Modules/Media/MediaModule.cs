@@ -6,6 +6,7 @@ using VRCOSC.App.ChatBox.Clips.Variables.Instances;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.Providers.Media;
+using VRCOSC.App.SDK.VRChat;
 
 namespace VRCOSC.Modules.Media;
 
@@ -88,7 +89,7 @@ public class MediaModule : Module
         return Task.CompletedTask;
     }
 
-    protected override void OnAvatarChange()
+    protected override void OnAvatarChange(AvatarConfig? avatarConfig)
     {
         sendUpdatableParameters();
         sendMediaParameters();

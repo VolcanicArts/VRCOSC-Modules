@@ -5,6 +5,7 @@ using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Modules.Attributes.Types;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.Providers.PiShock;
+using VRCOSC.App.SDK.VRChat;
 
 namespace VRCOSC.Modules.PiShock;
 
@@ -69,7 +70,7 @@ public class PiShockModule : Module
         return Task.FromResult(true);
     }
 
-    protected override void OnAvatarChange()
+    protected override void OnAvatarChange(AvatarConfig? avatarConfig)
     {
         reset();
     }
