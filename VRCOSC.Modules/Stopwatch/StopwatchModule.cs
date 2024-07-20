@@ -19,15 +19,17 @@ public class StopwatchModule : Module
     protected override void OnPreLoad()
     {
         RegisterParameter<bool>(StopwatchParameter.Start, "VRCOSC/Stopwatch/Start", ParameterMode.Read, "Start", "Starts the stopwatch when this parameter becomes true");
-        RegisterParameter<bool>(StopwatchParameter.Stop, "VRCOSC/Stopwatch/Stop", ParameterMode.Read, "Stop", "Stops the stopwatch when this parameter becomes true");
-        RegisterParameter<bool>(StopwatchParameter.Reset, "VRCOSC/Stopwatch/Reset", ParameterMode.Read, "Reset", "Resets the stopwatch when this parameter becomes true");
+        RegisterParameter<bool>(StopwatchParameter.Pause, "VRCOSC/Stopwatch/Pause", ParameterMode.Read, "Pause", "Pauses the stopwatch when this parameter becomes true");
+        RegisterParameter<bool>(StopwatchParameter.Stop, "VRCOSC/Stopwatch/Stop", ParameterMode.Read, "Stop", "Stops and resets the stopwatch when this parameter becomes true");
     }
 
     protected override void OnPostLoad()
     {
         var currentTimeReference = CreateVariable<TimeSpan>(StopwatchVariable.CurrentTime, "Current Time")!;
 
-        CreateState(StopwatchState.Default, "Default", "{0}", [currentTimeReference]);
+        CreateState(StopwatchState.Started, "Started", "{0}", [currentTimeReference]);
+        CreateState(StopwatchState.Paused, "Paused", "{0}", [currentTimeReference]);
+        CreateState(StopwatchState.Stopped, "Stopped");
     }
 
     protected override Task<bool> OnModuleStart()
@@ -35,7 +37,7 @@ public class StopwatchModule : Module
         currentTime = TimeSpan.Zero;
         shouldAddTime = false;
 
-        ChangeState(StopwatchState.Default);
+        ChangeState(StopwatchState.Stopped);
 
         SetRuntimePage(runtimePage = new StopwatchModuleRuntimePage(this));
 
@@ -62,14 +64,18 @@ public class StopwatchModule : Module
         {
             case StopwatchParameter.Start when parameter.GetValue<bool>():
                 shouldAddTime = true;
+                ChangeState(StopwatchState.Started);
+                break;
+
+            case StopwatchParameter.Pause when parameter.GetValue<bool>():
+                shouldAddTime = false;
+                ChangeState(StopwatchState.Paused);
                 break;
 
             case StopwatchParameter.Stop when parameter.GetValue<bool>():
                 shouldAddTime = false;
-                break;
-
-            case StopwatchParameter.Reset when parameter.GetValue<bool>():
                 currentTime = TimeSpan.Zero;
+                ChangeState(StopwatchState.Stopped);
                 break;
         }
     }
@@ -77,28 +83,34 @@ public class StopwatchModule : Module
     public void StartStopwatch()
     {
         shouldAddTime = true;
+        ChangeState(StopwatchState.Started);
+    }
+
+    public void PauseStopwatch()
+    {
+        shouldAddTime = false;
+        ChangeState(StopwatchState.Paused);
     }
 
     public void StopStopwatch()
     {
         shouldAddTime = false;
-    }
-
-    public void ResetStopwatch()
-    {
         currentTime = TimeSpan.Zero;
+        ChangeState(StopwatchState.Stopped);
     }
 
     private enum StopwatchParameter
     {
         Start,
-        Stop,
-        Reset
+        Pause,
+        Stop
     }
 
     private enum StopwatchState
     {
-        Default
+        Started,
+        Paused,
+        Stopped,
     }
 
     private enum StopwatchVariable

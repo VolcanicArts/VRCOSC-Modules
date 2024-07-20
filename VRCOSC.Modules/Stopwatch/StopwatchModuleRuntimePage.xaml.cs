@@ -23,11 +23,11 @@ public partial class StopwatchModuleRuntimePage
 
     private void Stop_OnClick(object sender, RoutedEventArgs e)
     {
-        module.StopStopwatch();
+        module.PauseStopwatch();
     }
 
     private void Reset_OnClick(object sender, RoutedEventArgs e)
     {
-        module.ResetStopwatch();
+        module.StopStopwatch();
     }
 }
