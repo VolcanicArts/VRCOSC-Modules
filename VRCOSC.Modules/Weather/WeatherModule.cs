@@ -12,6 +12,7 @@ namespace VRCOSC.Modules.Weather;
 [ModuleTitle("Weather")]
 [ModuleDescription("Retrieves weather information for a specific area")]
 [ModuleType(ModuleType.Generic)]
+[ModuleInfo("https://vrcosc.com/docs/V2/Modules/weather")]
 public class WeatherModule : Module
 {
     private WeatherProvider? weatherProvider;
