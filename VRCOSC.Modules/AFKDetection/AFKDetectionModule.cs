@@ -99,7 +99,7 @@ public class AFKDetectionModule : Module
         }
     }
 
-    private bool isVRChatAFK() => GetPlayer().AFK is not null && GetPlayer().AFK!.Value;
+    private bool isVRChatAFK() => GetPlayer().AFK;
     private bool isSteamVRAFK() => !GetOVRClient().IsUserPresent();
 
     private enum AFKDetectionSetting

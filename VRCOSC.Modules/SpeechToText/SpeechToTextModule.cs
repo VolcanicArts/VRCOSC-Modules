@@ -40,7 +40,7 @@ public class SpeechToTextModule : Module, ISpeechHandler
 
     protected override void OnPlayerUpdate()
     {
-        var isPlayerMuted = GetPlayer().IsMuted.GetValueOrDefault();
+        var isPlayerMuted = GetPlayer().IsMuted;
         if (playerMuted == isPlayerMuted) return;
 
         playerMuted = isPlayerMuted;

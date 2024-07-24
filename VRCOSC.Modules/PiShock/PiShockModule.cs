@@ -6,6 +6,7 @@ using VRCOSC.App.SDK.Modules.Attributes.Types;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.Providers.PiShock;
 using VRCOSC.App.SDK.VRChat;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.Modules.PiShock;
 
@@ -143,8 +144,8 @@ public class PiShockModule : Module
     {
         Log($"Executing {mode} on {instance.Key.Value}");
 
-        var convertedDuration = (int)Math.Round(Map(duration, 0, 1, 1, GetSettingValue<int>(PiShockSetting.MaxDuration)));
-        var convertedIntensity = (int)Math.Round(Map(intensity, 0, 1, 1, GetSettingValue<int>(PiShockSetting.MaxIntensity)));
+        var convertedDuration = (int)Math.Round(Interpolation.Map(duration, 0, 1, 1, GetSettingValue<int>(PiShockSetting.MaxDuration)));
+        var convertedIntensity = (int)Math.Round(Interpolation.Map(intensity, 0, 1, 1, GetSettingValue<int>(PiShockSetting.MaxIntensity)));
 
         var response = await piShockProvider!.Execute(GetSettingValue<string>(PiShockSetting.Username)!, GetSettingValue<string>(PiShockSetting.APIKey)!, instance.Value.Value, mode, convertedDuration, convertedIntensity);
         Log(response.Success ? $"{instance.Key.Value} succeeded" : $"{instance.Key.Value} failed - {response.Message}");
