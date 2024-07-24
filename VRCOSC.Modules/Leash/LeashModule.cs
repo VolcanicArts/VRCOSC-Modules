@@ -7,7 +7,7 @@ using VRCOSC.App.SDK.Parameters;
 namespace VRCOSC.Modules.Leash;
 
 [ModuleTitle("Leash")]
-[ModuleDescription("A reimplementation of OSCLeash")]
+[ModuleDescription("Allows for dragging you around using a Physbone")]
 [ModuleType(ModuleType.Generic)]
 public class LeashModule : Module
 {
@@ -19,8 +19,8 @@ public class LeashModule : Module
 
     protected override void OnPreLoad()
     {
-        CreateTextBox(LeashSetting.WalkThreshold, "Walk Threshold", "How far should the Physbone be stretched before you start walking?", 0.15f);
-        CreateTextBox(LeashSetting.RunThreshold, "Run Threshold", "How far should the Physbone be stretched before you start running?", 0.7f);
+        CreateSlider(LeashSetting.WalkThreshold, "Walk Threshold", "How far should the Physbone be stretched before you start walking?", 0.15f, 0.0f, 1.0f, 0.01f);
+        CreateSlider(LeashSetting.RunThreshold, "Run Threshold", "How far should the Physbone be stretched before you start running?", 0.7f, 0.0f, 1.0f, 0.01f);
 
         RegisterParameter<bool>(LeashParameter.PhysboneGrabbed, "VRCOSC/Leash/Physbone_IsGrabbed", ParameterMode.Read, "Physbone Grabbed", "The grabbed parameter of the Physbone. Replace `Physbone` with your Physbone's parameter's name");
         RegisterParameter<float>(LeashParameter.PhysboneStretch, "VRCOSC/Leash/Physbone_Stretch", ParameterMode.Read, "Physbone Stretch", "The stretch parameter of the Physbone. Replace 'Physbone' with your Physbone's parameter's name");
