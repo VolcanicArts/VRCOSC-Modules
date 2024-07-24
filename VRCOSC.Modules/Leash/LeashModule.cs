@@ -22,8 +22,8 @@ public class LeashModule : Module
         CreateSlider(LeashSetting.WalkThreshold, "Walk Threshold", "How far should the Physbone be stretched before you start walking?", 0.15f, 0.0f, 1.0f, 0.01f);
         CreateSlider(LeashSetting.RunThreshold, "Run Threshold", "How far should the Physbone be stretched before you start running?", 0.7f, 0.0f, 1.0f, 0.01f);
 
-        RegisterParameter<bool>(LeashParameter.PhysboneGrabbed, "VRCOSC/Leash/Physbone_IsGrabbed", ParameterMode.Read, "Physbone Grabbed", "The grabbed parameter of the Physbone. Replace `Physbone` with your Physbone's parameter's name");
-        RegisterParameter<float>(LeashParameter.PhysboneStretch, "VRCOSC/Leash/Physbone_Stretch", ParameterMode.Read, "Physbone Stretch", "The stretch parameter of the Physbone. Replace 'Physbone' with your Physbone's parameter's name");
+        RegisterParameter<bool>(LeashParameter.PhysboneGrabbed, "VRCOSC/Leash/Physbone_IsGrabbed", ParameterMode.Read, "Physbone Grabbed", "The grabbed parameter of the Physbone");
+        RegisterParameter<float>(LeashParameter.PhysboneStretch, "VRCOSC/Leash/Physbone_Stretch", ParameterMode.Read, "Physbone Stretch", "The stretch parameter of the Physbone");
         RegisterParameter<float>(LeashParameter.ZPositive, "VRCOSC/Leash/Z+", ParameterMode.Read, "Z Positive", "The Z positive collider's parameter's name");
         RegisterParameter<float>(LeashParameter.ZNegative, "VRCOSC/Leash/Z-", ParameterMode.Read, "Z Negative", "The Z negative collider's parameter's name");
         RegisterParameter<float>(LeashParameter.XPositive, "VRCOSC/Leash/X+", ParameterMode.Read, "X Positive", "The X positive collider's parameter's name");
