@@ -54,7 +54,12 @@ public class LeashModule : Module
         switch (parameter.Lookup)
         {
             case LeashParameter.PhysboneGrabbed:
-                isGrabbed = parameter.GetValue<bool>();
+                var isGrabbedNew = parameter.GetValue<bool>();
+
+                if (isGrabbed && !isGrabbedNew)
+                    executeLeash(0f);
+
+                isGrabbed = isGrabbedNew;
                 break;
 
             case LeashParameter.PhysboneStretch:
@@ -86,7 +91,7 @@ public class LeashModule : Module
     {
         if (!isGrabbed) return;
 
-        if (stretch < GetSettingValue<float>(LeashSetting.WalkThreshold))
+        if (stretch == 0f || stretch < GetSettingValue<float>(LeashSetting.WalkThreshold))
         {
             GetPlayer().MoveVertical(0);
             GetPlayer().MoveHorizontal(0);
