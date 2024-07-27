@@ -13,7 +13,7 @@ namespace VRCOSC.Modules.Media;
 [ModuleTitle("Media")]
 [ModuleDescription("Integration with Windows Media")]
 [ModuleType(ModuleType.Integrations)]
-[ModulePrefab("VRCOSC-Media", "https://github.com/VolcanicArts/VRCOSC/releases/download/latest/VRCOSC-Media.unitypackage")]
+[ModulePrefab("VRCOSC-Media", "https://github.com/VolcanicArts/VRCOSC/releases/download/2024.220.1/VRCOSC-Media-2023.629.0.unitypackage")]
 public class MediaModule : Module
 {
     public WindowsMediaProvider MediaProvider { get; } = new();
