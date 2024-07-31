@@ -86,7 +86,7 @@
                                                     </Grid>
                                                 </Border>
                                                 <!--> Parameters <-->
-                                                <core:HeaderFooterListView ItemsSource="{Binding ParameterNames, Mode=OneWay}" AlternationCount="2">
+                                                <core:HeaderFooterListView ItemsSource="{Binding ParameterNames, Mode=OneWay}" AlternationCount="2" ShouldTruncateHeight="False">
                                                     <core:HeaderFooterListView.Header>
                                                         <Border Grid.Row="0"
                                                                 Background="{StaticResource CBackground1}"
