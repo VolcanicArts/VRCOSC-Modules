@@ -6,11 +6,11 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.Modules.Counter;
 
-public partial class CountInstanceModuleSettingPage
+public partial class CountInstanceModuleSettingView
 {
     private readonly CounterInstanceModuleSetting moduleSetting;
 
-    public CountInstanceModuleSettingPage(CounterInstanceModuleSetting moduleSetting)
+    public CountInstanceModuleSettingView(CounterInstanceModuleSetting moduleSetting)
     {
         this.moduleSetting = moduleSetting;
 

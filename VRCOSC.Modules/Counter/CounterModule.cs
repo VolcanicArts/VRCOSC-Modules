@@ -25,7 +25,7 @@ public class CounterModule : Module
     {
         CreateToggle(CounterSetting.ResetOnAvatarChange, "Reset On Avatar Change", "Should the counter reset on avatar change?", false);
         CreateSlider(CounterSetting.FloatThreshold, "Float Threshold", "For float parameters, what value needs to be crossed for the count to increase?\nFor example, a value of 0.9 will mean each time the float goes from below 0.9 to above 0.9 the count will increase", 0.9f, 0f, 1f, 0.01f);
-        CreateCustom(CounterSetting.CountInstances, new CounterInstanceModuleSetting(new ModuleSettingMetadata("Counters", "The counter instances", typeof(CountInstanceModuleSettingPage))));
+        CreateCustom(CounterSetting.CountInstances, new CounterInstanceModuleSetting(new ModuleSettingMetadata("Counters", "The counter instances", typeof(CountInstanceModuleSettingView))));
 
         CreateState(CounterState.Default, "Default");
 
