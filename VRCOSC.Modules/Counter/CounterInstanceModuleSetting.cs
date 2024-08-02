@@ -15,8 +15,8 @@ public class CounterInstanceModuleSetting : ModuleSetting
 {
     public ObservableCollection<CounterInstance> Instances { get; } = new();
 
-    public CounterInstanceModuleSetting(ModuleSettingMetadata metadata)
-        : base(metadata)
+    public CounterInstanceModuleSetting()
+        : base("Counters", "The counter instances", typeof(CountInstanceModuleSettingView))
     {
     }
 
