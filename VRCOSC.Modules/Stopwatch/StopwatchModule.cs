@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.App.SDK.Modules;
@@ -11,7 +11,7 @@ namespace VRCOSC.Modules.Stopwatch;
 [ModuleType(ModuleType.Generic)]
 public class StopwatchModule : Module
 {
-    private StopwatchModuleRuntimePage runtimePage;
+    private StopwatchModuleRuntimeView runtimeView;
 
     private TimeSpan currentTime;
     private bool shouldAddTime;
@@ -39,7 +39,7 @@ public class StopwatchModule : Module
 
         ChangeState(StopwatchState.Stopped);
 
-        SetRuntimePage(runtimePage = new StopwatchModuleRuntimePage(this));
+        SetRuntimeView(runtimeView = new StopwatchModuleRuntimeView(this));
 
         return Task.FromResult(true);
     }

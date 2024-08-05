@@ -1,19 +1,16 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
-// See the LICENSE file in the repository root for full license text.
-
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Windows.Controls;
 using System.Windows.Input;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.Modules.Media;
 
-public partial class MediaModuleRuntimePage
+public partial class MediaModuleRuntimeView
 {
     public MediaModule Module { get; }
     public ObservableCollection<string> Sessions { get; } = new();
 
-    public MediaModuleRuntimePage(MediaModule module)
+    public MediaModuleRuntimeView(MediaModule module)
     {
         Module = module;
         InitializeComponent();

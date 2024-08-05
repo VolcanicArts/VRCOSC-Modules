@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using Windows.Media;
@@ -20,7 +20,7 @@ public class MediaModule : Module
     private bool currentlySeeking;
     private TimeSpan targetPosition;
 
-    private MediaModuleRuntimePage runtimePage = null!;
+    private MediaModuleRuntimeView runtimeView = null!;
 
     public MediaModule()
     {
@@ -39,7 +39,7 @@ public class MediaModule : Module
         RegisterParameter<bool>(MediaParameter.Seeking, "VRCOSC/Media/Seeking", ParameterMode.Read, "Seeking", "Whether the user is currently seeking");
         RegisterParameter<float>(MediaParameter.Position, "VRCOSC/Media/Position", ParameterMode.ReadWrite, "Position", "The position of the song as a percentage");
 
-        SetRuntimePage(runtimePage = new MediaModuleRuntimePage(this));
+        SetRuntimeView(runtimeView = new MediaModuleRuntimeView(this));
     }
 
     protected override void OnPostLoad()
