@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using VRCOSC.App.SDK.Modules.Attributes.Settings;
 using VRCOSC.App.Utils;
+using VRCOSC.Modules.Counter.UI;
 
 namespace VRCOSC.Modules.Counter;
 

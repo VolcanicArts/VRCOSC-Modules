@@ -10,7 +10,20 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="VolcanicArts.VRCOSC.SDK" Version="2024.805.5" />
+        <PackageReference Include="VolcanicArts.VRCOSC.SDK" Version="2024.805.6"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Page Update="Counter\UI\CounterInstanceEditWindow.xaml">
+            <Generator>MSBuild:Compile</Generator>
+            <XamlRuntime>Wpf</XamlRuntime>
+            <SubType>Designer</SubType>
+        </Page>
+        <Page Update="Counter\UI\CountInstanceModuleSettingView.xaml">
+            <Generator>MSBuild:Compile</Generator>
+            <XamlRuntime>Wpf</XamlRuntime>
+            <SubType>Designer</SubType>
+        </Page>
     </ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">

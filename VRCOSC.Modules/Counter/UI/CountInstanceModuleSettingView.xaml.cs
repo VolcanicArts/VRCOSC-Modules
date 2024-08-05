@@ -2,9 +2,8 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Windows;
-using VRCOSC.App.Utils;
 
-namespace VRCOSC.Modules.Counter;
+namespace VRCOSC.Modules.Counter.UI;
 
 public partial class CountInstanceModuleSettingView
 {
@@ -17,26 +16,6 @@ public partial class CountInstanceModuleSettingView
         InitializeComponent();
 
         DataContext = moduleSetting;
-    }
-
-    private void AddButton_OnClick(object sender, RoutedEventArgs e)
-    {
-        var element = (FrameworkElement)sender;
-        var countInstance = (CounterInstance)element.Tag;
-
-        countInstance.ParameterNames.Add(new Observable<string>(string.Empty));
-    }
-
-    private void RemoveButton_OnClick(object sender, RoutedEventArgs e)
-    {
-        var element = (FrameworkElement)sender;
-        var parameterInstance = (Observable<string>)element.Tag;
-
-        foreach (var countInstance in moduleSetting.Instances)
-        {
-            if (countInstance.ParameterNames.Contains(parameterInstance))
-                countInstance.ParameterNames.Remove(parameterInstance);
-        }
     }
 
     private void AddInstanceButton_OnClick(object sender, RoutedEventArgs e)
@@ -53,5 +32,13 @@ public partial class CountInstanceModuleSettingView
         if (result != MessageBoxResult.Yes) return;
 
         moduleSetting.Instances.Remove(countInstance);
+    }
+
+    private void EditInstanceButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var countInstance = (CounterInstance)element.Tag;
+
+        new CounterInstanceEditWindow(countInstance).Show();
     }
 }

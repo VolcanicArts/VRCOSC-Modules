@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="VRCOSC.Modules.Counter.CountInstanceModuleSettingView"
+﻿<UserControl x:Class="VRCOSC.Modules.Counter.UI.CountInstanceModuleSettingView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -15,7 +15,7 @@
         ShouldTruncateHeight="False"
         AlternationCount="2">
         <core:HeaderFooterListView.Header>
-            <Border Background="{StaticResource CBackground1}" Height="5"/>
+            <Border Background="{StaticResource CBackground1}" Height="5" />
         </core:HeaderFooterListView.Header>
         <ListView.ItemContainerStyle>
             <Style TargetType="ListViewItem">
@@ -24,18 +24,34 @@
                         <ControlTemplate>
                             <Border
                                 Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}"
-                                Height="25">
-                                <Grid VerticalAlignment="Center" Margin="5">
+                                VerticalAlignment="Top">
+                                <Grid VerticalAlignment="Center">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="10" />
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0"
-                                               Text="{Binding Name.Value, Mode=OneTime}"
+                                               Margin="5"
+                                               Text="{Binding Name.Value, Mode=OneWay}"
                                                Foreground="{StaticResource CForeground2}"
                                                TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"
-                                               FontSize="14" VerticalAlignment="Center" TextAlignment="Left"/>
+                                               FontSize="16" VerticalAlignment="Center" TextAlignment="Left" />
+                                    <core:SpacedStackPanel Grid.Column="2" Spacing="5" FlowDirection="RightToLeft"
+                                                           Orientation="Horizontal" Margin="5 0">
+                                        <core:IconButton ButtonColour="Red" Icon="Solid_Minus" Width="25" Height="25"
+                                                         Click="RemoveInstanceButton_OnClick">
+                                            <core:IconButton.Tag>
+                                                <Binding />
+                                            </core:IconButton.Tag>
+                                        </core:IconButton>
+                                        <core:IconButton ButtonColour="Blue" Icon="Solid_PenToSquare" Width="25"
+                                                         Height="25" Click="EditInstanceButton_OnClick">
+                                            <core:IconButton.Tag>
+                                                <Binding />
+                                            </core:IconButton.Tag>
+                                        </core:IconButton>
+                                    </core:SpacedStackPanel>
                                 </Grid>
                             </Border>
                         </ControlTemplate>
