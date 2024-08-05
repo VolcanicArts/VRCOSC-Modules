@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.ObjectModel;
@@ -16,7 +16,7 @@ public class CounterInstanceModuleSetting : ModuleSetting
     public ObservableCollection<CounterInstance> Instances { get; } = new();
 
     public CounterInstanceModuleSetting()
-        : base("Counters", "The counter instances", typeof(CountInstanceModuleSettingView))
+        : base("Counters", "Add, edit, and remove counters", typeof(CountInstanceModuleSettingView))
     {
     }
 
