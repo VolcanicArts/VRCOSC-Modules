@@ -3,7 +3,6 @@
 
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Modules.Attributes.Settings;
-using VRCOSC.App.SDK.Modules.Attributes.Types;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.Providers.PiShock;
 using VRCOSC.App.SDK.VRChat;
@@ -38,14 +37,14 @@ public class PiShockModule : Module
         CreateTextBox(PiShockSetting.Username, "Username", "Your PiShock username", string.Empty);
         CreateCustom(PiShockSetting.APIKey, new StringModuleSetting("API Key", "Your PiShock API key", typeof(PiShockAPIKeyView), string.Empty));
 
-        CreateTextBox(PiShockSetting.Delay, "Button Delay", "The amount of time in milliseconds the shock, vibrate, and beep parameters need to be true to execute the action. This is helpful for if you accidentally press buttons on your action menu", 0);
+        CreateTextBox(PiShockSetting.ButtonDelay, "Button Delay", "The amount of time in milliseconds the shock, vibrate, and beep parameters need to be true to execute the action. This is helpful for if you accidentally press buttons on your action menu", 0);
 
         CreateCustom(PiShockSetting.Shockers, new ShockerModuleSetting());
         CreateCustom(PiShockSetting.Groups, new ShockerGroupModuleSetting());
 
         CreateGroup("Credentials", PiShockSetting.Username, PiShockSetting.APIKey);
-        CreateGroup("Tweaks", PiShockSetting.Delay);
         CreateGroup("Management", PiShockSetting.Shockers, PiShockSetting.Groups);
+        CreateGroup("Tweaks", PiShockSetting.ButtonDelay);
 
         RegisterParameter<float>(PiShockParameter.Duration, "VRCOSC/PiShock/Duration", ParameterMode.Read, "Duration", "The duration of the action as a 0-1 float mapped between 1 and Max Duration");
         RegisterParameter<float>(PiShockParameter.Intensity, "VRCOSC/PiShock/Intensity", ParameterMode.Read, "Intensity", "The intensity of the action as a 0-1 float mapped between 1 and Max Intensity");
@@ -88,7 +87,7 @@ public class PiShockModule : Module
     [ModuleUpdate(ModuleUpdateMode.Custom)]
     private void checkForExecutions()
     {
-        var delay = TimeSpan.FromMilliseconds(GetSettingValue<int>(PiShockSetting.Delay));
+        var delay = TimeSpan.FromMilliseconds(GetSettingValue<int>(PiShockSetting.ButtonDelay));
 
         if (shock is not null && shock.Value.Item1 + delay <= DateTimeOffset.Now && !shockExecuted)
         {
@@ -125,6 +124,8 @@ public class PiShockModule : Module
             return;
         }
 
+        Log($"Executing {mode} on group '{shockerGroup.Name}'");
+
         foreach (var shockerID in shockerGroup.Shockers)
         {
             var shockerInstance = getShockerInstanceFromID(shockerID.Value);
@@ -134,24 +135,21 @@ public class PiShockModule : Module
         }
     }
 
-    private async void sendPiShockData(PiShockMode mode, ShockerGroup group, MutableKeyValuePair instance)
+    private async void sendPiShockData(PiShockMode mode, ShockerGroup group, Shocker instance)
     {
-        Log($"Executing {mode} on {instance.Key.Value}");
-
         var convertedDuration = (int)Math.Round(Interpolation.Map(duration, 0, 1, 1, group.MaxDuration.Value));
         var convertedIntensity = (int)Math.Round(Interpolation.Map(intensity, 0, 1, 1, group.MaxIntensity.Value));
 
-        var response = await piShockProvider!.Execute(GetSettingValue<string>(PiShockSetting.Username)!, GetSettingValue<string>(PiShockSetting.APIKey)!, instance.Value.Value, mode, convertedDuration, convertedIntensity);
-        Log(response.Success ? $"{instance.Key.Value} succeeded" : $"{instance.Key.Value} failed - {response.Message}");
+        var response = await piShockProvider!.Execute(GetSettingValue<string>(PiShockSetting.Username)!, GetSettingValue<string>(PiShockSetting.APIKey)!, instance.Sharecode.Value, mode, convertedDuration, convertedIntensity);
+        Log(response.Success ? $"{instance.Name.Value} succeeded" : $"{instance.Name.Value} failed - {response.Message}");
     }
 
-    private MutableKeyValuePair? getShockerInstanceFromID(string id)
+    private Shocker? getShockerInstanceFromID(string id)
     {
-        var instance = GetSettingValue<List<MutableKeyValuePair>>(PiShockSetting.Shockers)!.SingleOrDefault(shockerInstance => shockerInstance.Key.Value == id);
-
+        var instance = GetSettingValue<List<Shocker>>(PiShockSetting.Shockers)!.SingleOrDefault(shockerInstance => shockerInstance.ID == id);
         if (instance is not null) return instance;
 
-        Log("A shocker doesn't exist");
+        Log("How did you manage to find a shocker that doesn't exist");
         return null;
     }
 
@@ -201,7 +199,7 @@ public class PiShockModule : Module
     {
         Username,
         APIKey,
-        Delay,
+        ButtonDelay,
         Shockers,
         Groups
     }

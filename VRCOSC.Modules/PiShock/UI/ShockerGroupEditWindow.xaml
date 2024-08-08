@@ -56,10 +56,12 @@
                                                     <ComboBox Grid.Column="0"
                                                               ItemsSource="{Binding ShockerItemsSource, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"
                                                               DisplayMemberPath="Name.Value"
+                                                              FontSize="16"
                                                               SelectedValuePath="ID" SelectedValue="{Binding Value}" />
                                                     <core:IconButton Grid.Column="2" ButtonColour="Red"
                                                                      Click="RemoveShockerButton_OnClick"
                                                                      Height="25" Width="25" Icon="Solid_Minus"
+                                                                     VerticalAlignment="Center"
                                                                      Tag="{Binding}">
                                                     </core:IconButton>
                                                 </Grid>
