@@ -24,7 +24,7 @@ public class ShockerModuleSetting : ListModuleSetting<Shocker>
 }
 
 [JsonObject(MemberSerialization.OptIn)]
-public class Shocker
+public class Shocker : ICloneable, IEquatable<Shocker>
 {
     [JsonProperty("id")]
     public string ID { get; set; } = Guid.NewGuid().ToString();
@@ -44,5 +44,15 @@ public class Shocker
     {
         Name.Value = other.Name.Value;
         Sharecode.Value = other.Sharecode.Value;
+    }
+
+    public object Clone() => new Shocker(this);
+
+    public bool Equals(Shocker? other)
+    {
+        if (ReferenceEquals(null, other)) return false;
+        if (ReferenceEquals(this, other)) return true;
+
+        return Name.Equals(other.Name) && Sharecode.Equals(other.Sharecode);
     }
 }

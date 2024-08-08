@@ -10,7 +10,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="VolcanicArts.VRCOSC.SDK" Version="2024.808.13" />
+        <PackageReference Include="VolcanicArts.VRCOSC.SDK" Version="2024.808.17" />
     </ItemGroup>
 
     <ItemGroup>

@@ -3,7 +3,6 @@
 
 using System.Collections.ObjectModel;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using VRCOSC.App.SDK.Modules.Attributes.Settings;
 using VRCOSC.App.Utils;
 using VRCOSC.Modules.PiShock.UI;
@@ -16,16 +15,10 @@ public class ShockerGroupModuleSetting : ListModuleSetting<ShockerGroup>
         : base("Groups", "Create, edit, and delete shocker groups", typeof(ShockerGroupModuleSettingView), [])
     {
     }
-
-    protected override ShockerGroup CloneValue(ShockerGroup value) => new(value);
-
-    protected override ShockerGroup ConstructValue(JToken token) => token.ToObject<ShockerGroup>()!;
-
-    protected override ShockerGroup CreateNewItem() => new();
 }
 
 [JsonObject(MemberSerialization.OptIn)]
-public class ShockerGroup
+public class ShockerGroup : ICloneable, IEquatable<ShockerGroup>
 {
     [JsonProperty("name")]
     public Observable<string> Name { get; set; } = new("My New Group");
@@ -50,5 +43,15 @@ public class ShockerGroup
         Shockers.AddRange(other.Shockers.Select(shocker => new Observable<string>(shocker.Value)));
         MaxDuration.Value = other.MaxDuration.Value;
         MaxIntensity.Value = other.MaxIntensity.Value;
+    }
+
+    public object Clone() => new ShockerGroup(this);
+
+    public bool Equals(ShockerGroup? other)
+    {
+        if (ReferenceEquals(null, other)) return false;
+        if (ReferenceEquals(this, other)) return true;
+
+        return Name.Equals(other.Name) && Shockers.SequenceEqual(other.Shockers) && MaxDuration.Equals(other.MaxDuration) && MaxIntensity.Equals(other.MaxIntensity);
     }
 }
