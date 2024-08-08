@@ -12,12 +12,12 @@ using VRCOSC.Modules.Counter.UI;
 namespace VRCOSC.Modules.Counter;
 
 // TODO: Can I change this to ListModuleSetting?
-public class CounterInstanceModuleSetting : ModuleSetting
+public class CountersModuleSetting : ModuleSetting
 {
-    public ObservableCollection<CounterInstance> Instances { get; } = new();
+    public ObservableCollection<Counter> Instances { get; } = new();
 
-    public CounterInstanceModuleSetting()
-        : base("Counters", "Add, edit, and remove counters", typeof(CountInstanceModuleSettingView))
+    public CountersModuleSetting()
+        : base("Counters", "Add, edit, and remove counters", typeof(CountersModuleSettingView))
     {
     }
 
@@ -36,7 +36,7 @@ public class CounterInstanceModuleSetting : ModuleSetting
     {
         if (e.NewItems is not null)
         {
-            foreach (CounterInstance newInstance in e.NewItems)
+            foreach (Counter newInstance in e.NewItems)
             {
                 newInstance.Name.Subscribe(_ => RequestSerialisation?.Invoke());
                 newInstance.ParameterNames.CollectionChanged += ParameterNamesOnCollectionChanged;
@@ -69,7 +69,7 @@ public class CounterInstanceModuleSetting : ModuleSetting
 
         Instances.Clear();
 
-        foreach (var item in ingestArray.Select(jObject => jObject.ToObject<CounterInstance>()))
+        foreach (var item in ingestArray.Select(jObject => jObject.ToObject<Counter>()))
         {
             if (item is null) continue;
 
@@ -83,7 +83,7 @@ public class CounterInstanceModuleSetting : ModuleSetting
 }
 
 [JsonObject(MemberSerialization.OptIn)]
-public class CounterInstance
+public class Counter
 {
     [JsonProperty("id")]
     public string ID { get; set; } = Guid.NewGuid().ToString();
@@ -91,11 +91,20 @@ public class CounterInstance
     [JsonProperty("name")]
     public Observable<string> Name { get; set; } = new("New Counter");
 
+    [JsonProperty("float_threshold")]
+    public Observable<float> FloatThreshold { get; set; } = new(0.9f);
+
     [JsonProperty("parameter_names")]
     public ObservableCollection<Observable<string>> ParameterNames { get; set; } = new();
 
+    [JsonProperty("milestone_parameter")]
+    public Observable<string> MilestoneParameter { get; set; } = new(string.Empty);
+
+    [JsonProperty("milestones")]
+    public ObservableCollection<Observable<int>> Milestones { get; set; } = new();
+
     [JsonConstructor]
-    public CounterInstance()
+    public Counter()
     {
     }
 }

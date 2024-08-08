@@ -10,7 +10,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="VolcanicArts.VRCOSC.SDK" Version="2024.805.6"/>
+        <PackageReference Include="VolcanicArts.VRCOSC.SDK" Version="2024.808.10" />
     </ItemGroup>
 
     <ItemGroup>
@@ -19,7 +19,7 @@
             <XamlRuntime>Wpf</XamlRuntime>
             <SubType>Designer</SubType>
         </Page>
-        <Page Update="Counter\UI\CountInstanceModuleSettingView.xaml">
+        <Page Update="Counter\UI\CountersModuleSettingView.xaml">
             <Generator>MSBuild:Compile</Generator>
             <XamlRuntime>Wpf</XamlRuntime>
             <SubType>Designer</SubType>

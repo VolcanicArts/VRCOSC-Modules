@@ -2,14 +2,16 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Windows;
+using VRCOSC.App.UI.Core;
 
 namespace VRCOSC.Modules.Counter.UI;
 
-public partial class CountInstanceModuleSettingView
+public partial class CountersModuleSettingView
 {
-    private readonly CounterInstanceModuleSetting moduleSetting;
+    private readonly CountersModuleSetting moduleSetting;
+    private WindowManager windowManager = null!;
 
-    public CountInstanceModuleSettingView(CounterInstanceModuleSetting moduleSetting)
+    public CountersModuleSettingView(CountersModuleSetting moduleSetting)
     {
         this.moduleSetting = moduleSetting;
 
@@ -18,15 +20,20 @@ public partial class CountInstanceModuleSettingView
         DataContext = moduleSetting;
     }
 
+    private void CountersModuleSettingView_OnLoaded(object sender, RoutedEventArgs e)
+    {
+        windowManager = new WindowManager(this);
+    }
+
     private void AddInstanceButton_OnClick(object sender, RoutedEventArgs e)
     {
-        moduleSetting.Instances.Add(new CounterInstance());
+        moduleSetting.Instances.Add(new Counter());
     }
 
     private void RemoveInstanceButton_OnClick(object sender, RoutedEventArgs e)
     {
         var element = (FrameworkElement)sender;
-        var countInstance = (CounterInstance)element.Tag;
+        var countInstance = (Counter)element.Tag;
 
         var result = MessageBox.Show("Warning. This will remove the counter data and remove it from the ChatBox. Are you sure?", "Delete Counter?", MessageBoxButton.YesNo);
         if (result != MessageBoxResult.Yes) return;
@@ -37,8 +44,10 @@ public partial class CountInstanceModuleSettingView
     private void EditInstanceButton_OnClick(object sender, RoutedEventArgs e)
     {
         var element = (FrameworkElement)sender;
-        var countInstance = (CounterInstance)element.Tag;
+        var countInstance = (Counter)element.Tag;
 
-        new CounterInstanceEditWindow(countInstance).Show();
+        var editWindow = new CounterInstanceEditWindow(countInstance);
+
+        windowManager.TrySpawnChild(editWindow);
     }
 }

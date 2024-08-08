@@ -3,9 +3,9 @@
 
 using System.Collections.Specialized;
 using Newtonsoft.Json;
+using VRCOSC.App.ChatBox.Clips.Variables.Instances;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Parameters;
-using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.Modules.Counter;
@@ -22,9 +22,7 @@ public class CounterModule : Module
 
     protected override void OnPreLoad()
     {
-        CreateToggle(CounterSetting.ResetOnAvatarChange, "Reset On Avatar Change", "Should the counter reset on avatar change?", false);
-        CreateSlider(CounterSetting.FloatThreshold, "Float Threshold", "For float parameters, what value needs to be crossed for the count to increase?\nFor example, a value of 0.9 will mean each time the float goes from below 0.9 to above 0.9 the count will increase", 0.9f, 0f, 1f, 0.01f);
-        CreateCustom(CounterSetting.CountInstances, new CounterInstanceModuleSetting());
+        CreateCustom(CounterSetting.CountInstances, new CountersModuleSetting());
 
         CreateState(CounterState.Default, "Default");
 
@@ -33,51 +31,63 @@ public class CounterModule : Module
 
     protected override void OnPostLoad()
     {
-        var moduleSetting = GetSetting<CounterInstanceModuleSetting>(CounterSetting.CountInstances)!;
+        var moduleSetting = GetSetting<CountersModuleSetting>(CounterSetting.CountInstances)!;
 
-        moduleSetting.Instances.CollectionChanged += countInstancesCollectionChanged;
-        countInstancesCollectionChanged(null, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, moduleSetting.Instances));
+        moduleSetting.Instances.CollectionChanged += countersCollectionChanged;
+        countersCollectionChanged(null, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, moduleSetting.Instances));
     }
 
-    private void countInstancesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    private void countersCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         if (e.NewItems is not null)
         {
-            foreach (CounterInstance newCountInstance in e.NewItems)
+            foreach (Counter newCountInstance in e.NewItems)
             {
-                createDynamicElements(newCountInstance);
+                createDynamicCounters(newCountInstance);
             }
         }
 
         if (e.OldItems is not null)
         {
-            foreach (CounterInstance oldCountInstance in e.OldItems)
+            foreach (Counter oldCountInstance in e.OldItems)
             {
-                deleteDynamicElements(oldCountInstance);
+                deleteDynamicCounters(oldCountInstance);
             }
         }
     }
 
-    private void createDynamicElements(CounterInstance counterInstance)
+    private void createDynamicCounters(Counter counter)
     {
-        var valueVariable = CreateVariable<int>($"{counterInstance.ID}_value", string.Empty)!;
-        var valueTodayVariable = CreateVariable<int>($"{counterInstance.ID}_valuetoday", string.Empty)!;
+        var valueVariable = CreateVariable<int>($"{counter.ID}_value", string.Empty)!;
+        var valueTodayVariable = CreateVariable<int>($"{counter.ID}_valuetoday", string.Empty)!;
+        CreateVariable<int>($"{counter.ID}_milestoneprevious", string.Empty);
+        CreateVariable<int>($"{counter.ID}_milestonenext", string.Empty);
+        CreateVariable<float>($"{counter.ID}_milestoneprogress", string.Empty, typeof(ProgressClipVariable));
 
-        CreateEvent($"{counterInstance.ID}_countchanged", string.Empty, $"{counterInstance.Name.Value} - {{0}} ({{1}})", new[] { valueVariable, valueTodayVariable });
+        CreateEvent($"{counter.ID}_countchanged", string.Empty, $"{counter.Name.Value} - {{0}} ({{1}})", new[] { valueVariable, valueTodayVariable });
+        CreateEvent($"{counter.ID}_milestoneachieved", string.Empty);
 
-        counterInstance.Name.Subscribe(newName =>
+        counter.Name.Subscribe(newName =>
         {
-            GetEvent($"{counterInstance.ID}_countchanged")!.DisplayName.Value = $"On '{newName}' Changed";
-            GetVariable($"{counterInstance.ID}_value")!.DisplayName.Value = $"{newName.Pluralise()} Value";
-            GetVariable($"{counterInstance.ID}_valuetoday")!.DisplayName.Value = $"{newName.Pluralise()} Value Today";
+            GetEvent($"{counter.ID}_countchanged")!.DisplayName.Value = $"On '{newName}' Count Changed";
+            GetEvent($"{counter.ID}_milestoneachieved")!.DisplayName.Value = $"On '{newName}' Milestone Achieved";
+            GetVariable($"{counter.ID}_value")!.DisplayName.Value = $"{newName.Pluralise()} Value";
+            GetVariable($"{counter.ID}_valuetoday")!.DisplayName.Value = $"{newName.Pluralise()} Value Today";
+            GetVariable($"{counter.ID}_milestoneprevious")!.DisplayName.Value = $"{newName.Pluralise()} Previous Milestone";
+            GetVariable($"{counter.ID}_milestonenext")!.DisplayName.Value = $"{newName.Pluralise()} Next Milestone";
+            GetVariable($"{counter.ID}_milestoneprogress")!.DisplayName.Value = $"{newName.Pluralise()} Milestone Progress";
         }, true);
     }
 
-    private void deleteDynamicElements(CounterInstance counterInstance)
+    private void deleteDynamicCounters(Counter counter)
     {
-        DeleteEvent($"{counterInstance.ID}_countchanged");
-        DeleteVariable($"{counterInstance.ID}_value");
-        DeleteVariable($"{counterInstance.ID}_valuetoday");
+        DeleteEvent($"{counter.ID}_countchanged");
+        DeleteEvent($"{counter.ID}_milestoneachieved");
+        DeleteVariable($"{counter.ID}_value");
+        DeleteVariable($"{counter.ID}_valuetoday");
+        DeleteVariable($"{counter.ID}_milestoneprevious");
+        DeleteVariable($"{counter.ID}_milestonenext");
+        DeleteVariable($"{counter.ID}_milestoneprogress");
     }
 
     protected override Task<bool> OnModuleStart()
@@ -87,34 +97,67 @@ public class CounterModule : Module
         ChangeState(CounterState.Default);
 
         auditCounts();
+        auditMilestones();
 
         return Task.FromResult(true);
     }
 
     private void auditCounts()
     {
-        var counterInstances = GetSettingValue<List<CounterInstance>>(CounterSetting.CountInstances)!;
+        var counterInstances = GetSettingValue<List<Counter>>(CounterSetting.CountInstances)!;
         counterInstances.ForEach(countInstance => counts.TryAdd(countInstance.ID, new CountTracker()));
         counts.RemoveIf(pair => counterInstances.All(instance => instance.ID != pair.Key));
+
+        foreach (var counter in counterInstances)
+        {
+            var countTracker = counts[counter.ID];
+            SetVariableValue($"{counter.ID}_value", countTracker.Value);
+            SetVariableValue($"{counter.ID}_valuetoday", countTracker.ValueToday);
+        }
     }
 
-    protected override void OnAvatarChange(AvatarConfig? avatarConfig)
+    private void auditMilestones()
     {
-        if (GetSettingValue<bool>(CounterSetting.ResetOnAvatarChange))
+        var counters = GetSettingValue<List<Counter>>(CounterSetting.CountInstances)!;
+
+        foreach (var counter in counters)
         {
-            counts.ForEach(pair =>
-            {
-                counts[pair.Key].Value = 0;
-                counts[pair.Key].ValueToday = 0;
-            });
+            checkMilestone(counter);
         }
+    }
+
+    private bool checkMilestone(Counter counter)
+    {
+        if (counter.Milestones.Count == 0) return false;
+
+        var countValue = counts[counter.ID].Value;
+
+        var previousMilestone = counter.Milestones.LastOrDefault(milestone => milestone.Value <= countValue);
+        var nextMilestone = counter.Milestones.FirstOrDefault(milestone => milestone.Value > countValue);
+
+        var previousMilestoneValue = previousMilestone?.Value ?? 0;
+        var nextMilestoneValue = nextMilestone?.Value ?? int.MaxValue;
+
+        var milestoneProgress = (float)countValue / (nextMilestoneValue - previousMilestoneValue);
+
+        SetVariableValue($"{counter.ID}_milestoneprevious", previousMilestone);
+        SetVariableValue($"{counter.ID}_milestonenext", nextMilestone);
+        SetVariableValue($"{counter.ID}_milestoneprogress", milestoneProgress);
+
+        if (!string.IsNullOrEmpty(counter.MilestoneParameter.Value))
+        {
+            var milestonesPassed = counter.Milestones.Count(milestone => milestone.Value <= countValue);
+            SendParameter(counter.MilestoneParameter.Value, milestonesPassed);
+        }
+
+        return countValue == previousMilestoneValue;
     }
 
     protected override void OnAnyParameterReceived(ReceivedParameter parameter)
     {
-        var countInstances = GetSettingValue<List<CounterInstance>>(CounterSetting.CountInstances)!.Where(countInstance => countInstance.ParameterNames.Select(instance => instance.Value).Contains(parameter.Name));
+        var countInstances = GetSettingValue<List<Counter>>(CounterSetting.CountInstances)!.Where(countInstance => countInstance.ParameterNames.Select(instance => instance.Value).Contains(parameter.Name));
 
-        countInstances.ForEach(countInstance =>
+        foreach (var countInstance in countInstances)
         {
             if (parameter.IsValueType<bool>())
             {
@@ -164,34 +207,34 @@ public class CounterModule : Module
                     currentValue = 0f;
 
                 var newValue = parameter.GetValue<float>();
+                var floatThreshold = countInstance.FloatThreshold.Value;
 
-                if (currentValue < GetSettingValue<float>(CounterSetting.FloatThreshold) && newValue >= GetSettingValue<float>(CounterSetting.FloatThreshold))
+                if (currentValue < floatThreshold && newValue >= floatThreshold)
                 {
                     updateCounter(countInstance);
                 }
 
                 parameterValues[parameter.Name] = newValue;
             }
-        });
+        }
     }
 
-    private void updateCounter(CounterInstance counterInstance)
+    private void updateCounter(Counter counter)
     {
-        counts[counterInstance.ID].Value++;
-        counts[counterInstance.ID].ValueToday++;
+        counts[counter.ID].Value++;
+        counts[counter.ID].ValueToday++;
 
-        SetVariableValue($"{counterInstance.ID}_value", counts[counterInstance.ID].Value);
-        SetVariableValue($"{counterInstance.ID}_valuetoday", counts[counterInstance.ID].ValueToday);
+        SetVariableValue($"{counter.ID}_value", counts[counter.ID].Value);
+        SetVariableValue($"{counter.ID}_valuetoday", counts[counter.ID].ValueToday);
 
-        TriggerEvent($"{counterInstance.ID}_countchanged");
+        TriggerEvent($"{counter.ID}_countchanged");
+
+        if (checkMilestone(counter)) TriggerEvent($"{counter.ID}_milestoneachieved");
     }
 
     private enum CounterSetting
     {
-        ResetOnAvatarChange,
-        SaveCounters,
-        CountInstances,
-        FloatThreshold
+        CountInstances
     }
 
     private enum CounterState

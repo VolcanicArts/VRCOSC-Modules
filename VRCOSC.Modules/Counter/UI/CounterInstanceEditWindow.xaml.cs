@@ -8,14 +8,16 @@ namespace VRCOSC.Modules.Counter.UI;
 
 public partial class CounterInstanceEditWindow
 {
-    private readonly CounterInstance instance;
+    private readonly Counter instance;
 
-    public CounterInstanceEditWindow(CounterInstance instance)
+    public CounterInstanceEditWindow(Counter instance)
     {
         InitializeComponent();
 
         this.instance = instance;
         DataContext = instance;
+
+        instance.Name.Subscribe(newName => Title = $"{newName.Pluralise()} Settings", true);
     }
 
     private void AddParameter_OnClick(object sender, RoutedEventArgs e)
@@ -29,5 +31,18 @@ public partial class CounterInstanceEditWindow
         var parameterInstance = (Observable<string>)element.Tag;
 
         instance.ParameterNames.Remove(parameterInstance);
+    }
+
+    private void AddMilestone_OnClick(object sender, RoutedEventArgs e)
+    {
+        instance.Milestones.Add(new Observable<int>());
+    }
+
+    private void RemoveMilestone_OnClick(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var milestoneInstance = (Observable<int>)element.Tag;
+
+        instance.Milestones.Remove(milestoneInstance);
     }
 }
