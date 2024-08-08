@@ -53,11 +53,8 @@
                                                  Background="{StaticResource CBackground5}" Foreground="{StaticResource CForeground1}" FontSize="16"
                                                  HorizontalAlignment="Stretch" VerticalContentAlignment="Center" PasswordChar="*" />
                                     <core:IconButton Grid.Column="4" ButtonColour="Red"
-                                                       Click="RemoveButton_OnClick"
+                                                       Click="RemoveButton_OnClick" Tag="{Binding}"
                                                        Height="25" Width="25" Icon="Solid_Minus">
-                                        <core:IconButton.Tag>
-                                            <Binding />
-                                        </core:IconButton.Tag>
                                     </core:IconButton>
                                 </Grid>
                             </Border>
@@ -67,8 +64,15 @@
             </Style>
         </ListView.ItemContainerStyle>
         <core:HeaderFooterListView.Footer>
-            <Border Grid.Row="2" Background="{StaticResource CBackground1}" Height="30">
-                <core:IconButton Width="90" Height="20" Click="AddButton_OnClick" ButtonColour="Green" Icon="Solid_Plus"/>
+            <Border Background="{StaticResource CBackground1}">
+                <core:IconButton
+                    ButtonColour="Green"
+                    Width="100"
+                    Height="20"
+                    Margin="0 5"
+                    Icon="Solid_Plus"
+                    Click="AddButton_OnClick">
+                </core:IconButton>
             </Border>
         </core:HeaderFooterListView.Footer>
     </core:HeaderFooterListView>

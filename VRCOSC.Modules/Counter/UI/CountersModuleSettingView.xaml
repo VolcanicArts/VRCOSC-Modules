@@ -41,16 +41,10 @@
                                     <core:SpacedStackPanel Grid.Column="2" Spacing="5" FlowDirection="RightToLeft"
                                                            Orientation="Horizontal" Margin="5 0">
                                         <core:IconButton ButtonColour="Red" Icon="Solid_Minus" Width="25" Height="25"
-                                                         Click="RemoveInstanceButton_OnClick">
-                                            <core:IconButton.Tag>
-                                                <Binding />
-                                            </core:IconButton.Tag>
+                                                         Click="RemoveInstanceButton_OnClick" Tag="{Binding}">
                                         </core:IconButton>
                                         <core:IconButton ButtonColour="Blue" Icon="Solid_PenToSquare" Width="25"
-                                                         Height="25" Click="EditInstanceButton_OnClick">
-                                            <core:IconButton.Tag>
-                                                <Binding />
-                                            </core:IconButton.Tag>
+                                                         Height="25" Click="EditInstanceButton_OnClick" Tag="{Binding}">
                                         </core:IconButton>
                                     </core:SpacedStackPanel>
                                 </Grid>
@@ -65,7 +59,7 @@
                 <core:IconButton
                     ButtonColour="Green"
                     Width="100"
-                    Height="25"
+                    Height="20"
                     Margin="0 5"
                     Icon="Solid_Plus"
                     Click="AddInstanceButton_OnClick">

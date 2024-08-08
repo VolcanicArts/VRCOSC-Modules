@@ -67,9 +67,15 @@
                             </Style>
                         </ListView.ItemContainerStyle>
                         <core:HeaderFooterListView.Footer>
-                            <Border Height="30" Background="{StaticResource CBackground1}">
-                                <core:IconButton ButtonColour="Green" Icon="Solid_Plus" Width="80" Height="20"
-                                                 Click="AddParameter_OnClick" />
+                            <Border Background="{StaticResource CBackground1}">
+                                <core:IconButton
+                                    ButtonColour="Green"
+                                    Width="100"
+                                    Height="20"
+                                    Margin="0 5"
+                                    Icon="Solid_Plus"
+                                    Click="AddParameter_OnClick">
+                                </core:IconButton>
                             </Border>
                         </core:HeaderFooterListView.Footer>
                     </core:HeaderFooterListView>
@@ -120,9 +126,15 @@
                             </Style>
                         </ListView.ItemContainerStyle>
                         <core:HeaderFooterListView.Footer>
-                            <Border Height="30" Background="{StaticResource CBackground1}">
-                                <core:IconButton ButtonColour="Green" Icon="Solid_Plus" Width="80" Height="20"
-                                                 Click="AddMilestone_OnClick" />
+                            <Border Background="{StaticResource CBackground1}">
+                                <core:IconButton
+                                    ButtonColour="Green"
+                                    Width="100"
+                                    Height="20"
+                                    Margin="0 5"
+                                    Icon="Solid_Plus"
+                                    Click="AddMilestone_OnClick">
+                                </core:IconButton>
                             </Border>
                         </core:HeaderFooterListView.Footer>
                     </core:HeaderFooterListView>
