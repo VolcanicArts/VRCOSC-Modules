@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using VRCOSC.App.SDK.Modules.Attributes.Settings;
@@ -11,75 +10,18 @@ using VRCOSC.Modules.Counter.UI;
 
 namespace VRCOSC.Modules.Counter;
 
-// TODO: Can I change this to ListModuleSetting?
-public class CountersModuleSetting : ModuleSetting
+public class CountersModuleSetting : ListModuleSetting<Counter>
 {
-    public ObservableCollection<Counter> Instances { get; } = new();
-
     public CountersModuleSetting()
-        : base("Counters", "Add, edit, and remove counters", typeof(CountersModuleSettingView))
+        : base("Counters", "Add, edit, and remove counters", typeof(CountersModuleSettingView), [])
     {
     }
 
-    private bool postDeserialise;
+    protected override Counter CloneValue(Counter value) => new(value);
 
-    public override void PostDeserialise()
-    {
-        Instances.CollectionChanged += InstancesOnCollectionChanged;
+    protected override Counter ConstructValue(JToken token) => token.ToObject<Counter>()!;
 
-        postDeserialise = true;
-        InstancesOnCollectionChanged(null, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, Instances));
-        postDeserialise = false;
-    }
-
-    private void InstancesOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-    {
-        if (e.NewItems is not null)
-        {
-            foreach (Counter newInstance in e.NewItems)
-            {
-                newInstance.Name.Subscribe(_ => RequestSerialisation?.Invoke());
-                newInstance.ParameterNames.CollectionChanged += ParameterNamesOnCollectionChanged;
-                if (postDeserialise) ParameterNamesOnCollectionChanged(null, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, newInstance.ParameterNames));
-            }
-        }
-
-        RequestSerialisation?.Invoke();
-    }
-
-    private void ParameterNamesOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-    {
-        if (e.NewItems is not null)
-        {
-            foreach (Observable<string> newParameterName in e.NewItems)
-            {
-                newParameterName.Subscribe(_ => RequestSerialisation?.Invoke());
-            }
-        }
-
-        RequestSerialisation?.Invoke();
-    }
-
-    public override void SetDefault() => Instances.Clear();
-    public override bool IsDefault() => !Instances.Any();
-
-    public override bool Deserialise(object ingestValue)
-    {
-        if (ingestValue is not JArray ingestArray) return false;
-
-        Instances.Clear();
-
-        foreach (var item in ingestArray.Select(jObject => jObject.ToObject<Counter>()))
-        {
-            if (item is null) continue;
-
-            Instances.Add(item);
-        }
-
-        return true;
-    }
-
-    public override object GetRawValue() => Instances.ToList();
+    protected override Counter CreateNewItem() => new();
 }
 
 [JsonObject(MemberSerialization.OptIn)]
@@ -106,5 +48,14 @@ public class Counter
     [JsonConstructor]
     public Counter()
     {
+    }
+
+    public Counter(Counter other)
+    {
+        Name.Value = other.Name.Value;
+        FloatThreshold.Value = other.FloatThreshold.Value;
+        ParameterNames.AddRange(other.ParameterNames.Select(parameterName => new Observable<string>(parameterName.Value)));
+        MilestoneParameter.Value = other.MilestoneParameter.Value;
+        Milestones.AddRange(other.Milestones.Select(milestone => new Observable<int>(milestone.Value)));
     }
 }

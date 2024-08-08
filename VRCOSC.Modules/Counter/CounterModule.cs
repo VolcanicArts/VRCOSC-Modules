@@ -33,8 +33,8 @@ public class CounterModule : Module
     {
         var moduleSetting = GetSetting<CountersModuleSetting>(CounterSetting.CountInstances)!;
 
-        moduleSetting.Instances.CollectionChanged += countersCollectionChanged;
-        countersCollectionChanged(null, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, moduleSetting.Instances));
+        moduleSetting.Attribute.CollectionChanged += countersCollectionChanged;
+        countersCollectionChanged(null, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, moduleSetting.Attribute));
     }
 
     private void countersCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)

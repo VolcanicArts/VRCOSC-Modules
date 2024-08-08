@@ -27,7 +27,7 @@ public partial class CountersModuleSettingView
 
     private void AddInstanceButton_OnClick(object sender, RoutedEventArgs e)
     {
-        moduleSetting.Instances.Add(new Counter());
+        moduleSetting.Add();
     }
 
     private void RemoveInstanceButton_OnClick(object sender, RoutedEventArgs e)
@@ -38,7 +38,7 @@ public partial class CountersModuleSettingView
         var result = MessageBox.Show("Warning. This will remove the counter data and remove it from the ChatBox. Are you sure?", "Delete Counter?", MessageBoxButton.YesNo);
         if (result != MessageBoxResult.Yes) return;
 
-        moduleSetting.Instances.Remove(countInstance);
+        moduleSetting.Remove(countInstance);
     }
 
     private void EditInstanceButton_OnClick(object sender, RoutedEventArgs e)
