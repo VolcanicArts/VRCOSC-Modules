@@ -9,7 +9,7 @@
         MinWidth="600" MinHeight="600" Width="600" Height="768">
     <Window.Resources>
         <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
-                                         Colour2="{StaticResource CBackground2}" />
+                                         Colour2="{StaticResource CBackground4}" />
     </Window.Resources>
     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
         <Border Background="{StaticResource CBackground1}" Margin="10"

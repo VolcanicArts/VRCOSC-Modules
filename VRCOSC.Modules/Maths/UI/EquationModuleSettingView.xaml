@@ -9,7 +9,7 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
         <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
-                                         Colour2="{StaticResource CBackground2}" />
+                                         Colour2="{StaticResource CBackground4}" />
     </UserControl.Resources>
     <core:SpacedStackPanel Spacing="10">
         <core:VRCOSCButton ButtonColour="Blue" CornerRadius="4" Click="OpenEquationDocs_OnClick">

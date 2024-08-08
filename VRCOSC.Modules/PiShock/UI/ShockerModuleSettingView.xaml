@@ -8,7 +8,7 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
         <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
-                                         Colour2="{StaticResource CBackground2}" />
+                                         Colour2="{StaticResource CBackground4}" />
     </UserControl.Resources>
     <core:HeaderFooterListView AlternationCount="2" ItemsSource="{Binding Attribute}" ShouldTruncateHeight="False">
         <core:HeaderFooterListView.Header>
