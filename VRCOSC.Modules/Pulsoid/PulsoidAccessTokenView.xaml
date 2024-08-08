@@ -7,9 +7,9 @@
              mc:Ignorable="d"
              d:DesignHeight="200" d:DesignWidth="300">
     <core:SpacedStackPanel Spacing="10">
-        <TextBox Text="{Binding Attribute.Value, UpdateSourceTrigger=PropertyChanged}"
-                 Background="{StaticResource CBackground3}" Foreground="{StaticResource CForeground1}" FontSize="16"
-                 HorizontalAlignment="Stretch" VerticalContentAlignment="Center" />
+        <PasswordBox core:PasswordHelper.Attach="True" core:PasswordHelper.Password="{Binding Attribute.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     Background="{StaticResource CBackground3}" Foreground="{StaticResource CForeground1}" FontSize="16"
+                     HorizontalAlignment="Stretch" VerticalContentAlignment="Center" PasswordChar="*"/>
         <core:VRCOSCButton ButtonColour="Blue" CornerRadius="4" Click="ObtainAccessTokenButton_OnClick">
             <TextBlock FontSize="16" Text="Obtain Access Token" Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </core:VRCOSCButton>
