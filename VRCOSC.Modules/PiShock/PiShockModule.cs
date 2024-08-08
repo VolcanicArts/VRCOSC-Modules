@@ -57,6 +57,25 @@ public class PiShockModule : Module
         RegisterParameter<bool>(PiShockParameter.BeepGroup, "VRCOSC/PiShock/Beep/*", ParameterMode.Read, "Beep Group", "Beep a specific group\nE.G. VRCOSC/PiShock/Beep/0");
     }
 
+    protected override void OnPostLoad()
+    {
+        GetSetting<ShockerModuleSetting>(PiShockSetting.Shockers)!.Attribute.CollectionChanged += (_, e) =>
+        {
+            if (e.OldItems is not null)
+            {
+                var groupSetting = GetSetting<ShockerGroupModuleSetting>(PiShockSetting.Groups)!;
+
+                foreach (Shocker oldShocker in e.OldItems)
+                {
+                    foreach (var shockerGroup in groupSetting.Attribute)
+                    {
+                        shockerGroup.Shockers.RemoveIf(shockerID => shockerID.Value == oldShocker.ID);
+                    }
+                }
+            }
+        };
+    }
+
     protected override Task<bool> OnModuleStart()
     {
         reset();
@@ -128,7 +147,7 @@ public class PiShockModule : Module
 
         foreach (var shockerID in shockerGroup.Shockers)
         {
-            var shockerInstance = getShockerInstanceFromID(shockerID.Value);
+            var shockerInstance = getShockerFromID(shockerID.Value);
             if (shockerInstance is null) continue;
 
             sendPiShockData(mode, shockerGroup, shockerInstance);
@@ -144,14 +163,7 @@ public class PiShockModule : Module
         Log(response.Success ? $"{instance.Name.Value} succeeded" : $"{instance.Name.Value} failed - {response.Message}");
     }
 
-    private Shocker? getShockerInstanceFromID(string id)
-    {
-        var instance = GetSettingValue<List<Shocker>>(PiShockSetting.Shockers)!.SingleOrDefault(shockerInstance => shockerInstance.ID == id);
-        if (instance is not null) return instance;
-
-        Log("How did you manage to find a shocker that doesn't exist");
-        return null;
-    }
+    private Shocker? getShockerFromID(string id) => GetSettingValue<List<Shocker>>(PiShockSetting.Shockers)!.SingleOrDefault(shockerInstance => shockerInstance.ID == id);
 
     protected override void OnRegisteredParameterReceived(RegisteredParameter parameter)
     {
