@@ -38,9 +38,6 @@ public partial class EquationModuleSettingView
         var element = (FrameworkElement)sender;
         var countInstance = (Equation)element.Tag;
 
-        var result = MessageBox.Show("Warning. This will remove the counter data and remove it from the ChatBox. Are you sure?", "Delete Counter?", MessageBoxButton.YesNo);
-        if (result != MessageBoxResult.Yes) return;
-
         moduleSetting.Remove(countInstance);
     }
 
