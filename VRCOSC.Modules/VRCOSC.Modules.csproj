@@ -10,7 +10,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="VolcanicArts.VRCOSC.SDK" Version="2024.808.10" />
+        <PackageReference Include="VolcanicArts.VRCOSC.SDK" Version="2024.808.12" />
     </ItemGroup>
 
     <ItemGroup>
@@ -24,6 +24,17 @@
             <XamlRuntime>Wpf</XamlRuntime>
             <SubType>Designer</SubType>
         </Page>
+        <Page Update="PiShock\UI\PiShockAPIKeyView.xaml">
+          <Generator>MSBuild:Compile</Generator>
+          <XamlRuntime>Wpf</XamlRuntime>
+          <SubType>Designer</SubType>
+        </Page>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Pulsoid\PulsoidAccessTokenView.xaml.cs">
+        <DependentUpon>PulsoidAccessTokenView.xaml</DependentUpon>
+      </Compile>
     </ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">

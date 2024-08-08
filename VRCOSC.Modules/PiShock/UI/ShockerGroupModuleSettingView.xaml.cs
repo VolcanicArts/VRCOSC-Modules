@@ -4,15 +4,17 @@
 using System.Windows;
 using VRCOSC.App.UI.Core;
 
-namespace VRCOSC.Modules.Counter.UI;
+namespace VRCOSC.Modules.PiShock.UI;
 
-public partial class CountersModuleSettingView
+public partial class ShockerGroupModuleSettingView
 {
-    private readonly CountersModuleSetting moduleSetting;
+    private readonly PiShockModule module;
+    private readonly ShockerGroupModuleSetting moduleSetting;
     private WindowManager windowManager = null!;
 
-    public CountersModuleSettingView(CounterModule _, CountersModuleSetting moduleSetting)
+    public ShockerGroupModuleSettingView(PiShockModule module, ShockerGroupModuleSetting moduleSetting)
     {
+        this.module = module;
         this.moduleSetting = moduleSetting;
 
         InitializeComponent();
@@ -20,33 +22,33 @@ public partial class CountersModuleSettingView
         DataContext = moduleSetting;
     }
 
-    private void CountersModuleSettingView_OnLoaded(object sender, RoutedEventArgs e)
+    private void shockerGroupModuleSettingView_OnLoaded(object sender, RoutedEventArgs e)
     {
         windowManager = new WindowManager(this);
     }
 
     private void AddInstanceButton_OnClick(object sender, RoutedEventArgs e)
     {
-        moduleSetting.Instances.Add(new Counter());
+        moduleSetting.Add();
     }
 
     private void RemoveInstanceButton_OnClick(object sender, RoutedEventArgs e)
     {
         var element = (FrameworkElement)sender;
-        var countInstance = (Counter)element.Tag;
+        var countInstance = (ShockerGroup)element.Tag;
 
-        var result = MessageBox.Show("Warning. This will remove the counter data and remove it from the ChatBox. Are you sure?", "Delete Counter?", MessageBoxButton.YesNo);
+        var result = MessageBox.Show("Warning. This will remove the shocker group data. Are you sure?", "Delete Shocker Group?", MessageBoxButton.YesNo);
         if (result != MessageBoxResult.Yes) return;
 
-        moduleSetting.Instances.Remove(countInstance);
+        moduleSetting.Remove(countInstance);
     }
 
     private void EditInstanceButton_OnClick(object sender, RoutedEventArgs e)
     {
         var element = (FrameworkElement)sender;
-        var countInstance = (Counter)element.Tag;
+        var shockerGroup = (ShockerGroup)element.Tag;
 
-        var editWindow = new CounterInstanceEditWindow(countInstance);
+        var editWindow = new ShockerGroupEditWindow(module, shockerGroup);
 
         windowManager.TrySpawnChild(editWindow);
     }
