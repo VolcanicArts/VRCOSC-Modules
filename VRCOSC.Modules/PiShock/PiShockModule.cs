@@ -152,7 +152,7 @@ public class PiShockModule : Module
 
         Log($"Executing {mode} on group '{shockerGroup.Name}'");
 
-        foreach (var shockerID in shockerGroup.Shockers)
+        foreach (var shockerID in shockerGroup.Shockers.DistinctBy(shockerId => shockerId.Value))
         {
             var shockerInstance = getShockerFromID(shockerID.Value);
             if (shockerInstance is null) continue;
