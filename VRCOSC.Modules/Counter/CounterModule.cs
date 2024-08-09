@@ -188,8 +188,9 @@ public class CounterModule : Module
                     currentValue = 0;
 
                 var newValue = parameter.GetValue<int>();
+                var intThreshold = countInstance.IntThreshold.Value;
 
-                if (currentValue == 0 && newValue != 0)
+                if (currentValue < intThreshold && newValue >= intThreshold)
                 {
                     updateCounter(countInstance);
                 }

@@ -21,8 +21,15 @@
                              FontSize="16"
                              HorizontalAlignment="Stretch" VerticalContentAlignment="Center" />
                 </core:TitleDescriptionContent>
+                <core:TitleDescriptionContent Title="Int Threshold"
+                                              Description="The int threshold for this counter. This is the value at which when crossed from below to equal or above the counter will increment">
+                    <TextBox Text="{Binding IntThreshold.Value, UpdateSourceTrigger=PropertyChanged}"
+                             Background="{StaticResource CBackground3}" Foreground="{StaticResource CForeground1}"
+                             FontSize="16"
+                             HorizontalAlignment="Stretch" VerticalContentAlignment="Center" />
+                </core:TitleDescriptionContent>
                 <core:TitleDescriptionContent Title="Float Threshold"
-                                              Description="The float threshold for this counter. This is the value at which when crossed from below to above the counter will increment">
+                                              Description="The float threshold for this counter. This is the value at which when crossed from below to equal or above the counter will increment">
                     <TextBox Text="{Binding FloatThreshold.Value, UpdateSourceTrigger=PropertyChanged}"
                              Background="{StaticResource CBackground3}" Foreground="{StaticResource CForeground1}"
                              FontSize="16"

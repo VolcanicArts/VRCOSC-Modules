@@ -26,6 +26,9 @@ public class Counter : ICloneable, IEquatable<Counter>
     [JsonProperty("name")]
     public Observable<string> Name { get; set; } = new("New Counter");
 
+    [JsonProperty("int_threshold")]
+    public Observable<int> IntThreshold { get; set; } = new(1);
+
     [JsonProperty("float_threshold")]
     public Observable<float> FloatThreshold { get; set; } = new(0.9f);
 
