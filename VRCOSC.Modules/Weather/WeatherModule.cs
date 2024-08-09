@@ -64,6 +64,7 @@ public class WeatherModule : Module
         if (weather is null)
         {
             Log("Cannot retrieve weather for provided location");
+            Log("This could mean the weather service is down. Please wait for it to return");
             return;
         }
 
