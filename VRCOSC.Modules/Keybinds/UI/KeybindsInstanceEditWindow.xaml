@@ -99,7 +99,7 @@
                                                         <ColumnDefinition Width="Auto" />
                                                     </Grid.ColumnDefinitions>
                                                     <core:KeybindPicker Grid.Column="0" Keybind="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" Margin="5"
-                                                             Background="{StaticResource CBackground2}" />
+                                                             Background="{StaticResource CBackground6}" />
                                                     <core:IconButton Grid.Column="1" ButtonColour="Red"
                                                                      Icon="Solid_Minus"
                                                                      Width="25"
