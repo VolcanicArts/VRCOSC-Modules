@@ -15,8 +15,14 @@
         <Border Background="{StaticResource CBackground1}" Margin="10"
                 CornerRadius="5" VerticalAlignment="Top">
             <core:SpacedStackPanel Spacing="10" Margin="10">
-                <core:TitleDescriptionContent Title="Name" Description="The name of this counter">
+                <core:TitleDescriptionContent Title="Name" Description="The name of this keybind instance">
                     <TextBox Text="{Binding Name.Value, UpdateSourceTrigger=PropertyChanged}"
+                             Background="{StaticResource CBackground3}" Foreground="{StaticResource CForeground1}"
+                             FontSize="16"
+                             HorizontalAlignment="Stretch" VerticalContentAlignment="Center" />
+                </core:TitleDescriptionContent>
+                <core:TitleDescriptionContent Title="Hold Time" Description="How long should each keybind be held in milliseconds?">
+                    <TextBox Text="{Binding HoldTime.Value, UpdateSourceTrigger=PropertyChanged}"
                              Background="{StaticResource CBackground3}" Foreground="{StaticResource CForeground1}"
                              FontSize="16"
                              HorizontalAlignment="Stretch" VerticalContentAlignment="Center" />

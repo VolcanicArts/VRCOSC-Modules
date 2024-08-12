@@ -19,7 +19,7 @@ public class KeybindsModule : Module
         CreateGroup("Keybinds", KeybindsSetting.Keybinds);
     }
 
-    protected override void OnAnyParameterReceived(ReceivedParameter parameter)
+    protected override async void OnAnyParameterReceived(ReceivedParameter parameter)
     {
         if (!parameter.IsValueType<bool>()) return;
         if (!parameter.GetValue<bool>()) return;
@@ -28,9 +28,11 @@ public class KeybindsModule : Module
         {
             if (keybindsInstance.ParameterNames.Select(parameterNames => parameterNames.Value).Contains(parameter.Name))
             {
+                var holdTime = Math.Max(10, keybindsInstance.HoldTime.Value);
+
                 foreach (var keybind in keybindsInstance.Keybinds)
                 {
-                    KeySimulator.ExecuteKeybind(keybind.Value);
+                    await KeySimulator.ExecuteKeybind(keybind.Value, holdTime);
                 }
             }
         }
