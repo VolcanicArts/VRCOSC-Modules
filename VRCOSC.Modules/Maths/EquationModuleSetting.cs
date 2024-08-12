@@ -39,6 +39,7 @@ public class Equation : ICloneable, IEquatable<Equation>
 
     public Equation(Equation other)
     {
+        Name.Value = other.Name.Value;
         TriggerParameters.AddRange(other.TriggerParameters.Select(triggerParameter => new Observable<string>(triggerParameter.Value)));
         EquationString.Value = other.EquationString.Value;
         OutputParameter.Value = other.OutputParameter.Value;
@@ -51,6 +52,6 @@ public class Equation : ICloneable, IEquatable<Equation>
         if (ReferenceEquals(null, other)) return false;
         if (ReferenceEquals(this, other)) return true;
 
-        return TriggerParameters.SequenceEqual(other.TriggerParameters) && EquationString.Equals(other.EquationString) && OutputParameter.Equals(other.OutputParameter);
+        return Name.Equals(other.Name) && TriggerParameters.SequenceEqual(other.TriggerParameters) && EquationString.Equals(other.EquationString) && OutputParameter.Equals(other.OutputParameter);
     }
 }
