@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using VRCOSC.App.ChatBox.Clips.Variables.Instances;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Parameters;
+using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.Modules.Counter;
@@ -100,6 +101,11 @@ public class CounterModule : Module
         auditMilestones();
 
         return Task.FromResult(true);
+    }
+
+    protected override void OnAvatarChange(AvatarConfig? avatarConfig)
+    {
+        parameterValues.Clear();
     }
 
     private void auditCounts()
