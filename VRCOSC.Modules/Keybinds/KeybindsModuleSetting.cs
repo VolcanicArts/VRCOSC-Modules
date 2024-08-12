@@ -28,7 +28,7 @@ public class KeybindsInstance : ICloneable, IEquatable<KeybindsInstance>
     public Observable<string> Name { get; set; } = new("New Keybind");
 
     [JsonProperty("hold_time")]
-    public Observable<int> HoldTime { get; set; } = new(20);
+    public Observable<int> HoldTime { get; set; } = new(50);
 
     [JsonProperty("parameter_names")]
     public ObservableCollection<Observable<string>> ParameterNames { get; set; } = [];

@@ -28,7 +28,7 @@ public class KeybindsModule : Module
         {
             if (keybindsInstance.ParameterNames.Select(parameterNames => parameterNames.Value).Contains(parameter.Name))
             {
-                var holdTime = Math.Max(10, keybindsInstance.HoldTime.Value);
+                var holdTime = Math.Max(25, keybindsInstance.HoldTime.Value);
 
                 foreach (var keybind in keybindsInstance.Keybinds)
                 {
