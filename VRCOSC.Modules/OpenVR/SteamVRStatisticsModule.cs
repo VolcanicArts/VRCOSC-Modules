@@ -69,7 +69,7 @@ public class SteamVRStatisticsModule : Module
         RegisterParameter<bool>(SteamVRParameter.LeftKnee_Charging, "VRCOSC/VR/LKnee/Charging", ParameterMode.Write, "Left Knee Charging", "Whether any tracker marked as Left Knee is currently charging");
         RegisterParameter<bool>(SteamVRParameter.RightKnee_Connected, "VRCOSC/VR/RKnee/Connected", ParameterMode.Write, "Right Knee Connected", "Whether any tracker marked as Right Knee is connected");
         RegisterParameter<float>(SteamVRParameter.RightKnee_Battery, "VRCOSC/VR/RKnee/Battery", ParameterMode.Write, "Right Knee Battery", "Any tracker marked as Right Knee's battery percentage normalised (0-1)");
-        RegisterParameter<bool>(SteamVRParameter.RightKnee_Charging, "VRCOSC/VR/RKnee/Charging", ParameterMode.Write, "Right Knee Charging", "Whether any tracker marked as Knee Foot is currently charging");
+        RegisterParameter<bool>(SteamVRParameter.RightKnee_Charging, "VRCOSC/VR/RKnee/Charging", ParameterMode.Write, "Right Knee Charging", "Whether any tracker marked as Right Knee is currently charging");
 
         RegisterParameter<bool>(SteamVRParameter.Waist_Connected, "VRCOSC/VR/Waist/Connected", ParameterMode.Write, "Waist Connected", "Whether any tracker marked as Waist is connected");
         RegisterParameter<float>(SteamVRParameter.Waist_Battery, "VRCOSC/VR/Waist/Battery", ParameterMode.Write, "Waist Battery", "Any tracker marked as Waist's battery percentage normalised (0-1)");
