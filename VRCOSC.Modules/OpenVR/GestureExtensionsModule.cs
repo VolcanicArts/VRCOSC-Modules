@@ -24,10 +24,8 @@ public class GestureExtensionsModule : Module
     [ModuleUpdate(ModuleUpdateMode.Custom)]
     private void sendParameters()
     {
-        if (!GetOVRClient().HasInitialised) return;
-
-        if (GetOVRClient().LeftController.IsConnected) SendParameter(GestureExtensionsParameter.GestureLeft, (int)getControllerGesture(GetOVRClient().LeftController.Input));
-        if (GetOVRClient().RightController.IsConnected) SendParameter(GestureExtensionsParameter.GestureRight, (int)getControllerGesture(GetOVRClient().RightController.Input));
+        SendParameter(GestureExtensionsParameter.GestureLeft, (int)getControllerGesture(GetOVRClient().GetLeftController().Input));
+        SendParameter(GestureExtensionsParameter.GestureRight, (int)getControllerGesture(GetOVRClient().GetRightController().Input));
     }
 
     private GestureNames getControllerGesture(InputStates input)
