@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using VRCOSC.App.SDK.Modules.Attributes.Settings;
 using VRCOSC.App.Utils;
 using VRCOSC.Modules.PiShock.UI;
@@ -15,12 +14,6 @@ public class ShockerModuleSetting : ListModuleSetting<Shocker>
         : base("Shockers", "Individual shockers. Name them something recognisable", typeof(ShockerModuleSettingView), [])
     {
     }
-
-    protected override Shocker CloneValue(Shocker value) => new(value);
-
-    protected override Shocker ConstructValue(JToken token) => token.ToObject<Shocker>()!;
-
-    protected override Shocker CreateNewItem() => new();
 }
 
 [JsonObject(MemberSerialization.OptIn)]
