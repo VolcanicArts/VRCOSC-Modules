@@ -11,7 +11,6 @@ namespace VRCOSC.Modules.Stopwatch;
 [ModuleType(ModuleType.Generic)]
 public class StopwatchModule : Module
 {
-    private StopwatchModuleRuntimeView runtimeView = null!;
     private TimeSpan currentTime;
     private StopwatchState currentState;
 
@@ -48,7 +47,7 @@ public class StopwatchModule : Module
         currentTime = TimeSpan.Zero;
         changeState(StopwatchState.Stopped);
 
-        SetRuntimeView(runtimeView = new StopwatchModuleRuntimeView(this));
+        SetRuntimeView(typeof(StopwatchModuleRuntimeView));
 
         return Task.FromResult(true);
     }

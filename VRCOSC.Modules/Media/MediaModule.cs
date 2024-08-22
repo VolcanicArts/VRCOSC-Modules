@@ -20,8 +20,6 @@ public class MediaModule : Module
     private bool currentlySeeking;
     private TimeSpan targetPosition;
 
-    private MediaModuleRuntimeView runtimeView = null!;
-
     public MediaModule()
     {
         MediaProvider.OnPlaybackStateChanged += onPlaybackStateChanged;
@@ -39,7 +37,7 @@ public class MediaModule : Module
         RegisterParameter<bool>(MediaParameter.Seeking, "VRCOSC/Media/Seeking", ParameterMode.Read, "Seeking", "Whether the user is currently seeking");
         RegisterParameter<float>(MediaParameter.Position, "VRCOSC/Media/Position", ParameterMode.ReadWrite, "Position", "The position of the song as a percentage");
 
-        SetRuntimeView(runtimeView = new MediaModuleRuntimeView(this));
+        SetRuntimeView(typeof(MediaModuleRuntimeView));
     }
 
     protected override void OnPostLoad()
