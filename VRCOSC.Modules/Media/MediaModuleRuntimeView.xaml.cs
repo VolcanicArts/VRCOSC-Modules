@@ -20,24 +20,18 @@ public partial class MediaModuleRuntimeView
 
         DataContext = this;
 
-        Module.MediaProvider.Sessions.CollectionChanged += (_, e) => Dispatcher.Invoke(() =>
+        Module.MediaProvider.Sessions.OnCollectionChanged((newItems, oldItems) => Dispatcher.Invoke(() =>
         {
-            if (e.NewItems is not null)
+            foreach (string newSession in newItems)
             {
-                foreach (string newSession in e.NewItems)
-                {
-                    Sessions.Add(newSession);
-                }
+                Sessions.Add(newSession);
             }
 
-            if (e.OldItems is not null)
+            foreach (string oldSession in oldItems)
             {
-                foreach (string oldSession in e.OldItems)
-                {
-                    Sessions.RemoveIf(session => session == oldSession);
-                }
+                Sessions.RemoveIf(session => session == oldSession);
             }
-        });
+        }), true);
     }
 
     private void SourceSelection_OnLostMouseCapture(object sender, MouseEventArgs e)
