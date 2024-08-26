@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.App.SDK.Modules;
@@ -9,7 +9,7 @@ namespace VRCOSC.Modules.OpenVR;
 
 [ModuleTitle("SteamVR Haptic Control")]
 [ModuleDescription("Lets you trigger haptics for SteamVR controllers")]
-[ModuleType(ModuleType.Integrations)]
+[ModuleType(ModuleType.SteamVR)]
 public class HapticControlModule : Module
 {
     private float duration;
@@ -18,6 +18,8 @@ public class HapticControlModule : Module
 
     protected override void OnPreLoad()
     {
+        // TODO: Add settings for each device for triggering, default duration, frequency, and amplitude, and whether false -> true should trigger once or repeat
+
         RegisterParameter<float>(HapticControlParameter.Duration, "VRCOSC/VR/Haptics/Duration", ParameterMode.Read, "Duration", "The duration of the haptic trigger in seconds");
         RegisterParameter<float>(HapticControlParameter.Frequency, "VRCOSC/VR/Haptics/Frequency", ParameterMode.Read, "Frequency", "The frequency of the haptic trigger");
         RegisterParameter<float>(HapticControlParameter.Amplitude, "VRCOSC/VR/Haptics/Amplitude", ParameterMode.Read, "Amplitude", "The amplitude of the haptic trigger");
