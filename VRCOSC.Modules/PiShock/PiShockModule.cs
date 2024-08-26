@@ -150,7 +150,7 @@ public class PiShockModule : Module
             return;
         }
 
-        Log($"Executing {mode} on group '{shockerGroup.Name}'");
+        Log($"Executing {mode} on group '{shockerGroup.Name.Value}'");
 
         foreach (var shockerID in shockerGroup.Shockers.DistinctBy(shockerId => shockerId.Value))
         {
