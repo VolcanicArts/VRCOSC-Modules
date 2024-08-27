@@ -26,7 +26,8 @@ public class SpeechToTextModule : Module, ISpeechHandler
     {
         var textVariable = CreateVariable<string>(SpeechToTextVariable.Text, "Text")!;
 
-        CreateEvent(SpeechToTextEvent.Result, "Result", "{0}", new[] { textVariable }, true, 10f);
+        CreateState(SpeechToTextState.Default, "Default", string.Empty);
+        CreateEvent(SpeechToTextEvent.Result, "On Speech Result", "{0}", [textVariable], true, 10f);
     }
 
     protected override Task<bool> OnModuleStart()
@@ -59,7 +60,15 @@ public class SpeechToTextModule : Module, ISpeechHandler
         }
     }
 
-    public void OnSpeechResult(string text)
+    public void OnPartialSpeechResult(string text)
+    {
+        if (!shouldHandleResult()) return;
+
+        SetVariableValue(SpeechToTextVariable.Text, text);
+        TriggerEvent(SpeechToTextEvent.Result);
+    }
+
+    public void OnFinalSpeechResult(string text)
     {
         if (!shouldHandleResult()) return;
 
@@ -81,8 +90,7 @@ public class SpeechToTextModule : Module, ISpeechHandler
 
     private enum SpeechToTextSetting
     {
-        ListenCriteria,
-        Confidence
+        ListenCriteria
     }
 
     private enum SpeechToTextParameter
@@ -90,9 +98,14 @@ public class SpeechToTextModule : Module, ISpeechHandler
         Listen
     }
 
+    private enum SpeechToTextState
+    {
+        Default,
+    }
+
     private enum SpeechToTextEvent
     {
-        Result,
+        Result
     }
 
     private enum SpeechToTextVariable
