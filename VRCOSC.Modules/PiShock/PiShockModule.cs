@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using VRCOSC.App.SDK.Handlers;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Modules.Attributes.Settings;
 using VRCOSC.App.SDK.Parameters;
@@ -15,7 +16,7 @@ namespace VRCOSC.Modules.PiShock;
 [ModuleDescription("Allows for controlling PiShock shockers")]
 [ModuleType(ModuleType.NSFW)]
 [ModulePrefab("VRCOSC-PiShock", "https://github.com/VolcanicArts/VRCOSC/releases/download/latest/VRCOSC-PiShock.unitypackage")]
-public class PiShockModule : Module
+public class PiShockModule : Module, ISpeechHandler
 {
     private PiShockProvider? piShockProvider;
 
@@ -33,7 +34,7 @@ public class PiShockModule : Module
     private bool vibrateExecuted;
     private bool beepExecuted;
 
-    public List<Shocker> ShockersSetting => GetSettingValue<List<Shocker>>(PiShockSetting.Shockers)!;
+    public ShockerModuleSetting ShockersSetting => GetSetting<ShockerModuleSetting>(PiShockSetting.Shockers)!;
 
     protected override void OnPreLoad()
     {
@@ -44,10 +45,12 @@ public class PiShockModule : Module
 
         CreateCustom(PiShockSetting.Shockers, new ShockerModuleSetting());
         CreateCustom(PiShockSetting.Groups, new ShockerGroupModuleSetting());
+        CreateCustom(PiShockSetting.Phrases, new PhraseModuleSetting());
 
         CreateGroup("Credentials", PiShockSetting.Username, PiShockSetting.APIKey);
         CreateGroup("Management", PiShockSetting.Shockers, PiShockSetting.Groups);
         CreateGroup("Tweaks", PiShockSetting.ButtonDelay);
+        CreateGroup("Speech", PiShockSetting.Phrases);
 
         RegisterParameter<int>(PiShockParameter.Group, "VRCOSC/PiShock/Group", ParameterMode.Read, "Group", "Sets the specific group to use when using the non-specific action parameters");
         RegisterParameter<float>(PiShockParameter.Duration, "VRCOSC/PiShock/Duration", ParameterMode.Read, "Duration", "The duration of the action as a 0-1 float mapped between 1 and Max Duration for the group set by the Group parameter");
@@ -64,21 +67,15 @@ public class PiShockModule : Module
 
     protected override void OnPostLoad()
     {
-        GetSetting<ShockerModuleSetting>(PiShockSetting.Shockers)!.Attribute.CollectionChanged += (_, e) =>
+        GetSetting<ShockerModuleSetting>(PiShockSetting.Shockers)!.Attribute.OnCollectionChanged((_, _) =>
         {
-            if (e.OldItems is not null)
-            {
-                var groupSetting = GetSetting<ShockerGroupModuleSetting>(PiShockSetting.Groups)!;
+            var groupSetting = GetSetting<ShockerGroupModuleSetting>(PiShockSetting.Groups)!;
 
-                foreach (Shocker oldShocker in e.OldItems)
-                {
-                    foreach (var shockerGroup in groupSetting.Attribute)
-                    {
-                        shockerGroup.Shockers.RemoveIf(shockerID => shockerID.Value == oldShocker.ID);
-                    }
-                }
+            foreach (var shockerGroup in groupSetting.Attribute)
+            {
+                shockerGroup.Shockers.RemoveIf(shockerID => string.IsNullOrEmpty(shockerID.Value));
             }
-        };
+        });
     }
 
     protected override Task<bool> OnModuleStart()
@@ -108,6 +105,32 @@ public class PiShockModule : Module
         shockExecuted = false;
         vibrateExecuted = false;
         beepExecuted = false;
+    }
+
+    public void OnPartialSpeechResult(string text)
+    {
+    }
+
+    public void OnFinalSpeechResult(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return;
+
+        foreach (var phrase in GetSettingValue<List<Phrase>>(PiShockSetting.Phrases)!)
+        {
+            if (text.Contains(phrase.Text.Value, StringComparison.InvariantCultureIgnoreCase))
+            {
+                Log($"Found phrase: '{phrase.Text.Value}'");
+
+                foreach (var shockerGroupID in phrase.ShockerGroups)
+                {
+                    foreach (var shockerID in GetSettingValue<List<ShockerGroup>>(PiShockSetting.Groups)!.Single(group => group.ID == shockerGroupID).Shockers.DistinctBy(shockerId => shockerId.Value))
+                    {
+                        var shockerInstance = getShockerFromID(shockerID.Value);
+                        if (shockerInstance is null) continue;
+                    }
+                }
+            }
+        }
     }
 
     [ModuleUpdate(ModuleUpdateMode.Custom)]
@@ -174,9 +197,14 @@ public class PiShockModule : Module
             var convertedDuration = (int)Math.Round(Interpolation.Map(localDuration, 0, 1, 1, shockerGroup.MaxDuration.Value));
             var convertedIntensity = (int)Math.Round(Interpolation.Map(localIntensity, 0, 1, 1, shockerGroup.MaxIntensity.Value));
 
-            var response = await piShockProvider!.Execute(GetSettingValue<string>(PiShockSetting.Username)!, GetSettingValue<string>(PiShockSetting.APIKey)!, shockerInstance.Sharecode.Value, mode, convertedDuration, convertedIntensity);
-            Log(response.Success ? $"{shockerGroup.Name.Value} succeeded" : $"{shockerGroup.Name.Value} failed - {response.Message}");
+            await sendPiShockRequest(shockerInstance.Name.Value, shockerInstance.Sharecode.Value, mode, convertedDuration, convertedIntensity);
         }
+    }
+
+    private async Task sendPiShockRequest(string identifier, string sharecode, PiShockMode mode, int duration, int intensity)
+    {
+        var response = await piShockProvider!.Execute(GetSettingValue<string>(PiShockSetting.Username)!, GetSettingValue<string>(PiShockSetting.APIKey)!, sharecode, mode, duration, intensity);
+        Log(response.Success ? $"{identifier} succeeded" : $"{identifier} failed - {response.Message}");
     }
 
     private Shocker? getShockerFromID(string id) => GetSettingValue<List<Shocker>>(PiShockSetting.Shockers)!.SingleOrDefault(shockerInstance => shockerInstance.ID == id);
@@ -237,7 +265,8 @@ public class PiShockModule : Module
         APIKey,
         ButtonDelay,
         Shockers,
-        Groups
+        Groups,
+        Phrases
     }
 
     private enum PiShockParameter

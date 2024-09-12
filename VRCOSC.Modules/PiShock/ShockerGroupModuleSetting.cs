@@ -20,6 +20,9 @@ public class ShockerGroupModuleSetting : ListModuleSetting<ShockerGroup>
 [JsonObject(MemberSerialization.OptIn)]
 public class ShockerGroup : ICloneable, IEquatable<ShockerGroup>
 {
+    [JsonProperty("id")]
+    public string ID { get; set; } = Guid.NewGuid().ToString();
+
     [JsonProperty("name")]
     public Observable<string> Name { get; set; } = new("My New Group");
 

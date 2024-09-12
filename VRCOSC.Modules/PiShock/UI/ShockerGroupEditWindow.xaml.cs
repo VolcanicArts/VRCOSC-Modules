@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Collections.ObjectModel;
 using System.Windows;
 using VRCOSC.App.Utils;
 
@@ -11,7 +12,7 @@ public partial class ShockerGroupEditWindow
     private readonly PiShockModule module;
     public ShockerGroup ShockerGroup { get; set; }
 
-    public List<Shocker> ShockerItemsSource => module.ShockersSetting;
+    public ObservableCollection<Shocker> ShockerItemsSource => module.ShockersSetting.Attribute;
 
     public ShockerGroupEditWindow(PiShockModule module, ShockerGroup shockerGroup)
     {
