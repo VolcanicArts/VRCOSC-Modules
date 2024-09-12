@@ -1,10 +1,8 @@
-using System.Windows.Controls;
-
 namespace VRCOSC.Modules.PiShock.UI;
 
-public partial class PhraseModuleSettingView : UserControl
+public partial class PhraseModuleSettingView
 {
-    public PhraseModuleSettingView()
+    public PhraseModuleSettingView(PiShockModule module, PhraseModuleSetting moduleSetting)
     {
         InitializeComponent();
     }
