@@ -45,12 +45,12 @@ public class PiShockModule : Module, ISpeechHandler
 
         CreateCustom(PiShockSetting.Shockers, new ShockerModuleSetting());
         CreateCustom(PiShockSetting.Groups, new ShockerGroupModuleSetting());
-        CreateCustom(PiShockSetting.Phrases, new PhraseModuleSetting());
+        //CreateCustom(PiShockSetting.Phrases, new PhraseModuleSetting());
 
         CreateGroup("Credentials", PiShockSetting.Username, PiShockSetting.APIKey);
         CreateGroup("Management", PiShockSetting.Shockers, PiShockSetting.Groups);
         CreateGroup("Tweaks", PiShockSetting.ButtonDelay);
-        CreateGroup("Speech", PiShockSetting.Phrases);
+        //CreateGroup("Speech", PiShockSetting.Phrases);
 
         RegisterParameter<int>(PiShockParameter.Group, "VRCOSC/PiShock/Group", ParameterMode.Read, "Group", "Sets the specific group to use when using the non-specific action parameters");
         RegisterParameter<float>(PiShockParameter.Duration, "VRCOSC/PiShock/Duration", ParameterMode.Read, "Duration", "The duration of the action as a 0-1 float mapped between 1 and Max Duration for the group set by the Group parameter");
@@ -127,6 +127,8 @@ public class PiShockModule : Module, ISpeechHandler
                     {
                         var shockerInstance = getShockerFromID(shockerID.Value);
                         if (shockerInstance is null) continue;
+
+                        // TODO: Execute
                     }
                 }
             }
