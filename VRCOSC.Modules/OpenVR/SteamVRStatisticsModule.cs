@@ -125,21 +125,35 @@ public class SteamVRStatisticsModule : Module
     {
         SetVariableValue(SteamVRVariable.FPS, GetOVRClient().FPS);
         SetVariableValue(SteamVRVariable.DashboardVisible, GetOVRClient().IsDashboardVisible());
-        SetVariableValue(SteamVRVariable.HMD_Charging, GetOVRClient().GetHMD().IsCharging);
         SetVariableValue(SteamVRVariable.HMD_Battery, (int)(GetOVRClient().GetHMD().BatteryPercentage * 100f));
-        SetVariableValue(SteamVRVariable.LHand_Charging, GetOVRClient().GetLeftController().IsCharging);
+        SetVariableValue(SteamVRVariable.HMD_Charging, GetOVRClient().GetHMD().IsCharging);
         SetVariableValue(SteamVRVariable.LHand_Battery, (int)(GetOVRClient().GetLeftController().BatteryPercentage * 100f));
-        SetVariableValue(SteamVRVariable.RHand_Charging, GetOVRClient().GetRightController().IsCharging);
+        SetVariableValue(SteamVRVariable.LHand_Charging, GetOVRClient().GetLeftController().IsCharging);
         SetVariableValue(SteamVRVariable.RHand_Battery, (int)(GetOVRClient().GetRightController().BatteryPercentage * 100f));
-
-        // TODO: Add Trackers
+        SetVariableValue(SteamVRVariable.RHand_Charging, GetOVRClient().GetRightController().IsCharging);
+        SetVariableValue(SteamVRVariable.Chest_Battery, (int)(GetOVRClient().GetTrackedDevice(DeviceRole.Chest).BatteryPercentage * 100f));
+        SetVariableValue(SteamVRVariable.Chest_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.Chest).IsCharging);
+        SetVariableValue(SteamVRVariable.Waist_Battery, (int)(GetOVRClient().GetTrackedDevice(DeviceRole.Waist).BatteryPercentage * 100f));
+        SetVariableValue(SteamVRVariable.Waist_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.Waist).IsCharging);
+        SetVariableValue(SteamVRVariable.LeftElbow_Battery, (int)(GetOVRClient().GetTrackedDevice(DeviceRole.LeftElbow).BatteryPercentage * 100f));
+        SetVariableValue(SteamVRVariable.LeftElbow_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.LeftElbow).IsCharging);
+        SetVariableValue(SteamVRVariable.RightElbow_Battery, (int)(GetOVRClient().GetTrackedDevice(DeviceRole.RightElbow).BatteryPercentage * 100f));
+        SetVariableValue(SteamVRVariable.RightElbow_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.RightElbow).IsCharging);
+        SetVariableValue(SteamVRVariable.LeftKnee_Battery, (int)(GetOVRClient().GetTrackedDevice(DeviceRole.LeftKnee).BatteryPercentage * 100f));
+        SetVariableValue(SteamVRVariable.LeftKnee_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.LeftKnee).IsCharging);
+        SetVariableValue(SteamVRVariable.RightKnee_Battery, (int)(GetOVRClient().GetTrackedDevice(DeviceRole.RightKnee).BatteryPercentage * 100f));
+        SetVariableValue(SteamVRVariable.RightKnee_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.RightKnee).IsCharging);
+        SetVariableValue(SteamVRVariable.LeftFoot_Battery, (int)(GetOVRClient().GetTrackedDevice(DeviceRole.LeftFoot).BatteryPercentage * 100f));
+        SetVariableValue(SteamVRVariable.LeftFoot_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.LeftFoot).IsCharging);
+        SetVariableValue(SteamVRVariable.RightFoot_Battery, (int)(GetOVRClient().GetTrackedDevice(DeviceRole.RightFoot).BatteryPercentage * 100f));
+        SetVariableValue(SteamVRVariable.RightFoot_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.RightFoot).IsCharging);
 
         var totalBatteryPercentage = 0f;
         var totalTrackers = 0;
 
         foreach (var deviceRole in Enum.GetValues<DeviceRole>())
         {
-            if (deviceRole is DeviceRole.Head or DeviceRole.LeftHand or DeviceRole.RightHand) continue;
+            if (deviceRole is DeviceRole.Head or DeviceRole.LeftHand or DeviceRole.RightHand or DeviceRole.Unset) continue;
 
             var device = GetOVRClient().GetTrackedDevice(deviceRole);
 
@@ -171,7 +185,37 @@ public class SteamVRStatisticsModule : Module
         SendParameter(SteamVRParameter.RHand_Battery, GetOVRClient().GetRightController().BatteryPercentage);
         SendParameter(SteamVRParameter.RHand_Charging, GetOVRClient().GetRightController().IsCharging);
 
-        // TODO: Add trackers
+        SendParameter(SteamVRParameter.Chest_Connected, GetOVRClient().GetTrackedDevice(DeviceRole.Chest).IsConnected);
+        SendParameter(SteamVRParameter.Chest_Battery, GetOVRClient().GetTrackedDevice(DeviceRole.Chest).BatteryPercentage);
+        SendParameter(SteamVRParameter.Chest_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.Chest).IsConnected);
+
+        SendParameter(SteamVRParameter.Waist_Connected, GetOVRClient().GetTrackedDevice(DeviceRole.Waist).IsConnected);
+        SendParameter(SteamVRParameter.Waist_Battery, GetOVRClient().GetTrackedDevice(DeviceRole.Waist).BatteryPercentage);
+        SendParameter(SteamVRParameter.Waist_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.Waist).IsConnected);
+
+        SendParameter(SteamVRParameter.LeftElbow_Connected, GetOVRClient().GetTrackedDevice(DeviceRole.LeftElbow).IsConnected);
+        SendParameter(SteamVRParameter.LeftElbow_Battery, GetOVRClient().GetTrackedDevice(DeviceRole.LeftElbow).BatteryPercentage);
+        SendParameter(SteamVRParameter.LeftElbow_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.LeftElbow).IsConnected);
+
+        SendParameter(SteamVRParameter.RightElbow_Connected, GetOVRClient().GetTrackedDevice(DeviceRole.RightElbow).IsConnected);
+        SendParameter(SteamVRParameter.RightElbow_Battery, GetOVRClient().GetTrackedDevice(DeviceRole.RightElbow).BatteryPercentage);
+        SendParameter(SteamVRParameter.RightElbow_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.RightElbow).IsConnected);
+
+        SendParameter(SteamVRParameter.LeftKnee_Connected, GetOVRClient().GetTrackedDevice(DeviceRole.LeftKnee).IsConnected);
+        SendParameter(SteamVRParameter.LeftKnee_Battery, GetOVRClient().GetTrackedDevice(DeviceRole.LeftKnee).BatteryPercentage);
+        SendParameter(SteamVRParameter.LeftKnee_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.LeftKnee).IsConnected);
+
+        SendParameter(SteamVRParameter.RightKnee_Connected, GetOVRClient().GetTrackedDevice(DeviceRole.RightKnee).IsConnected);
+        SendParameter(SteamVRParameter.RightKnee_Battery, GetOVRClient().GetTrackedDevice(DeviceRole.RightKnee).BatteryPercentage);
+        SendParameter(SteamVRParameter.RightKnee_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.RightKnee).IsConnected);
+
+        SendParameter(SteamVRParameter.LeftFoot_Connected, GetOVRClient().GetTrackedDevice(DeviceRole.LeftFoot).IsConnected);
+        SendParameter(SteamVRParameter.LeftFoot_Battery, GetOVRClient().GetTrackedDevice(DeviceRole.LeftFoot).BatteryPercentage);
+        SendParameter(SteamVRParameter.LeftFoot_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.LeftFoot).IsConnected);
+
+        SendParameter(SteamVRParameter.RightFoot_Connected, GetOVRClient().GetTrackedDevice(DeviceRole.RightFoot).IsConnected);
+        SendParameter(SteamVRParameter.RightFoot_Battery, GetOVRClient().GetTrackedDevice(DeviceRole.RightFoot).BatteryPercentage);
+        SendParameter(SteamVRParameter.RightFoot_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.RightFoot).IsConnected);
     }
 
     [ModuleUpdate(ModuleUpdateMode.Custom, true, 1000f / 60f)]
