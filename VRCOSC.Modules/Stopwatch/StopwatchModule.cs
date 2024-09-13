@@ -26,11 +26,15 @@ public class StopwatchModule : Module
         RegisterParameter<int>(StopwatchParameter.State, "VRCOSC/Stopwatch/State", ParameterMode.Write, "State", "The state of the stopwatch\n0 - Stopped\n1 - Paused\n2 - Started");
 
         RegisterParameter<int>(StopwatchParameter.MinuteValue, "VRCOSC/Stopwatch/Minute/Value", ParameterMode.Write, "Minute Value", "The minute value of the stopwatch (0-59)");
+
         RegisterParameter<float>(StopwatchParameter.MinuteNormalised, "VRCOSC/Stopwatch/Minute/Normalised", ParameterMode.Write, "Minute Normalised",
             "The minute value of the stopwatch normalised between 0 and 1");
         RegisterParameter<int>(StopwatchParameter.SecondValue, "VRCOSC/Stopwatch/Second/Value", ParameterMode.Write, "Second Value", "The second value of the stopwatch (0-59)");
+
         RegisterParameter<float>(StopwatchParameter.SecondNormalised, "VRCOSC/Stopwatch/Second/Normalised", ParameterMode.Write, "Second Normalised",
             "The second value of the stopwatch normalised between 0 and 1");
+
+        SetRuntimeView(typeof(StopwatchModuleRuntimeView));
     }
 
     protected override void OnPostLoad()
@@ -46,9 +50,6 @@ public class StopwatchModule : Module
     {
         currentTime = TimeSpan.Zero;
         changeState(StopwatchState.Stopped);
-
-        SetRuntimeView(typeof(StopwatchModuleRuntimeView));
-
         return Task.FromResult(true);
     }
 
