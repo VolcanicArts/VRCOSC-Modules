@@ -50,26 +50,26 @@ public class SteamVRStatisticsModule : Module
         RegisterParameter<float>(SteamVRParameter.RightRing, "VRCOSC/VR/RHand/Input/Finger/Ring", ParameterMode.Write, "Right Ring (Index Only)", "The bend value of your right ring finger");
         RegisterParameter<float>(SteamVRParameter.RightPinky, "VRCOSC/VR/RHand/Input/Finger/Pinky", ParameterMode.Write, "Right Pinky (Index Only)", "The bend value of your right pinky finger");
 
-        RegisterParameter<bool>(SteamVRParameter.LeftElbow_Connected, "VRCOSC/VR/LElbow/Connected", ParameterMode.Write, "Left Elbow Connected", "Whether any tracker marked as Left Elbow is connected");
-        RegisterParameter<float>(SteamVRParameter.LeftElbow_Battery, "VRCOSC/VR/LElbow/Battery", ParameterMode.Write, "Left Elbow Battery", "Any tracker marked as Left Elbow's battery percentage normalised (0-1)");
-        RegisterParameter<bool>(SteamVRParameter.LeftElbow_Charging, "VRCOSC/VR/LElbow/Charging", ParameterMode.Write, "Left Elbow Charging", "Whether any tracker marked as Left Elbow is currently charging");
-        RegisterParameter<bool>(SteamVRParameter.RightElbow_Connected, "VRCOSC/VR/RElbow/Connected", ParameterMode.Write, "Right Elbow Connected", "Whether any tracker marked as Right Elbow is connected");
-        RegisterParameter<float>(SteamVRParameter.RightElbow_Battery, "VRCOSC/VR/RElbow/Battery", ParameterMode.Write, "Right Elbow Battery", "Any tracker marked as Right Elbow's battery percentage normalised (0-1)");
-        RegisterParameter<bool>(SteamVRParameter.RightElbow_Charging, "VRCOSC/VR/RElbow/Charging", ParameterMode.Write, "Right Elbow Charging", "Whether any tracker marked as Right Elbow is currently charging");
+        RegisterParameter<bool>(SteamVRParameter.LElbow_Connected, "VRCOSC/VR/LElbow/Connected", ParameterMode.Write, "Left Elbow Connected", "Whether any tracker marked as Left Elbow is connected");
+        RegisterParameter<float>(SteamVRParameter.LElbow_Battery, "VRCOSC/VR/LElbow/Battery", ParameterMode.Write, "Left Elbow Battery", "Any tracker marked as Left Elbow's battery percentage normalised (0-1)");
+        RegisterParameter<bool>(SteamVRParameter.LElbow_Charging, "VRCOSC/VR/LElbow/Charging", ParameterMode.Write, "Left Elbow Charging", "Whether any tracker marked as Left Elbow is currently charging");
+        RegisterParameter<bool>(SteamVRParameter.RElbow_Connected, "VRCOSC/VR/RElbow/Connected", ParameterMode.Write, "Right Elbow Connected", "Whether any tracker marked as Right Elbow is connected");
+        RegisterParameter<float>(SteamVRParameter.RElbow_Battery, "VRCOSC/VR/RElbow/Battery", ParameterMode.Write, "Right Elbow Battery", "Any tracker marked as Right Elbow's battery percentage normalised (0-1)");
+        RegisterParameter<bool>(SteamVRParameter.RElbow_Charging, "VRCOSC/VR/RElbow/Charging", ParameterMode.Write, "Right Elbow Charging", "Whether any tracker marked as Right Elbow is currently charging");
 
-        RegisterParameter<bool>(SteamVRParameter.LeftFoot_Connected, "VRCOSC/VR/LFoot/Connected", ParameterMode.Write, "Left Foot Connected", "Whether any tracker marked as Left Foot is connected");
-        RegisterParameter<float>(SteamVRParameter.LeftFoot_Battery, "VRCOSC/VR/LFoot/Battery", ParameterMode.Write, "Left Foot Battery", "Any tracker marked as Left Foot's battery percentage normalised (0-1)");
-        RegisterParameter<bool>(SteamVRParameter.LeftFoot_Charging, "VRCOSC/VR/LFoot/Charging", ParameterMode.Write, "Left Foot Charging", "Whether any tracker marked as Left Foot is currently charging");
-        RegisterParameter<bool>(SteamVRParameter.RightFoot_Connected, "VRCOSC/VR/RFoot/Connected", ParameterMode.Write, "Right Foot Connected", "Whether any tracker marked as Right Foot is connected");
-        RegisterParameter<float>(SteamVRParameter.RightFoot_Battery, "VRCOSC/VR/RFoot/Battery", ParameterMode.Write, "Right Foot Battery", "Any tracker marked as Right Foot's battery percentage normalised (0-1)");
-        RegisterParameter<bool>(SteamVRParameter.RightFoot_Charging, "VRCOSC/VR/RFoot/Charging", ParameterMode.Write, "Right Foot Charging", "Whether any tracker marked as Right Foot is currently charging");
+        RegisterParameter<bool>(SteamVRParameter.LFoot_Connected, "VRCOSC/VR/LFoot/Connected", ParameterMode.Write, "Left Foot Connected", "Whether any tracker marked as Left Foot is connected");
+        RegisterParameter<float>(SteamVRParameter.LFoot_Battery, "VRCOSC/VR/LFoot/Battery", ParameterMode.Write, "Left Foot Battery", "Any tracker marked as Left Foot's battery percentage normalised (0-1)");
+        RegisterParameter<bool>(SteamVRParameter.LFoot_Charging, "VRCOSC/VR/LFoot/Charging", ParameterMode.Write, "Left Foot Charging", "Whether any tracker marked as Left Foot is currently charging");
+        RegisterParameter<bool>(SteamVRParameter.RFoot_Connected, "VRCOSC/VR/RFoot/Connected", ParameterMode.Write, "Right Foot Connected", "Whether any tracker marked as Right Foot is connected");
+        RegisterParameter<float>(SteamVRParameter.RFoot_Battery, "VRCOSC/VR/RFoot/Battery", ParameterMode.Write, "Right Foot Battery", "Any tracker marked as Right Foot's battery percentage normalised (0-1)");
+        RegisterParameter<bool>(SteamVRParameter.RFoot_Charging, "VRCOSC/VR/RFoot/Charging", ParameterMode.Write, "Right Foot Charging", "Whether any tracker marked as Right Foot is currently charging");
 
-        RegisterParameter<bool>(SteamVRParameter.LeftKnee_Connected, "VRCOSC/VR/LKnee/Connected", ParameterMode.Write, "Left Knee Connected", "Whether any tracker marked as Left Knee is connected");
-        RegisterParameter<float>(SteamVRParameter.LeftKnee_Battery, "VRCOSC/VR/LKnee/Battery", ParameterMode.Write, "Left Knee Battery", "Any tracker marked as Left Knee's battery percentage normalised (0-1)");
-        RegisterParameter<bool>(SteamVRParameter.LeftKnee_Charging, "VRCOSC/VR/LKnee/Charging", ParameterMode.Write, "Left Knee Charging", "Whether any tracker marked as Left Knee is currently charging");
-        RegisterParameter<bool>(SteamVRParameter.RightKnee_Connected, "VRCOSC/VR/RKnee/Connected", ParameterMode.Write, "Right Knee Connected", "Whether any tracker marked as Right Knee is connected");
-        RegisterParameter<float>(SteamVRParameter.RightKnee_Battery, "VRCOSC/VR/RKnee/Battery", ParameterMode.Write, "Right Knee Battery", "Any tracker marked as Right Knee's battery percentage normalised (0-1)");
-        RegisterParameter<bool>(SteamVRParameter.RightKnee_Charging, "VRCOSC/VR/RKnee/Charging", ParameterMode.Write, "Right Knee Charging", "Whether any tracker marked as Right Knee is currently charging");
+        RegisterParameter<bool>(SteamVRParameter.LKnee_Connected, "VRCOSC/VR/LKnee/Connected", ParameterMode.Write, "Left Knee Connected", "Whether any tracker marked as Left Knee is connected");
+        RegisterParameter<float>(SteamVRParameter.LKnee_Battery, "VRCOSC/VR/LKnee/Battery", ParameterMode.Write, "Left Knee Battery", "Any tracker marked as Left Knee's battery percentage normalised (0-1)");
+        RegisterParameter<bool>(SteamVRParameter.LKnee_Charging, "VRCOSC/VR/LKnee/Charging", ParameterMode.Write, "Left Knee Charging", "Whether any tracker marked as Left Knee is currently charging");
+        RegisterParameter<bool>(SteamVRParameter.RKnee_Connected, "VRCOSC/VR/RKnee/Connected", ParameterMode.Write, "Right Knee Connected", "Whether any tracker marked as Right Knee is connected");
+        RegisterParameter<float>(SteamVRParameter.RKnee_Battery, "VRCOSC/VR/RKnee/Battery", ParameterMode.Write, "Right Knee Battery", "Any tracker marked as Right Knee's battery percentage normalised (0-1)");
+        RegisterParameter<bool>(SteamVRParameter.RKnee_Charging, "VRCOSC/VR/RKnee/Charging", ParameterMode.Write, "Right Knee Charging", "Whether any tracker marked as Right Knee is currently charging");
 
         RegisterParameter<bool>(SteamVRParameter.Waist_Connected, "VRCOSC/VR/Waist/Connected", ParameterMode.Write, "Waist Connected", "Whether any tracker marked as Waist is connected");
         RegisterParameter<float>(SteamVRParameter.Waist_Battery, "VRCOSC/VR/Waist/Battery", ParameterMode.Write, "Waist Battery", "Any tracker marked as Waist's battery percentage normalised (0-1)");
@@ -91,18 +91,18 @@ public class SteamVRStatisticsModule : Module
         CreateVariable<bool>(SteamVRVariable.RHand_Charging, "Right Hand Charging");
         var rcBatteryReference = CreateVariable<int>(SteamVRVariable.RHand_Battery, "Right Hand Battery (%)")!;
 
-        CreateVariable<bool>(SteamVRVariable.LeftElbow_Charging, "Left Elbow Charging");
-        CreateVariable<int>(SteamVRVariable.LeftElbow_Battery, "Left Elbow Battery (%)");
-        CreateVariable<bool>(SteamVRVariable.RightElbow_Charging, "Right Elbow Charging");
-        CreateVariable<int>(SteamVRVariable.RightElbow_Battery, "Right Elbow Battery (%)");
-        CreateVariable<bool>(SteamVRVariable.LeftFoot_Charging, "Left Foot Charging");
-        CreateVariable<int>(SteamVRVariable.LeftFoot_Battery, "Left Foot Battery (%)");
-        CreateVariable<bool>(SteamVRVariable.RightFoot_Charging, "Right Foot Charging");
-        CreateVariable<int>(SteamVRVariable.RightFoot_Battery, "Right Foot Battery (%)");
-        CreateVariable<bool>(SteamVRVariable.LeftKnee_Charging, "Left Knee Charging");
-        CreateVariable<int>(SteamVRVariable.LeftKnee_Battery, "Left Knee Battery (%)");
-        CreateVariable<bool>(SteamVRVariable.RightKnee_Charging, "Right Knee Charging");
-        CreateVariable<int>(SteamVRVariable.RightKnee_Battery, "Right Knee Battery (%)");
+        CreateVariable<bool>(SteamVRVariable.LElbow_Charging, "Left Elbow Charging");
+        CreateVariable<int>(SteamVRVariable.LElbow_Battery, "Left Elbow Battery (%)");
+        CreateVariable<bool>(SteamVRVariable.RElbow_Charging, "Right Elbow Charging");
+        CreateVariable<int>(SteamVRVariable.RElbow_Battery, "Right Elbow Battery (%)");
+        CreateVariable<bool>(SteamVRVariable.LFoot_Charging, "Left Foot Charging");
+        CreateVariable<int>(SteamVRVariable.LFoot_Battery, "Left Foot Battery (%)");
+        CreateVariable<bool>(SteamVRVariable.RFoot_Charging, "Right Foot Charging");
+        CreateVariable<int>(SteamVRVariable.RFoot_Battery, "Right Foot Battery (%)");
+        CreateVariable<bool>(SteamVRVariable.LKnee_Charging, "Left Knee Charging");
+        CreateVariable<int>(SteamVRVariable.LKnee_Battery, "Left Knee Battery (%)");
+        CreateVariable<bool>(SteamVRVariable.RKnee_Charging, "Right Knee Charging");
+        CreateVariable<int>(SteamVRVariable.RKnee_Battery, "Right Knee Battery (%)");
         CreateVariable<bool>(SteamVRVariable.Waist_Charging, "Waist Charging");
         CreateVariable<int>(SteamVRVariable.Waist_Battery, "Waist Battery (%)");
         CreateVariable<bool>(SteamVRVariable.Chest_Charging, "Chest Charging");
@@ -135,18 +135,18 @@ public class SteamVRStatisticsModule : Module
         SetVariableValue(SteamVRVariable.Chest_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.Chest).IsCharging);
         SetVariableValue(SteamVRVariable.Waist_Battery, (int)(GetOVRClient().GetTrackedDevice(DeviceRole.Waist).BatteryPercentage * 100f));
         SetVariableValue(SteamVRVariable.Waist_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.Waist).IsCharging);
-        SetVariableValue(SteamVRVariable.LeftElbow_Battery, (int)(GetOVRClient().GetTrackedDevice(DeviceRole.LeftElbow).BatteryPercentage * 100f));
-        SetVariableValue(SteamVRVariable.LeftElbow_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.LeftElbow).IsCharging);
-        SetVariableValue(SteamVRVariable.RightElbow_Battery, (int)(GetOVRClient().GetTrackedDevice(DeviceRole.RightElbow).BatteryPercentage * 100f));
-        SetVariableValue(SteamVRVariable.RightElbow_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.RightElbow).IsCharging);
-        SetVariableValue(SteamVRVariable.LeftKnee_Battery, (int)(GetOVRClient().GetTrackedDevice(DeviceRole.LeftKnee).BatteryPercentage * 100f));
-        SetVariableValue(SteamVRVariable.LeftKnee_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.LeftKnee).IsCharging);
-        SetVariableValue(SteamVRVariable.RightKnee_Battery, (int)(GetOVRClient().GetTrackedDevice(DeviceRole.RightKnee).BatteryPercentage * 100f));
-        SetVariableValue(SteamVRVariable.RightKnee_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.RightKnee).IsCharging);
-        SetVariableValue(SteamVRVariable.LeftFoot_Battery, (int)(GetOVRClient().GetTrackedDevice(DeviceRole.LeftFoot).BatteryPercentage * 100f));
-        SetVariableValue(SteamVRVariable.LeftFoot_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.LeftFoot).IsCharging);
-        SetVariableValue(SteamVRVariable.RightFoot_Battery, (int)(GetOVRClient().GetTrackedDevice(DeviceRole.RightFoot).BatteryPercentage * 100f));
-        SetVariableValue(SteamVRVariable.RightFoot_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.RightFoot).IsCharging);
+        SetVariableValue(SteamVRVariable.LElbow_Battery, (int)(GetOVRClient().GetTrackedDevice(DeviceRole.LeftElbow).BatteryPercentage * 100f));
+        SetVariableValue(SteamVRVariable.LElbow_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.LeftElbow).IsCharging);
+        SetVariableValue(SteamVRVariable.RElbow_Battery, (int)(GetOVRClient().GetTrackedDevice(DeviceRole.RightElbow).BatteryPercentage * 100f));
+        SetVariableValue(SteamVRVariable.RElbow_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.RightElbow).IsCharging);
+        SetVariableValue(SteamVRVariable.LKnee_Battery, (int)(GetOVRClient().GetTrackedDevice(DeviceRole.LeftKnee).BatteryPercentage * 100f));
+        SetVariableValue(SteamVRVariable.LKnee_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.LeftKnee).IsCharging);
+        SetVariableValue(SteamVRVariable.RKnee_Battery, (int)(GetOVRClient().GetTrackedDevice(DeviceRole.RightKnee).BatteryPercentage * 100f));
+        SetVariableValue(SteamVRVariable.RKnee_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.RightKnee).IsCharging);
+        SetVariableValue(SteamVRVariable.LFoot_Battery, (int)(GetOVRClient().GetTrackedDevice(DeviceRole.LeftFoot).BatteryPercentage * 100f));
+        SetVariableValue(SteamVRVariable.LFoot_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.LeftFoot).IsCharging);
+        SetVariableValue(SteamVRVariable.RFoot_Battery, (int)(GetOVRClient().GetTrackedDevice(DeviceRole.RightFoot).BatteryPercentage * 100f));
+        SetVariableValue(SteamVRVariable.RFoot_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.RightFoot).IsCharging);
 
         var totalBatteryPercentage = 0f;
         var totalTrackers = 0;
@@ -193,29 +193,29 @@ public class SteamVRStatisticsModule : Module
         SendParameter(SteamVRParameter.Waist_Battery, GetOVRClient().GetTrackedDevice(DeviceRole.Waist).BatteryPercentage);
         SendParameter(SteamVRParameter.Waist_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.Waist).IsConnected);
 
-        SendParameter(SteamVRParameter.LeftElbow_Connected, GetOVRClient().GetTrackedDevice(DeviceRole.LeftElbow).IsConnected);
-        SendParameter(SteamVRParameter.LeftElbow_Battery, GetOVRClient().GetTrackedDevice(DeviceRole.LeftElbow).BatteryPercentage);
-        SendParameter(SteamVRParameter.LeftElbow_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.LeftElbow).IsConnected);
+        SendParameter(SteamVRParameter.LElbow_Connected, GetOVRClient().GetTrackedDevice(DeviceRole.LeftElbow).IsConnected);
+        SendParameter(SteamVRParameter.LElbow_Battery, GetOVRClient().GetTrackedDevice(DeviceRole.LeftElbow).BatteryPercentage);
+        SendParameter(SteamVRParameter.LElbow_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.LeftElbow).IsConnected);
 
-        SendParameter(SteamVRParameter.RightElbow_Connected, GetOVRClient().GetTrackedDevice(DeviceRole.RightElbow).IsConnected);
-        SendParameter(SteamVRParameter.RightElbow_Battery, GetOVRClient().GetTrackedDevice(DeviceRole.RightElbow).BatteryPercentage);
-        SendParameter(SteamVRParameter.RightElbow_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.RightElbow).IsConnected);
+        SendParameter(SteamVRParameter.RElbow_Connected, GetOVRClient().GetTrackedDevice(DeviceRole.RightElbow).IsConnected);
+        SendParameter(SteamVRParameter.RElbow_Battery, GetOVRClient().GetTrackedDevice(DeviceRole.RightElbow).BatteryPercentage);
+        SendParameter(SteamVRParameter.RElbow_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.RightElbow).IsConnected);
 
-        SendParameter(SteamVRParameter.LeftKnee_Connected, GetOVRClient().GetTrackedDevice(DeviceRole.LeftKnee).IsConnected);
-        SendParameter(SteamVRParameter.LeftKnee_Battery, GetOVRClient().GetTrackedDevice(DeviceRole.LeftKnee).BatteryPercentage);
-        SendParameter(SteamVRParameter.LeftKnee_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.LeftKnee).IsConnected);
+        SendParameter(SteamVRParameter.LKnee_Connected, GetOVRClient().GetTrackedDevice(DeviceRole.LeftKnee).IsConnected);
+        SendParameter(SteamVRParameter.LKnee_Battery, GetOVRClient().GetTrackedDevice(DeviceRole.LeftKnee).BatteryPercentage);
+        SendParameter(SteamVRParameter.LKnee_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.LeftKnee).IsConnected);
 
-        SendParameter(SteamVRParameter.RightKnee_Connected, GetOVRClient().GetTrackedDevice(DeviceRole.RightKnee).IsConnected);
-        SendParameter(SteamVRParameter.RightKnee_Battery, GetOVRClient().GetTrackedDevice(DeviceRole.RightKnee).BatteryPercentage);
-        SendParameter(SteamVRParameter.RightKnee_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.RightKnee).IsConnected);
+        SendParameter(SteamVRParameter.RKnee_Connected, GetOVRClient().GetTrackedDevice(DeviceRole.RightKnee).IsConnected);
+        SendParameter(SteamVRParameter.RKnee_Battery, GetOVRClient().GetTrackedDevice(DeviceRole.RightKnee).BatteryPercentage);
+        SendParameter(SteamVRParameter.RKnee_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.RightKnee).IsConnected);
 
-        SendParameter(SteamVRParameter.LeftFoot_Connected, GetOVRClient().GetTrackedDevice(DeviceRole.LeftFoot).IsConnected);
-        SendParameter(SteamVRParameter.LeftFoot_Battery, GetOVRClient().GetTrackedDevice(DeviceRole.LeftFoot).BatteryPercentage);
-        SendParameter(SteamVRParameter.LeftFoot_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.LeftFoot).IsConnected);
+        SendParameter(SteamVRParameter.LFoot_Connected, GetOVRClient().GetTrackedDevice(DeviceRole.LeftFoot).IsConnected);
+        SendParameter(SteamVRParameter.LFoot_Battery, GetOVRClient().GetTrackedDevice(DeviceRole.LeftFoot).BatteryPercentage);
+        SendParameter(SteamVRParameter.LFoot_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.LeftFoot).IsConnected);
 
-        SendParameter(SteamVRParameter.RightFoot_Connected, GetOVRClient().GetTrackedDevice(DeviceRole.RightFoot).IsConnected);
-        SendParameter(SteamVRParameter.RightFoot_Battery, GetOVRClient().GetTrackedDevice(DeviceRole.RightFoot).BatteryPercentage);
-        SendParameter(SteamVRParameter.RightFoot_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.RightFoot).IsConnected);
+        SendParameter(SteamVRParameter.RFoot_Connected, GetOVRClient().GetTrackedDevice(DeviceRole.RightFoot).IsConnected);
+        SendParameter(SteamVRParameter.RFoot_Battery, GetOVRClient().GetTrackedDevice(DeviceRole.RightFoot).BatteryPercentage);
+        SendParameter(SteamVRParameter.RFoot_Charging, GetOVRClient().GetTrackedDevice(DeviceRole.RightFoot).IsConnected);
     }
 
     [ModuleUpdate(ModuleUpdateMode.Custom, true, 1000f / 60f)]
@@ -254,34 +254,34 @@ public class SteamVRStatisticsModule : Module
         HMD_Connected,
         LHand_Connected,
         RHand_Connected,
-        LeftElbow_Connected,
-        RightElbow_Connected,
-        LeftFoot_Connected,
-        RightFoot_Connected,
-        LeftKnee_Connected,
-        RightKnee_Connected,
+        LElbow_Connected,
+        RElbow_Connected,
+        LFoot_Connected,
+        RFoot_Connected,
+        LKnee_Connected,
+        RKnee_Connected,
         Waist_Connected,
         Chest_Connected,
         HMD_Battery,
         LHand_Battery,
         RHand_Battery,
-        LeftElbow_Battery,
-        RightElbow_Battery,
-        LeftFoot_Battery,
-        RightFoot_Battery,
-        LeftKnee_Battery,
-        RightKnee_Battery,
+        LElbow_Battery,
+        RElbow_Battery,
+        LFoot_Battery,
+        RFoot_Battery,
+        LKnee_Battery,
+        RKnee_Battery,
         Waist_Battery,
         Chest_Battery,
         HMD_Charging,
         LHand_Charging,
         RHand_Charging,
-        LeftElbow_Charging,
-        RightElbow_Charging,
-        LeftFoot_Charging,
-        RightFoot_Charging,
-        LeftKnee_Charging,
-        RightKnee_Charging,
+        LElbow_Charging,
+        RElbow_Charging,
+        LFoot_Charging,
+        RFoot_Charging,
+        LKnee_Charging,
+        RKnee_Charging,
         Waist_Charging,
         Chest_Charging,
         LeftATouch,
@@ -314,24 +314,24 @@ public class SteamVRStatisticsModule : Module
         HMD_Battery,
         LHand_Battery,
         RHand_Battery,
-        LeftElbow_Battery,
-        RightElbow_Battery,
-        LeftFoot_Battery,
-        RightFoot_Battery,
-        LeftKnee_Battery,
-        RightKnee_Battery,
+        LElbow_Battery,
+        RElbow_Battery,
+        LFoot_Battery,
+        RFoot_Battery,
+        LKnee_Battery,
+        RKnee_Battery,
         Waist_Battery,
         Chest_Battery,
         TrackerAverageBattery,
         HMD_Charging,
         LHand_Charging,
         RHand_Charging,
-        LeftElbow_Charging,
-        RightElbow_Charging,
-        LeftFoot_Charging,
-        RightFoot_Charging,
-        LeftKnee_Charging,
-        RightKnee_Charging,
+        LElbow_Charging,
+        RElbow_Charging,
+        LFoot_Charging,
+        RFoot_Charging,
+        LKnee_Charging,
+        RKnee_Charging,
         Waist_Charging,
         Chest_Charging
     }
