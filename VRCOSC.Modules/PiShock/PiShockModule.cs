@@ -113,6 +113,8 @@ public class PiShockModule : Module, ISpeechHandler
 
     public void OnFinalSpeechResult(string text)
     {
+        return;
+
         if (string.IsNullOrEmpty(text)) return;
 
         foreach (var phrase in GetSettingValue<List<Phrase>>(PiShockSetting.Phrases)!)
