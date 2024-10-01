@@ -31,13 +31,13 @@ public class Phrase : ICloneable, IEquatable<Phrase>
     public Observable<PiShockMode> Mode { get; } = new();
 
     [JsonProperty("duration")]
-    public Observable<int> Duration { get; } = new();
+    public Observable<int> Duration { get; } = new(15);
 
     [JsonProperty("intensity")]
-    public Observable<int> Intensity { get; } = new();
+    public Observable<int> Intensity { get; } = new(100);
 
     [JsonProperty("shocker_groups")]
-    public ObservableCollection<string> ShockerGroups { get; } = new();
+    public ObservableCollection<Observable<string>> ShockerGroups { get; } = [];
 
     public Phrase()
     {
@@ -55,7 +55,7 @@ public class Phrase : ICloneable, IEquatable<Phrase>
         if (other is null) return false;
         if (ReferenceEquals(this, other)) return true;
 
-        return Name.Equals(other.Name) && Text.Equals(other.Text) && ShockerGroups.SequenceEqual(other.ShockerGroups);
+        return Name.Equals(other.Name) && Text.Equals(other.Text) && Mode.Equals(other.Mode) && ShockerGroups.SequenceEqual(other.ShockerGroups) && Duration.Equals(other.Duration) && Intensity.Equals(other.Intensity);
     }
 
     public override bool Equals(object? obj) => obj is Phrase phrase && Equals(phrase);

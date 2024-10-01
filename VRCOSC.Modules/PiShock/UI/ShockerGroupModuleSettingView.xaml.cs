@@ -35,20 +35,20 @@ public partial class ShockerGroupModuleSettingView
     private void RemoveInstanceButton_OnClick(object sender, RoutedEventArgs e)
     {
         var element = (FrameworkElement)sender;
-        var countInstance = (ShockerGroup)element.Tag;
+        var shockerGroupInstance = (ShockerGroup)element.Tag;
 
         var result = MessageBox.Show("Warning. This will remove the shocker group data. Are you sure?", "Delete Shocker Group?", MessageBoxButton.YesNo);
         if (result != MessageBoxResult.Yes) return;
 
-        moduleSetting.Remove(countInstance);
+        moduleSetting.Remove(shockerGroupInstance);
     }
 
     private void EditInstanceButton_OnClick(object sender, RoutedEventArgs e)
     {
         var element = (FrameworkElement)sender;
-        var shockerGroup = (ShockerGroup)element.Tag;
+        var shockerGroupInstance = (ShockerGroup)element.Tag;
 
-        var editWindow = new ShockerGroupEditWindow(module, shockerGroup);
+        var editWindow = new ShockerGroupEditWindow(module, shockerGroupInstance);
 
         windowManager.TrySpawnChild(editWindow);
     }
