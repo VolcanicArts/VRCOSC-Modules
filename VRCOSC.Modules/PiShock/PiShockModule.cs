@@ -97,6 +97,7 @@ public class PiShockModule : Module, ISpeechHandler
     private void reset()
     {
         var groups = GetSettingValue<List<ShockerGroup>>(PiShockSetting.Groups);
+
         if (groups.Count != 0)
             globalGroupID = groups[0].ID;
 
@@ -136,8 +137,8 @@ public class PiShockModule : Module, ISpeechHandler
                 var shockerGroup = GetSettingValue<IEnumerable<ShockerGroup>>(PiShockSetting.Groups).SingleOrDefault(shockerGroup => shockerGroup.ID == shockerGroupID.Value);
                 if (shockerGroup is null) return Task.CompletedTask;
 
-                var localDuration = phrase.Duration.Value / shockerGroup.MaxDuration.Value;
-                var localIntensity = phrase.Intensity.Value / shockerGroup.MaxIntensity.Value;
+                var localDuration = (float)Interpolation.Map(phrase.Duration.Value, 1, 15, 0, 1);
+                var localIntensity = (float)Interpolation.Map(phrase.Intensity.Value, 1, 100, 0, 1);
 
                 return Task.Run(async () => await executeGroupAsync(shockerGroupID.Value, phrase.Mode.Value, localDuration, localIntensity));
             });
@@ -197,20 +198,8 @@ public class PiShockModule : Module, ISpeechHandler
         var shockerGroup = GetSettingValue<IEnumerable<ShockerGroup>>(PiShockSetting.Groups).SingleOrDefault(shockerGroup => shockerGroup.ID == groupID);
         if (shockerGroup is null) return;
 
-        var convertedDuration = (int)Math.Round(durationPercentage * shockerGroup.MaxDuration.Value);
-        var convertedIntensity = (int)Math.Round(intensityPercentage * shockerGroup.MaxIntensity.Value);
-
-        if (convertedDuration == 0)
-        {
-            Log($"Cannot execute '{shockerGroup.Name.Value}' with a duration of 0");
-            return;
-        }
-
-        if (convertedIntensity == 0)
-        {
-            Log($"Cannot execute '{shockerGroup.Name.Value}' with an intensity of 0");
-            return;
-        }
+        var convertedDuration = Math.Min((int)Math.Round(Interpolation.Map(durationPercentage, 0, 1, 1, 15)), shockerGroup.MaxDuration.Value);
+        var convertedIntensity = Math.Min((int)Math.Round(Interpolation.Map(intensityPercentage, 0, 1, 1, 100)), shockerGroup.MaxIntensity.Value);
 
         var tasks = shockerGroup.Shockers.DistinctBy(shockerID => shockerID.Value).Select(shockerID =>
         {
