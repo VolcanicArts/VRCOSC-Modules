@@ -32,15 +32,11 @@
                 </core:TitleDescriptionContent>
                 <core:TitleDescriptionContent Title="Duration"
                                               Description="The duration this phrase will execute for">
-                    <TextBox Text="{Binding Phrase.Duration.Value, UpdateSourceTrigger=PropertyChanged}"
-                             Background="{StaticResource CBackground3}" Foreground="{StaticResource CForeground1}"
-                             FontSize="16" />
+                    <core:VRCOSCSlider Height="50" Value="{Binding Phrase.Duration.Value}" MinValue="1" MaxValue="15" SliderType="Int"/>
                 </core:TitleDescriptionContent>
                 <core:TitleDescriptionContent Title="Intensity"
                                               Description="The intensity this phrase will execute using">
-                    <TextBox Text="{Binding Phrase.Intensity.Value, UpdateSourceTrigger=PropertyChanged}"
-                             Background="{StaticResource CBackground3}" Foreground="{StaticResource CForeground1}"
-                             FontSize="16" />
+                    <core:VRCOSCSlider Height="50" Value="{Binding Phrase.Intensity.Value}" MinValue="1" MaxValue="100" SliderType="Int"/>
                 </core:TitleDescriptionContent>
                 <core:TitleDescriptionContent Title="Groups" Description="The groups this phrase should control">
                     <core:HeaderFooterListView ItemsSource="{Binding Phrase.ShockerGroups}" AlternationCount="2"
