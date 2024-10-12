@@ -22,7 +22,7 @@ public class CounterModule : Module
 
     protected override void OnPreLoad()
     {
-        CreateCustom(CounterSetting.CountInstances, new CountersModuleSetting());
+        CreateCustomSetting(CounterSetting.CountInstances, new CountersModuleSetting());
 
         CreateState(CounterState.Default, "Default");
 

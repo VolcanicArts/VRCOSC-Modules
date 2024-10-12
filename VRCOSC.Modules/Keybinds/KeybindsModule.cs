@@ -14,7 +14,7 @@ public class KeybindsModule : Module
 {
     protected override void OnPreLoad()
     {
-        CreateCustom(KeybindsSetting.Keybinds, new KeybindsModuleSetting());
+        CreateCustomSetting(KeybindsSetting.Keybinds, new KeybindsModuleSetting());
 
         CreateGroup("Keybinds", KeybindsSetting.Keybinds);
     }

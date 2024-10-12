@@ -13,7 +13,7 @@ public class VoiceCommandsModule : Module, ISpeechHandler
 {
     protected override void OnPreLoad()
     {
-        CreateCustom(VoiceCommandsSetting.Phrases, new PhraseModuleSetting());
+        CreateCustomSetting(VoiceCommandsSetting.Phrases, new PhraseModuleSetting());
 
         CreateGroup("Phrases", VoiceCommandsSetting.Phrases);
     }

@@ -24,7 +24,7 @@ public class MathsModule : Module
         CreateTextBoxList(MathsSetting.Constants, "Constants", "Define your own constants to reuse in your equations\nChanges to this setting requires a module restart", Array.Empty<string>());
         CreateTextBoxList(MathsSetting.Functions, "Functions", "Define your own functions to reuse in your equations\nChanges to this setting requires a module restart", Array.Empty<string>());
 
-        CreateCustom(MathsSetting.Equations, new EquationModuleSetting());
+        CreateCustomSetting(MathsSetting.Equations, new EquationModuleSetting());
     }
 
     protected override Task<bool> OnModuleStart()

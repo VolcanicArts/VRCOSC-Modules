@@ -41,13 +41,13 @@ public class PiShockModule : Module, ISpeechHandler
     protected override void OnPreLoad()
     {
         CreateTextBox(PiShockSetting.Username, "Username", "Your PiShock username", string.Empty);
-        CreateCustom(PiShockSetting.APIKey, new StringModuleSetting("API Key", "Your PiShock API key", typeof(PiShockAPIKeyView), string.Empty));
+        CreateCustomSetting(PiShockSetting.APIKey, new StringModuleSetting("API Key", "Your PiShock API key", typeof(PiShockAPIKeyView), string.Empty));
 
         CreateTextBox(PiShockSetting.ButtonDelay, "Button Delay", "The amount of time in milliseconds the shock, vibrate, and beep parameters need to be true to execute the action. This is helpful for if you accidentally press buttons on your action menu", 0);
 
-        CreateCustom(PiShockSetting.Shockers, new ShockerModuleSetting());
-        CreateCustom(PiShockSetting.Groups, new ShockerGroupModuleSetting());
-        CreateCustom(PiShockSetting.Phrases, new PhraseModuleSetting());
+        CreateCustomSetting(PiShockSetting.Shockers, new ShockerModuleSetting());
+        CreateCustomSetting(PiShockSetting.Groups, new ShockerGroupModuleSetting());
+        CreateCustomSetting(PiShockSetting.Phrases, new PhraseModuleSetting());
 
         CreateGroup("Credentials", PiShockSetting.Username, PiShockSetting.APIKey);
         CreateGroup("Management", PiShockSetting.Shockers, PiShockSetting.Groups);

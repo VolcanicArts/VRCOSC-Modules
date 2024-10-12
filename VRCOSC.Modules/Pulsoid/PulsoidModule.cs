@@ -15,7 +15,7 @@ public sealed class PulsoidModule : HeartrateModule<PulsoidProvider>
 
     protected override void OnPreLoad()
     {
-        CreateCustom(PulsoidSetting.AccessToken, new StringModuleSetting("Access Token", "Your Pulsoid access token", typeof(PulsoidAccessTokenView), string.Empty));
+        CreateCustomSetting(PulsoidSetting.AccessToken, new StringModuleSetting("Access Token", "Your Pulsoid access token", typeof(PulsoidAccessTokenView), string.Empty));
 
         CreateGroup("Access", PulsoidSetting.AccessToken);
 
