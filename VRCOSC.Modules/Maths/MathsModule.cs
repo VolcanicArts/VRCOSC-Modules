@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Text.RegularExpressions;
 using org.mariuszgromada.math.mxparser;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Parameters;
@@ -15,6 +16,8 @@ public class MathsModule : Module
 {
     private readonly Dictionary<List<string>, Equation> instances = new();
     private readonly List<PrimitiveElement> elements = new();
+
+    private static readonly Regex parameter_regex = new(@"\{([^}]*)\}");
 
     protected override void OnPreLoad()
     {
@@ -43,26 +46,32 @@ public class MathsModule : Module
         var instance = instances.FirstOrDefault(pair => pair.Key.Contains(parameter.Name)).Value;
         if (instance is null) return;
 
-        var expression = new Expression(instance.EquationString.Value, elements.ToArray());
-        expression.disableImpliedMultiplicationMode();
+        var equationString = instance.EquationString.Value;
+        var parameterMatches = parameter_regex.Matches(equationString);
 
-        foreach (var missingArgument in expression.getMissingUserDefinedArguments())
+        foreach (Match parameterMatch in parameterMatches)
         {
-            var missingArgumentValue = await FindParameterValue(missingArgument);
+            var parameterReplacer = parameterMatch.Groups[0].Value;
+            var parameterName = parameterMatch.Groups[1].Value;
 
-            if (missingArgumentValue is null)
+            var parameterValue = await FindParameterValue(parameterName);
+
+            if (parameterValue is null)
             {
-                Log($"Could not retrieve missing argument value '{missingArgument}'");
-                continue;
+                Log($"Could not retrieve value for parameter '{parameterName}'. Aborting equation '{instance.Name.Value}'");
+                return;
             }
 
-            if (missingArgumentValue is bool boolValue)
-                expression.addArguments(new Argument(missingArgument, boolValue));
-            else if (missingArgumentValue is int intValue)
-                expression.addArguments(new Argument(missingArgument, intValue));
-            else if (missingArgumentValue is float floatValue)
-                expression.addArguments(new Argument(missingArgument, floatValue));
+            if (parameterValue is bool boolValue)
+                parameterValue = boolValue ? 1 : 0;
+
+            equationString = equationString.Replace(parameterReplacer, parameterValue.ToString());
         }
+
+        Log($"New equation: {equationString}");
+
+        var expression = new Expression(equationString, elements.ToArray());
+        expression.disableImpliedMultiplicationMode();
 
         var outputType = await FindParameterType(instance.OutputParameter.Value);
 
