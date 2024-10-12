@@ -1,0 +1,96 @@
+﻿<Window x:Class="VRCOSC.Modules.VoiceCommands.UI.PhraseInstanceEditWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:core="clr-namespace:VRCOSC.App.UI.Core;assembly=VRCOSC.App"
+        mc:Ignorable="d"
+        Background="{StaticResource CBackground2}"
+        MinWidth="600" MinHeight="600" Width="600" Height="768"
+        Loaded="PhraseInstanceEditWindow_OnLoaded">
+    <Window.Resources>
+        <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
+                                         Colour2="{StaticResource CBackground4}" />
+    </Window.Resources>
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+        <Border Background="{StaticResource CBackground1}" Margin="10"
+                CornerRadius="5" VerticalAlignment="Top">
+            <core:SpacedStackPanel Spacing="10" Margin="10">
+                <core:TitleDescriptionContent Title="Name" Description="The name of this phrase">
+                    <TextBox Text="{Binding Name.Value, UpdateSourceTrigger=PropertyChanged}"
+                             Background="{StaticResource CBackground3}" Foreground="{StaticResource CForeground1}"
+                             FontSize="16"
+                             HorizontalAlignment="Stretch" VerticalContentAlignment="Center" />
+                </core:TitleDescriptionContent>
+                <core:TitleDescriptionContent Title="Text" Description="The text you need to say to trigger this phrase">
+                    <TextBox Text="{Binding Text.Value, UpdateSourceTrigger=PropertyChanged}"
+                             Background="{StaticResource CBackground3}" Foreground="{StaticResource CForeground1}"
+                             FontSize="16"
+                             HorizontalAlignment="Stretch" VerticalContentAlignment="Center" />
+                </core:TitleDescriptionContent>
+                <core:TitleDescriptionContent Title="Parameters" Description="The parameters this phrase will effect">
+                    <core:HeaderFooterListView
+                        ItemsSource="{Binding Parameters, Mode=OneWay}"
+                        HideHeaderWhenEmpty="True"
+                        ShouldTruncateHeight="False"
+                        AlternationCount="2">
+                        <core:HeaderFooterListView.Header>
+                            <Border Background="{StaticResource CBackground1}" Height="5" />
+                        </core:HeaderFooterListView.Header>
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate>
+                                            <Border
+                                                Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}"
+                                                VerticalAlignment="Top">
+                                                <Grid VerticalAlignment="Center">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="10" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0"
+                                                               Margin="5"
+                                                               Text="{Binding ParameterName.Value, Mode=OneWay}"
+                                                               Foreground="{StaticResource CForeground2}"
+                                                               TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"
+                                                               FontSize="16" VerticalAlignment="Center"
+                                                               TextAlignment="Left" />
+                                                    <core:SpacedStackPanel Grid.Column="2" Spacing="5"
+                                                                           FlowDirection="RightToLeft"
+                                                                           Orientation="Horizontal" Margin="5 0">
+                                                        <core:IconButton ButtonColour="Red" Icon="Solid_Minus"
+                                                                         Width="25" Height="25"
+                                                                         Click="RemoveInstanceButton_OnClick"
+                                                                         Tag="{Binding}" />
+                                                        <core:IconButton ButtonColour="Blue" Icon="Solid_PenToSquare"
+                                                                         Width="25"
+                                                                         Height="25" Click="EditInstanceButton_OnClick"
+                                                                         Tag="{Binding}" />
+                                                    </core:SpacedStackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <core:HeaderFooterListView.Footer>
+                            <Border Background="{StaticResource CBackground1}">
+                                <core:IconButton
+                                    ButtonColour="Green"
+                                    Width="100"
+                                    Height="20"
+                                    Margin="0 5"
+                                    Icon="Solid_Plus"
+                                    Click="AddInstanceButton_OnClick" />
+                            </Border>
+                        </core:HeaderFooterListView.Footer>
+                    </core:HeaderFooterListView>
+                </core:TitleDescriptionContent>
+            </core:SpacedStackPanel>
+        </Border>
+    </ScrollViewer>
+</Window>
