@@ -1,7 +1,6 @@
 // Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Collections.Specialized;
 using Newtonsoft.Json;
 using VRCOSC.App.ChatBox.Clips.Variables.Instances;
 using VRCOSC.App.SDK.Modules;
@@ -34,26 +33,19 @@ public class CounterModule : Module
     {
         var moduleSetting = GetSetting<CountersModuleSetting>(CounterSetting.CountInstances)!;
 
-        moduleSetting.Attribute.CollectionChanged += countersCollectionChanged;
-        countersCollectionChanged(null, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, moduleSetting.Attribute));
+        moduleSetting.Attribute.OnCollectionChanged(countersCollectionChanged, true);
     }
 
-    private void countersCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    private void countersCollectionChanged(IEnumerable<Counter> newItems, IEnumerable<Counter> oldItems)
     {
-        if (e.NewItems is not null)
+        foreach (Counter newCountInstance in newItems)
         {
-            foreach (Counter newCountInstance in e.NewItems)
-            {
-                createDynamicCounters(newCountInstance);
-            }
+            createDynamicCounters(newCountInstance);
         }
 
-        if (e.OldItems is not null)
+        foreach (Counter oldCountInstance in oldItems)
         {
-            foreach (Counter oldCountInstance in e.OldItems)
-            {
-                deleteDynamicCounters(oldCountInstance);
-            }
+            deleteDynamicCounters(oldCountInstance);
         }
     }
 

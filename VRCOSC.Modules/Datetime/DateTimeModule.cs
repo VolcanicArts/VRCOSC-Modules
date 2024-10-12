@@ -49,8 +49,6 @@ public sealed class DateTimeModule : Module
         var timeReference = CreateVariable<DateTimeOffset>(DateTimeVariable.Now, "Now")!;
 
         CreateState(DateTimeState.Default, "Default", "{0}", new[] { timeReference });
-
-        //CreateEvent(DateTimeEvent.OnYearChange, "On Year Change", "Happy New Year!", null, (float)TimeSpan.FromHours(1).TotalSeconds);
     }
 
     protected override Task<bool> OnModuleStart()
@@ -141,11 +139,6 @@ public sealed class DateTimeModule : Module
     private enum DateTimeState
     {
         Default
-    }
-
-    private enum DateTimeEvent
-    {
-        OnYearChange
     }
 
     private enum DateTimeVariable

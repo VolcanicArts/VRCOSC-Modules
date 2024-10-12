@@ -71,10 +71,11 @@ public sealed class HardwareStatsModule : Module
         hardwareStatsProvider ??= new HardwareStatsProvider();
         hardwareStatsProvider.Init();
 
-        await Task.Run(() =>
+        await Task.Run(async () =>
         {
             while (!hardwareStatsProvider.CanAcceptQueries)
             {
+                await Task.Delay(1);
             }
 
             return true;
