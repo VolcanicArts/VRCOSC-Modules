@@ -74,7 +74,7 @@
                     </core:HeaderFooterListView>
                 </core:TitleDescriptionContent>
                 <core:TitleDescriptionContent Title="Equation"
-                                              Description="The equation to evaluate">
+                                              Description="The equation to evaluate. You can access any parameter value by writing its name surrounded by {}: E.G. '{MyParameter}'">
                     <TextBox Text="{Binding EquationString.Value, UpdateSourceTrigger=PropertyChanged}"
                              Background="{StaticResource CBackground3}" Foreground="{StaticResource CForeground1}"
                              FontSize="16"

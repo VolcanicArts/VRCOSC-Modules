@@ -12,7 +12,7 @@ namespace VRCOSC.Modules.Maths;
 public class EquationModuleSetting : ListModuleSetting<Equation>
 {
     public EquationModuleSetting()
-        : base("Equations", "Here you can write equations to be ran on trigger parameters and output to a parameter\nValues will be automatically converted to best fit the output parameter\nYou can access any parameter value by writing its name surrounded by {}: {MyParameter}\nChanges to this setting requires a module restart", typeof(EquationModuleSettingView), [])
+        : base("Equations", "Define the equations to run\nChanges to this setting requires a module restart", typeof(EquationModuleSettingView), [])
     {
     }
 }
