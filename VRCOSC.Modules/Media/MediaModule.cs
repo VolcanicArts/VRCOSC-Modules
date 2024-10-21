@@ -3,6 +3,7 @@
 
 using Windows.Media;
 using VRCOSC.App.ChatBox.Clips.Variables.Instances;
+using VRCOSC.App.SDK.Handlers;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.Providers.Media;
@@ -14,11 +15,12 @@ namespace VRCOSC.Modules.Media;
 [ModuleDescription("Integration with Windows Media")]
 [ModuleType(ModuleType.Integrations)]
 [ModulePrefab("VRCOSC-Media", "https://github.com/VolcanicArts/VRCOSC/releases/download/2024.220.1/VRCOSC-Media-2023.629.0.unitypackage")]
-public class MediaModule : Module
+public class MediaModule : Module, IVRCClientEventHandler
 {
     public WindowsMediaProvider MediaProvider { get; } = new();
     private bool currentlySeeking;
     private TimeSpan targetPosition;
+    private bool instanceTransferPlay;
 
     public MediaModule()
     {
@@ -28,6 +30,8 @@ public class MediaModule : Module
 
     protected override void OnPreLoad()
     {
+        CreateToggle(MediaSetting.PlayOnInstanceTransfer, "Play On Instance Transfer", "Should your media source play, if paused, when transferring between instances?", false);
+
         RegisterParameter<bool>(MediaParameter.Play, "VRCOSC/Media/Play", ParameterMode.ReadWrite, "Play/Pause", "True for playing. False for paused");
         RegisterParameter<float>(MediaParameter.Volume, "VRCOSC/Media/Volume", ParameterMode.ReadWrite, "Volume", "The volume of the process that is controlling the media");
         RegisterParameter<int>(MediaParameter.Repeat, "VRCOSC/Media/Repeat", ParameterMode.ReadWrite, "Repeat", "0 - Disabled\n1 - Single\n2 - List");
@@ -68,6 +72,8 @@ public class MediaModule : Module
 
     protected override async Task<bool> OnModuleStart()
     {
+        instanceTransferPlay = false;
+
         var hookResult = await MediaProvider.InitialiseAsync();
 
         if (!hookResult)
@@ -214,6 +220,30 @@ public class MediaModule : Module
                 if (!currentlySeeking) MediaProvider.ChangePlaybackPosition(targetPosition);
                 break;
         }
+    }
+
+    public void OnWorldExit()
+    {
+        if (!GetSettingValue<bool>(MediaSetting.PlayOnInstanceTransfer)) return;
+
+        if (MediaProvider.CurrentState.IsPaused)
+        {
+            MediaProvider.Play();
+            instanceTransferPlay = true;
+        }
+    }
+
+    public void OnWorldEnter(string worldID)
+    {
+        if (!instanceTransferPlay) return;
+
+        MediaProvider.Pause();
+        instanceTransferPlay = false;
+    }
+
+    private enum MediaSetting
+    {
+        PlayOnInstanceTransfer
     }
 
     private enum MediaParameter
