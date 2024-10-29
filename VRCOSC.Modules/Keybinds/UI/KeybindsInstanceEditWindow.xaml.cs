@@ -9,21 +9,22 @@ namespace VRCOSC.Modules.Keybinds.UI;
 
 public partial class KeybindsInstanceEditWindow
 {
-    private readonly KeybindsInstance instance;
+    public KeybindsInstance Instance { get; }
+    public IEnumerable<KeybindInstanceMode> ModeItemsSource => Enum.GetValues<KeybindInstanceMode>();
 
     public KeybindsInstanceEditWindow(KeybindsInstance instance)
     {
         InitializeComponent();
 
-        this.instance = instance;
-        DataContext = instance;
+        Instance = instance;
+        DataContext = this;
 
         instance.Name.Subscribe(newName => Title = $"{newName.Pluralise()} Settings", true);
     }
 
     private void AddParameter_OnClick(object sender, RoutedEventArgs e)
     {
-        instance.ParameterNames.Add(new Observable<string>(string.Empty));
+        Instance.ParameterNames.Add(new Observable<string>(string.Empty));
     }
 
     private void RemoveParameter_OnClick(object sender, RoutedEventArgs e)
@@ -31,12 +32,12 @@ public partial class KeybindsInstanceEditWindow
         var element = (FrameworkElement)sender;
         var parameterName = (Observable<string>)element.Tag;
 
-        instance.ParameterNames.Remove(parameterName);
+        Instance.ParameterNames.Remove(parameterName);
     }
 
     private void AddKeybind_OnClick(object sender, RoutedEventArgs e)
     {
-        instance.Keybinds.Add(new Observable<Keybind>(new Keybind()));
+        Instance.Keybinds.Add(new Observable<Keybind>(new Keybind()));
     }
 
     private void RemoveKeybind_OnClick(object sender, RoutedEventArgs e)
@@ -44,6 +45,6 @@ public partial class KeybindsInstanceEditWindow
         var element = (FrameworkElement)sender;
         var keybind = (Observable<Keybind>)element.Tag;
 
-        instance.Keybinds.Remove(keybind);
+        Instance.Keybinds.Remove(keybind);
     }
 }

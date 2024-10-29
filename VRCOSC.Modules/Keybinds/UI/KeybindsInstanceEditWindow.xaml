@@ -16,20 +16,20 @@
                 CornerRadius="5" VerticalAlignment="Top">
             <core:SpacedStackPanel Spacing="10" Margin="10">
                 <core:TitleDescriptionContent Title="Name" Description="The name of this keybind instance">
-                    <TextBox Text="{Binding Name.Value, UpdateSourceTrigger=PropertyChanged}"
+                    <TextBox Text="{Binding Instance.Name.Value, UpdateSourceTrigger=PropertyChanged}"
                              Background="{StaticResource CBackground3}" Foreground="{StaticResource CForeground1}"
                              FontSize="16"
                              HorizontalAlignment="Stretch" VerticalContentAlignment="Center" />
                 </core:TitleDescriptionContent>
-                <core:TitleDescriptionContent Title="Hold Time" Description="How long should each keybind be held in milliseconds?">
-                    <TextBox Text="{Binding HoldTime.Value, UpdateSourceTrigger=PropertyChanged}"
-                             Background="{StaticResource CBackground3}" Foreground="{StaticResource CForeground1}"
-                             FontSize="16"
-                             HorizontalAlignment="Stretch" VerticalContentAlignment="Center" />
+                <core:TitleDescriptionContent Title="Mode" Description="How should the keys be triggered?">
+                    <ComboBox SelectedItem="{Binding Instance.Mode.Value}" ItemsSource="{Binding ModeItemsSource}"
+                              Background="{StaticResource CBackground3}"
+                              FontSize="16"
+                              HorizontalAlignment="Stretch" VerticalContentAlignment="Center" />
                 </core:TitleDescriptionContent>
                 <core:TitleDescriptionContent Title="Parameters"
                                               Description="The parameters that will trigger the keybinds">
-                    <core:HeaderFooterListView ItemsSource="{Binding ParameterNames}" AlternationCount="2"
+                    <core:HeaderFooterListView ItemsSource="{Binding Instance.ParameterNames}" AlternationCount="2"
                                                ShouldTruncateHeight="False" HideHeaderWhenEmpty="True">
                         <core:HeaderFooterListView.Header>
                             <Border Background="{StaticResource CBackground1}" Height="5" />
@@ -81,7 +81,7 @@
                 </core:TitleDescriptionContent>
                 <core:TitleDescriptionContent Title="Keybinds"
                                               Description="The keybinds that will be triggered">
-                    <core:HeaderFooterListView ItemsSource="{Binding Keybinds}" AlternationCount="2"
+                    <core:HeaderFooterListView ItemsSource="{Binding Instance.Keybinds}" AlternationCount="2"
                                                ShouldTruncateHeight="False" HideHeaderWhenEmpty="True">
                         <core:HeaderFooterListView.Header>
                             <Border Background="{StaticResource CBackground1}" Height="5" />
@@ -98,8 +98,10 @@
                                                         <ColumnDefinition Width="*" />
                                                         <ColumnDefinition Width="Auto" />
                                                     </Grid.ColumnDefinitions>
-                                                    <core:KeybindPicker Grid.Column="0" Keybind="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" Margin="5"
-                                                             Background="{StaticResource CBackground6}" />
+                                                    <core:KeybindPicker Grid.Column="0"
+                                                                        Keybind="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                        FontSize="16" Margin="5"
+                                                                        Background="{StaticResource CBackground6}" />
                                                     <core:IconButton Grid.Column="1" ButtonColour="Red"
                                                                      Icon="Solid_Minus"
                                                                      Width="25"

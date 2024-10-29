@@ -22,18 +22,26 @@ public class KeybindsModule : Module
     protected override async void OnAnyParameterReceived(ReceivedParameter parameter)
     {
         if (!parameter.IsValueType<bool>()) return;
-        if (!parameter.GetValue<bool>()) return;
 
         foreach (var keybindsInstance in GetSettingValue<List<KeybindsInstance>>(KeybindsSetting.Keybinds)!)
         {
-            if (keybindsInstance.ParameterNames.Select(parameterNames => parameterNames.Value).Contains(parameter.Name))
-            {
-                var holdTime = Math.Max(25, keybindsInstance.HoldTime.Value);
+            KeybindMode localMode;
 
-                foreach (var keybind in keybindsInstance.Keybinds)
-                {
-                    await KeySimulator.ExecuteKeybind(keybind.Value, holdTime);
-                }
+            if (keybindsInstance.Mode.Value == KeybindInstanceMode.HoldRelease)
+            {
+                localMode = parameter.GetValue<bool>() ? KeybindMode.Hold : KeybindMode.Release;
+            }
+            else
+            {
+                localMode = KeybindMode.Press;
+            }
+
+            if (localMode == KeybindMode.Press && !parameter.GetValue<bool>()) continue;
+            if (!keybindsInstance.ParameterNames.Select(parameterNames => parameterNames.Value).Contains(parameter.Name)) continue;
+
+            foreach (var keybind in keybindsInstance.Keybinds)
+            {
+                await KeySimulator.ExecuteKeybind(keybind.Value, localMode);
             }
         }
     }

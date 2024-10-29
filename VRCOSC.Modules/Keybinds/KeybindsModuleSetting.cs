@@ -27,8 +27,8 @@ public class KeybindsInstance : ICloneable, IEquatable<KeybindsInstance>
     [JsonProperty("name")]
     public Observable<string> Name { get; set; } = new("New Keybind");
 
-    [JsonProperty("hold_time")]
-    public Observable<int> HoldTime { get; set; } = new(50);
+    [JsonProperty("mode")]
+    public Observable<KeybindInstanceMode> Mode { get; set; } = new(KeybindInstanceMode.Press);
 
     [JsonProperty("parameter_names")]
     public ObservableCollection<Observable<string>> ParameterNames { get; set; } = [];
@@ -55,6 +55,12 @@ public class KeybindsInstance : ICloneable, IEquatable<KeybindsInstance>
         if (ReferenceEquals(null, other)) return false;
         if (ReferenceEquals(this, other)) return true;
 
-        return Name.Equals(other.Name) && ParameterNames.SequenceEqual(other.ParameterNames) && Keybinds.SequenceEqual(other.Keybinds);
+        return Name.Equals(other.Name) && Mode.Equals(other.Mode) && ParameterNames.SequenceEqual(other.ParameterNames) && Keybinds.SequenceEqual(other.Keybinds);
     }
+}
+
+public enum KeybindInstanceMode
+{
+    Press,
+    HoldRelease
 }
