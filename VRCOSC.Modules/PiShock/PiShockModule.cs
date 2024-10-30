@@ -224,7 +224,7 @@ public class PiShockModule : Module, ISpeechHandler
         var sharecode = shockerInstance.Sharecode.Value;
 
         var response = await piShockProvider.Execute(username, apiKey, sharecode, mode, duration, intensity);
-        Log(response.Success ? $"Shocker '{shockerName}' successfully executed at duration {response.FinalDuration} and intensity {response.FinalIntensity}" : $"Shocker '{shockerName}' failed with: {response.Message}");
+        Log(response.Success ? $"Shocker '{shockerName}' successfully executed at duration {response.FinalDuration} and intensity {response.FinalIntensity}" : $"Shocker '{shockerName}' failed with: '{response.Message}'");
     }
 
     private bool getShockerGroupFromIndex(int index, [NotNullWhen(true)] out ShockerGroup? shockerGroup)
