@@ -25,13 +25,13 @@
                     <ComboBox ItemsSource="{Binding BoolModeSource}" SelectedItem="{Binding Instance.BoolMode.Value}" FontSize="17"/>
                 </core:TitleDescriptionContent>
                 <core:TitleDescriptionContent x:Name="IntContainer" Title="Int Value" Description="The integer value to set the parameter to">
-                    <TextBox Text="{Binding Instance.IntValue.Value, UpdateSourceTrigger=PropertyChanged}"
+                    <TextBox Text="{Binding Instance.IntValue.Value}"
                              Background="{StaticResource CBackground3}" Foreground="{StaticResource CForeground1}"
                              FontSize="16"
                              HorizontalAlignment="Stretch" VerticalContentAlignment="Center" />
                 </core:TitleDescriptionContent>
                 <core:TitleDescriptionContent x:Name="FloatContainer" Title="Float Value" Description="The float value to set the parameter to">
-                    <TextBox Text="{Binding Instance.FloatValue.Value, UpdateSourceTrigger=PropertyChanged}"
+                    <TextBox Text="{Binding Instance.FloatValue.Value}"
                              Background="{StaticResource CBackground3}" Foreground="{StaticResource CForeground1}"
                              FontSize="16"
                              HorizontalAlignment="Stretch" VerticalContentAlignment="Center" />
