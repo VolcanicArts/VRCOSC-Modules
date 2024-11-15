@@ -8,7 +8,7 @@ using VRCOSC.App.SDK.Parameters;
 namespace VRCOSC.Modules.SpeechToText;
 
 [ModuleTitle("Speech To Text")]
-[ModuleDescription("Uses VRCOSC's speech engine for STT to the ChatBox")]
+[ModuleDescription("Uses VRCOSC's speech engine for transcribing your voice to the ChatBox")]
 [ModuleType(ModuleType.Generic)]
 public class SpeechToTextModule : Module, ISpeechHandler
 {

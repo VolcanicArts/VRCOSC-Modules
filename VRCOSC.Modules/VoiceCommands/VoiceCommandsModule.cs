@@ -7,7 +7,7 @@ using VRCOSC.App.SDK.Modules;
 namespace VRCOSC.Modules.VoiceCommands;
 
 [ModuleTitle("Voice Commands")]
-[ModuleDescription("Change avatar parameters using your voice")]
+[ModuleDescription("Uses VRCOSC's speech engine to change avatar parameters using your voice")]
 [ModuleType(ModuleType.Generic)]
 public class VoiceCommandsModule : Module, ISpeechHandler
 {
