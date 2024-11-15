@@ -6,11 +6,11 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-        <LangVersion>12</LangVersion>
+        <LangVersion>latestmajor</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="VolcanicArts.VRCOSC.SDK" Version="2024.1012.0" />
+        <PackageReference Include="VolcanicArts.VRCOSC.SDK" Version="2024.1115.0" />
     </ItemGroup>
 
     <ItemGroup>
