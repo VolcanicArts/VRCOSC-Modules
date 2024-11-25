@@ -67,7 +67,7 @@ public class MediaModule : Module, IVRCClientEventHandler
 
         CreateEvent(MediaEvent.OnTrackChange, "On Track Change", "Now Playing\n{0} - {1}", new[] { artistReference, titleReference }, true);
         CreateEvent(MediaEvent.OnPlay, "On Play", "[Playing]\n{0} - {1}", new[] { artistReference, titleReference });
-        CreateEvent(MediaEvent.OnPause, "On Paused", "[Paused]\n{0} - {1}", new[] { artistReference, titleReference });
+        CreateEvent(MediaEvent.OnPause, "On Pause", "[Paused]\n{0} - {1}", new[] { artistReference, titleReference });
     }
 
     protected override async Task<bool> OnModuleStart()
