@@ -1,8 +1,10 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Diagnostics;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Parameters;
+using VRCOSC.App.Utils;
 
 // ReSharper disable once InconsistentNaming
 
@@ -20,7 +22,8 @@ public class AFKDetectionModule : Module
 
     protected override void OnPreLoad()
     {
-        CreateDropdown(AFKDetectionSetting.Source, "Source", "What source should be queried for if you're AFK?", AFKDetectionSource.VRChat);
+        CreateDropdown(AFKDetectionSetting.Source, "Source", "What source should be queried for if you're AFK?\nIf SteamVR is selected but unavailable, it will fallback to using VRChat", AFKDetectionSource.VRChat);
+        CreateToggle(AFKDetectionSetting.ManageVRChatWindow, "Manage VRChat Window", "Maximise the VRChat window when you're AFK, and minimise the VRChat window when in-game. This is only useful when using a VR headset", false);
 
         RegisterParameter<bool>(AFKDetectionParameter.ManualAFK, "VRCOSC/AFKDetection/AFK", ParameterMode.Read, "Manual AFK", "Setting this to true will override the AFK source to allow you to manually set that you're AFK");
 
@@ -70,6 +73,7 @@ public class AFKDetectionModule : Module
         {
             Log("User is now AFK");
             afkBegan = DateTimeOffset.UtcNow;
+            manageVRChatWindow(true);
             previousAFKState = true;
         }
 
@@ -77,6 +81,7 @@ public class AFKDetectionModule : Module
         {
             Log("User is no longer AFK");
             afkBegan = null;
+            manageVRChatWindow(false);
             previousAFKState = false;
         }
     }
@@ -99,12 +104,23 @@ public class AFKDetectionModule : Module
         }
     }
 
+    private void manageVRChatWindow(bool showWindow)
+    {
+        if (!GetSettingValue<bool>(AFKDetectionSetting.ManageVRChatWindow)) return;
+
+        var vrchatProcesses = Process.GetProcessesByName("vrchat");
+        if (vrchatProcesses.Length != 1) return;
+
+        vrchatProcesses[0].SetWindowVisibility(showWindow);
+    }
+
     private bool isVRChatAFK() => GetPlayer().AFK;
     private bool isSteamVRAFK() => !GetOVRClient().IsUserPresent();
 
     private enum AFKDetectionSetting
     {
-        Source
+        Source,
+        ManageVRChatWindow
     }
 
     private enum AFKDetectionParameter
