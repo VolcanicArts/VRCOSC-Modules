@@ -36,6 +36,8 @@ public class SpeechToTextModule : Module, ISpeechHandler
         reset();
         SendParameter(SpeechToTextParameter.Listen, listening);
 
+        ChangeState(SpeechToTextState.Default);
+
         return Task.FromResult(true);
     }
 
@@ -78,9 +80,9 @@ public class SpeechToTextModule : Module, ISpeechHandler
 
     private bool shouldHandleResult() => listening &&
                                          (
-                                             (GetSettingValue<SpeechToTextListenCriteria>(SpeechToTextSetting.ListenCriteria) == SpeechToTextListenCriteria.OnlyWhenUnMuted && !playerMuted) ||
-                                             (GetSettingValue<SpeechToTextListenCriteria>(SpeechToTextSetting.ListenCriteria) == SpeechToTextListenCriteria.OnlyWhenMuted && playerMuted) ||
-                                             (GetSettingValue<SpeechToTextListenCriteria>(SpeechToTextSetting.ListenCriteria) == SpeechToTextListenCriteria.Anytime)
+                                             GetSettingValue<SpeechToTextListenCriteria>(SpeechToTextSetting.ListenCriteria) == SpeechToTextListenCriteria.OnlyWhenUnMuted && !playerMuted ||
+                                             GetSettingValue<SpeechToTextListenCriteria>(SpeechToTextSetting.ListenCriteria) == SpeechToTextListenCriteria.OnlyWhenMuted && playerMuted ||
+                                             GetSettingValue<SpeechToTextListenCriteria>(SpeechToTextSetting.ListenCriteria) == SpeechToTextListenCriteria.Anytime
                                          );
 
     private void reset()
