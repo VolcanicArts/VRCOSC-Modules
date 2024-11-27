@@ -20,7 +20,7 @@ public class ProcessManagerModule : Module
 
     protected override void OnRegisteredParameterReceived(RegisteredParameter parameter)
     {
-        var processName = parameter.WildcardAs<string>(0);
+        var processName = parameter.GetWildcard<string>(0);
 
         switch (parameter.Lookup)
         {

@@ -67,11 +67,11 @@ public class HapticControlModule : Module
                 break;
 
             case HapticControlParameter.TriggerLeftDirect when parameter.GetValue<bool>():
-                triggerHaptic(true, false, parameter.WildcardAs<float>(0), convertFrequency(parameter.WildcardAs<float>(1)), convertAmplitude(parameter.WildcardAs<float>(2)));
+                triggerHaptic(true, false, parameter.GetWildcard<float>(0), convertFrequency(parameter.GetWildcard<float>(1)), convertAmplitude(parameter.GetWildcard<float>(2)));
                 break;
 
             case HapticControlParameter.TriggerRightDirect when parameter.GetValue<bool>():
-                triggerHaptic(false, true, parameter.WildcardAs<float>(0), convertFrequency(parameter.WildcardAs<float>(1)), convertAmplitude(parameter.WildcardAs<float>(2)));
+                triggerHaptic(false, true, parameter.GetWildcard<float>(0), convertFrequency(parameter.GetWildcard<float>(1)), convertAmplitude(parameter.GetWildcard<float>(2)));
                 break;
         }
     }

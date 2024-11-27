@@ -274,7 +274,7 @@ public class PiShockModule : Module, ISpeechHandler
                 break;
 
             case PiShockParameter.DurationGroup:
-                var groupIndex2 = parameter.WildcardAs<int>(0);
+                var groupIndex2 = parameter.GetWildcard<int>(0);
 
                 if (getShockerGroupFromIndex(groupIndex2, out var shockerGroup2))
                     durations[shockerGroup2.ID] = Math.Clamp(parameter.GetValue<float>(), 0f, 1f);
@@ -282,7 +282,7 @@ public class PiShockModule : Module, ISpeechHandler
                 break;
 
             case PiShockParameter.IntensityGroup:
-                var groupIndex3 = parameter.WildcardAs<int>(0);
+                var groupIndex3 = parameter.GetWildcard<int>(0);
 
                 if (getShockerGroupFromIndex(groupIndex3, out var shockerGroup3))
                     intensities[shockerGroup3.ID] = Math.Clamp(parameter.GetValue<float>(), 0f, 1f);
@@ -290,7 +290,7 @@ public class PiShockModule : Module, ISpeechHandler
                 break;
 
             case PiShockParameter.ShockGroup:
-                var groupIndex4 = parameter.WildcardAs<int>(0);
+                var groupIndex4 = parameter.GetWildcard<int>(0);
 
                 if (getShockerGroupFromIndex(groupIndex4, out var shockerGroup4))
                     shock = parameter.GetValue<bool>() ? (DateTimeOffset.Now, shockerGroup4.ID) : null;
@@ -298,7 +298,7 @@ public class PiShockModule : Module, ISpeechHandler
                 break;
 
             case PiShockParameter.VibrateGroup:
-                var groupIndex5 = parameter.WildcardAs<int>(0);
+                var groupIndex5 = parameter.GetWildcard<int>(0);
 
                 if (getShockerGroupFromIndex(groupIndex5, out var shockerGroup5))
                     vibrate = parameter.GetValue<bool>() ? (DateTimeOffset.Now, shockerGroup5.ID) : null;
@@ -306,7 +306,7 @@ public class PiShockModule : Module, ISpeechHandler
                 break;
 
             case PiShockParameter.BeepGroup:
-                var groupIndex6 = parameter.WildcardAs<int>(0);
+                var groupIndex6 = parameter.GetWildcard<int>(0);
 
                 if (getShockerGroupFromIndex(groupIndex6, out var shockerGroup6))
                     beep = parameter.GetValue<bool>() ? (DateTimeOffset.Now, shockerGroup6.ID) : null;
