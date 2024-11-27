@@ -2,10 +2,11 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Windows;
+using VRCOSC.App.UI.Core;
 
 namespace VRCOSC.Modules.VoiceCommands.UI;
 
-public partial class ParameterInstanceEditWindow
+public partial class ParameterInstanceEditWindow : IManagedWindow
 {
     public Parameter Instance { get; set; }
 
@@ -44,4 +45,6 @@ public partial class ParameterInstanceEditWindow
             }
         }, true);
     }
+
+    public object GetComparer() => Instance;
 }

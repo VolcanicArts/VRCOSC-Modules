@@ -3,11 +3,12 @@
 
 using System.Windows;
 using VRCOSC.App.SDK.Utils;
+using VRCOSC.App.UI.Core;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.Modules.Keybinds.UI;
 
-public partial class KeybindsInstanceEditWindow
+public partial class KeybindsInstanceEditWindow : IManagedWindow
 {
     public KeybindsInstance Instance { get; }
     public IEnumerable<KeybindInstanceMode> ModeItemsSource => Enum.GetValues<KeybindInstanceMode>();
@@ -47,4 +48,6 @@ public partial class KeybindsInstanceEditWindow
 
         Instance.Keybinds.Remove(keybind);
     }
+
+    public object GetComparer() => Instance;
 }

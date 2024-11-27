@@ -2,11 +2,12 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Windows;
+using VRCOSC.App.UI.Core;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.Modules.Maths.UI;
 
-public partial class EquationInstanceEditWindow
+public partial class EquationInstanceEditWindow : IManagedWindow
 {
     private readonly Equation equation;
 
@@ -33,4 +34,6 @@ public partial class EquationInstanceEditWindow
 
         equation.TriggerParameters.Remove(parameterInstance);
     }
+
+    public object GetComparer() => equation;
 }

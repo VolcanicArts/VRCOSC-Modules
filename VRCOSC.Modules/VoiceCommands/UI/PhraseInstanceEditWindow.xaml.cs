@@ -7,7 +7,7 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.Modules.VoiceCommands.UI;
 
-public partial class PhraseInstanceEditWindow
+public partial class PhraseInstanceEditWindow : IManagedWindow
 {
     private readonly Phrase instance;
     private WindowManager windowManager = null!;
@@ -53,4 +53,6 @@ public partial class PhraseInstanceEditWindow
 
         windowManager.TrySpawnChild(editWindow);
     }
+
+    public object GetComparer() => instance;
 }

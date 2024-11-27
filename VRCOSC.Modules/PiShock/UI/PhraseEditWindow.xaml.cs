@@ -4,11 +4,12 @@
 using System.Collections.ObjectModel;
 using System.Windows;
 using VRCOSC.App.SDK.Providers.PiShock;
+using VRCOSC.App.UI.Core;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.Modules.PiShock.UI;
 
-public partial class PhraseEditWindow
+public partial class PhraseEditWindow : IManagedWindow
 {
     private readonly PiShockModule module;
     public Phrase Phrase { get; set; }
@@ -39,5 +40,6 @@ public partial class PhraseEditWindow
 
         Phrase.ShockerGroups.Remove(instance);
     }
-}
 
+    public object GetComparer() => Phrase;
+}

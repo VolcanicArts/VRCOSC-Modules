@@ -3,11 +3,12 @@
 
 using System.Collections.ObjectModel;
 using System.Windows;
+using VRCOSC.App.UI.Core;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.Modules.PiShock.UI;
 
-public partial class ShockerGroupEditWindow
+public partial class ShockerGroupEditWindow : IManagedWindow
 {
     private readonly PiShockModule module;
     public ShockerGroup ShockerGroup { get; set; }
@@ -37,4 +38,6 @@ public partial class ShockerGroupEditWindow
 
         ShockerGroup.Shockers.Remove(instance);
     }
+
+    public object GetComparer() => ShockerGroup;
 }

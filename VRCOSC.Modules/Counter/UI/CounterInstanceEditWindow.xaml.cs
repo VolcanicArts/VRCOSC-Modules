@@ -2,11 +2,12 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Windows;
+using VRCOSC.App.UI.Core;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.Modules.Counter.UI;
 
-public partial class CounterInstanceEditWindow
+public partial class CounterInstanceEditWindow : IManagedWindow
 {
     private readonly Counter instance;
 
@@ -45,4 +46,6 @@ public partial class CounterInstanceEditWindow
 
         instance.Milestones.Remove(milestoneInstance);
     }
+
+    public object GetComparer() => instance;
 }
