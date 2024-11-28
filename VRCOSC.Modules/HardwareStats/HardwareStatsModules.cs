@@ -34,9 +34,9 @@ public sealed class HardwareStatsModule : Module
         RegisterParameter<int>(HardwareStatsParameter.RAMUsed, "VRCOSC/Hardware/RAM/Used", ParameterMode.Write, "RAM Used", "The used RAM amount (GB)");
         RegisterParameter<int>(HardwareStatsParameter.RAMFree, "VRCOSC/Hardware/RAM/Free", ParameterMode.Write, "RAM Free", "The free RAM amount (GB)");
         RegisterParameter<float>(HardwareStatsParameter.VRAMUsage, "VRCOSC/Hardware/VRAM/Usage", ParameterMode.Write, "VRAM Usage", "The VRAM usage (0-1)");
-        RegisterParameter<int>(HardwareStatsParameter.VRAMTotal, "VRCOSC/Hardware/VRAM/Total", ParameterMode.Write, "VRAM Total", "The total VRAM amount (MB)");
-        RegisterParameter<int>(HardwareStatsParameter.VRAMUsed, "VRCOSC/Hardware/VRAM/Used", ParameterMode.Write, "VRAM Used", "The used VRAM amount (MB)");
-        RegisterParameter<int>(HardwareStatsParameter.VRAMFree, "VRCOSC/Hardware/VRAM/Free", ParameterMode.Write, "VRAM Free", "The free VRAM amount (MB)");
+        RegisterParameter<int>(HardwareStatsParameter.VRAMTotal, "VRCOSC/Hardware/VRAM/Total", ParameterMode.Write, "VRAM Total", "The total VRAM amount (GB)");
+        RegisterParameter<int>(HardwareStatsParameter.VRAMUsed, "VRCOSC/Hardware/VRAM/Used", ParameterMode.Write, "VRAM Used", "The used VRAM amount (GB)");
+        RegisterParameter<int>(HardwareStatsParameter.VRAMFree, "VRCOSC/Hardware/VRAM/Free", ParameterMode.Write, "VRAM Free", "The free VRAM amount (GB)");
     }
 
     protected override void OnPostLoad()
@@ -55,9 +55,9 @@ public sealed class HardwareStatsModule : Module
         CreateVariable<float>(HardwareStatsVariable.RAMFree, "RAM Free (GB)");
 
         CreateVariable<float>(HardwareStatsVariable.VRAMUsage, "VRAM Usage (%)");
-        CreateVariable<float>(HardwareStatsVariable.VRAMTotal, "VRAM Total (MB)");
-        CreateVariable<float>(HardwareStatsVariable.VRAMUsed, "VRAM Used (MB)");
-        CreateVariable<float>(HardwareStatsVariable.VRAMFree, "VRAM Free (MB)");
+        CreateVariable<float>(HardwareStatsVariable.VRAMTotal, "VRAM Total (GB)");
+        CreateVariable<float>(HardwareStatsVariable.VRAMUsed, "VRAM Used (GB)");
+        CreateVariable<float>(HardwareStatsVariable.VRAMFree, "VRAM Free (GB)");
 
         CreateState(HardwareStatsState.Default, "Default", "CPU: {0}% | GPU: {1}%\nRAM: {2}GB/{3}GB", new[] { cpuUsageReference, gpuUsageReference, ramUsedReference, ramTotalReference });
     }
@@ -140,9 +140,9 @@ public sealed class HardwareStatsModule : Module
         SendParameter(HardwareStatsParameter.RAMFree, ram.Available);
 
         SendParameter(HardwareStatsParameter.VRAMUsage, gpu.MemoryUsage);
-        SendParameter(HardwareStatsParameter.VRAMTotal, gpu.MemoryTotal);
-        SendParameter(HardwareStatsParameter.VRAMUsed, gpu.MemoryUsed);
-        SendParameter(HardwareStatsParameter.VRAMFree, gpu.MemoryFree);
+        SendParameter(HardwareStatsParameter.VRAMTotal, gpu.MemoryTotal / 1000f);
+        SendParameter(HardwareStatsParameter.VRAMUsed, gpu.MemoryUsed / 1000f);
+        SendParameter(HardwareStatsParameter.VRAMFree, gpu.MemoryFree / 1000f);
 
         SetVariableValue(HardwareStatsVariable.CPUUsage, (int)cpu.Usage);
         SetVariableValue(HardwareStatsVariable.CPUPower, cpu.Power);
@@ -158,9 +158,9 @@ public sealed class HardwareStatsModule : Module
         SetVariableValue(HardwareStatsVariable.RAMFree, ram.Available);
 
         SetVariableValue(HardwareStatsVariable.VRAMUsage, gpu.MemoryUsage * 100f);
-        SetVariableValue(HardwareStatsVariable.VRAMTotal, gpu.MemoryTotal);
-        SetVariableValue(HardwareStatsVariable.VRAMUsed, gpu.MemoryUsed);
-        SetVariableValue(HardwareStatsVariable.VRAMFree, gpu.MemoryFree);
+        SetVariableValue(HardwareStatsVariable.VRAMTotal, gpu.MemoryTotal / 1000f);
+        SetVariableValue(HardwareStatsVariable.VRAMUsed, gpu.MemoryUsed / 1000f);
+        SetVariableValue(HardwareStatsVariable.VRAMFree, gpu.MemoryFree / 1000f);
     }
 
     protected override Task OnModuleStop()
