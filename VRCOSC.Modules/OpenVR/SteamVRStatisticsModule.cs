@@ -10,6 +10,7 @@ namespace VRCOSC.Modules.OpenVR;
 [ModuleTitle("SteamVR Stats")]
 [ModuleDescription("Gathers various stats from SteamVR")]
 [ModuleType(ModuleType.SteamVR)]
+[ModulePrefab("Official Prefabs", "https://vrcosc.com/docs/downloads#prefabs")]
 public class SteamVRStatisticsModule : Module
 {
     protected override void OnPreLoad()

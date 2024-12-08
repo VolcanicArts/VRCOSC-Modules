@@ -10,6 +10,7 @@ namespace VRCOSC.Modules.Keybinds;
 [ModuleTitle("Keybinds")]
 [ModuleDescription("Trigger keybinds using avatar parameters")]
 [ModuleType(ModuleType.Integrations)]
+[ModulePrefab("Official Prefabs", "https://vrcosc.com/docs/downloads#prefabs")]
 public class KeybindsModule : Module
 {
     protected override void OnPreLoad()

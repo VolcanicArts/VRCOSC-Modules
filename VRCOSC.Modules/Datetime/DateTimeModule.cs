@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System.Globalization;
@@ -10,6 +10,7 @@ namespace VRCOSC.Modules.Datetime;
 [ModuleTitle("DateTime")]
 [ModuleDescription("Sends your current date and time to VRChat")]
 [ModuleType(ModuleType.Generic)]
+[ModulePrefab("Official Prefabs", "https://vrcosc.com/docs/downloads#prefabs")]
 public sealed class DateTimeModule : Module
 {
     protected override void OnPreLoad()

@@ -16,7 +16,7 @@ namespace VRCOSC.Modules.PiShock;
 [ModuleTitle("PiShock")]
 [ModuleDescription("Allows for controlling PiShock shockers")]
 [ModuleType(ModuleType.NSFW)]
-[ModulePrefab("VRCOSC-PiShock", "https://github.com/VolcanicArts/VRCOSC/releases/download/latest/VRCOSC-PiShock.unitypackage")]
+[ModulePrefab("Official Prefabs", "https://vrcosc.com/docs/downloads#prefabs")]
 public class PiShockModule : Module, ISpeechHandler
 {
     private PiShockProvider piShockProvider = null!;
