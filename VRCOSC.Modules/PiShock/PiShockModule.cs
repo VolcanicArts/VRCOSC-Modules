@@ -14,7 +14,7 @@ using VRCOSC.Modules.PiShock.UI;
 namespace VRCOSC.Modules.PiShock;
 
 [ModuleTitle("PiShock")]
-[ModuleDescription("Allows for controlling PiShock shockers")]
+[ModuleDescription("Allows for controlling PiShock shockers with avatar parameters and your voice")]
 [ModuleType(ModuleType.NSFW)]
 [ModulePrefab("Official Prefabs", "https://vrcosc.com/docs/downloads#prefabs")]
 public class PiShockModule : Module, ISpeechHandler
@@ -137,8 +137,11 @@ public class PiShockModule : Module, ISpeechHandler
                 var shockerGroup = GetSettingValue<IEnumerable<ShockerGroup>>(PiShockSetting.Groups).SingleOrDefault(shockerGroup => shockerGroup.ID == shockerGroupID.Value);
                 if (shockerGroup is null) return Task.CompletedTask;
 
-                var localDuration = (float)Interpolation.Map(phrase.Duration.Value, 1, 15, 0, 1);
-                var localIntensity = (float)Interpolation.Map(phrase.Intensity.Value, 1, 100, 0, 1);
+                var convertedDuration = Math.Min(phrase.Duration.Value, shockerGroup.MaxDuration.Value);
+                var convertedIntensity = Math.Min(phrase.Intensity.Value, shockerGroup.MaxIntensity.Value);
+
+                var localDuration = (float)Interpolation.Map(convertedDuration, 1, shockerGroup.MaxDuration.Value, 0, 1);
+                var localIntensity = (float)Interpolation.Map(convertedIntensity, 1, shockerGroup.MaxIntensity.Value, 0, 1);
 
                 return Task.Run(async () => await executeGroupAsync(shockerGroupID.Value, phrase.Mode.Value, localDuration, localIntensity));
             });
@@ -198,8 +201,8 @@ public class PiShockModule : Module, ISpeechHandler
         var shockerGroup = GetSettingValue<IEnumerable<ShockerGroup>>(PiShockSetting.Groups).SingleOrDefault(shockerGroup => shockerGroup.ID == groupID);
         if (shockerGroup is null) return;
 
-        var convertedDuration = Math.Min((int)Math.Round(Interpolation.Map(durationPercentage, 0, 1, 1, 15)), shockerGroup.MaxDuration.Value);
-        var convertedIntensity = Math.Min((int)Math.Round(Interpolation.Map(intensityPercentage, 0, 1, 1, 100)), shockerGroup.MaxIntensity.Value);
+        var convertedDuration = (int)Math.Round(Interpolation.Map(durationPercentage, 0, 1, 1, shockerGroup.MaxDuration.Value));
+        var convertedIntensity = (int)Math.Round(Interpolation.Map(intensityPercentage, 0, 1, 1, shockerGroup.MaxIntensity.Value));
 
         var tasks = shockerGroup.Shockers.DistinctBy(shockerID => shockerID.Value).Select(shockerID =>
         {
