@@ -12,7 +12,7 @@ namespace VRCOSC.Modules.PiShock;
 public class ShockerGroupModuleSetting : ListModuleSetting<ShockerGroup>
 {
     public ShockerGroupModuleSetting()
-        : base("Groups", "Create, edit, and delete shocker groups", typeof(ShockerGroupModuleSettingView), [])
+        : base("Groups", "Create, edit, and delete shocker groups\nThe left number is the group index for the group parameter and wildcard parameters", typeof(ShockerGroupModuleSettingView), [])
     {
     }
 }
