@@ -65,6 +65,7 @@ public class PiShockModule : Module, ISpeechHandler
         RegisterParameter<bool>(PiShockParameter.ShockGroup, "VRCOSC/PiShock/Shock/*", ParameterMode.Read, "Shock Group", "Shock a specific group\nE.G. VRCOSC/PiShock/Shock/0");
         RegisterParameter<bool>(PiShockParameter.VibrateGroup, "VRCOSC/PiShock/Vibrate/*", ParameterMode.Read, "Vibrate Group", "Vibrate a specific group\nE.G. VRCOSC/PiShock/Vibrate/0");
         RegisterParameter<bool>(PiShockParameter.BeepGroup, "VRCOSC/PiShock/Beep/*", ParameterMode.Read, "Beep Group", "Beep a specific group\nE.G. VRCOSC/PiShock/Beep/0");
+        RegisterParameter<bool>(PiShockParameter.Success, "VRCOSC/PiShock/Success", ParameterMode.Write, "Success", "Becomes true for 1 second if the action has succeeded");
     }
 
     protected override void OnPostLoad()
@@ -228,6 +229,15 @@ public class PiShockModule : Module, ISpeechHandler
 
         var response = await piShockProvider.Execute(username, apiKey, sharecode, mode, duration, intensity);
         Log(response.Success ? $"Shocker '{shockerName}' successfully executed mode {mode} at duration {response.FinalDuration} and intensity {response.FinalIntensity}" : $"Shocker '{shockerName}' failed with: '{response.Message}'");
+
+        if (response.Success) sendSuccessParameter();
+    }
+
+    private async void sendSuccessParameter()
+    {
+        SendParameter(PiShockParameter.Success, true);
+        await Task.Delay(1000);
+        SendParameter(PiShockParameter.Success, false);
     }
 
     private bool getShockerGroupFromIndex(int index, [NotNullWhen(true)] out ShockerGroup? shockerGroup)
@@ -277,6 +287,12 @@ public class PiShockModule : Module, ISpeechHandler
                 break;
 
             case PiShockParameter.DurationGroup:
+                if (!parameter.IsWildcardType<int>(0))
+                {
+                    Log("Invalid group for specific group duration parameter");
+                    return;
+                }
+
                 var groupIndex2 = parameter.GetWildcard<int>(0);
 
                 if (getShockerGroupFromIndex(groupIndex2, out var shockerGroup2))
@@ -285,6 +301,12 @@ public class PiShockModule : Module, ISpeechHandler
                 break;
 
             case PiShockParameter.IntensityGroup:
+                if (!parameter.IsWildcardType<int>(0))
+                {
+                    Log("Invalid group for specific group intensity parameter");
+                    return;
+                }
+
                 var groupIndex3 = parameter.GetWildcard<int>(0);
 
                 if (getShockerGroupFromIndex(groupIndex3, out var shockerGroup3))
@@ -293,6 +315,12 @@ public class PiShockModule : Module, ISpeechHandler
                 break;
 
             case PiShockParameter.ShockGroup:
+                if (!parameter.IsWildcardType<int>(0))
+                {
+                    Log("Invalid group for specific group shock parameter");
+                    return;
+                }
+
                 var groupIndex4 = parameter.GetWildcard<int>(0);
 
                 if (getShockerGroupFromIndex(groupIndex4, out var shockerGroup4))
@@ -301,6 +329,12 @@ public class PiShockModule : Module, ISpeechHandler
                 break;
 
             case PiShockParameter.VibrateGroup:
+                if (!parameter.IsWildcardType<int>(0))
+                {
+                    Log("Invalid group for specific group vibrate parameter");
+                    return;
+                }
+
                 var groupIndex5 = parameter.GetWildcard<int>(0);
 
                 if (getShockerGroupFromIndex(groupIndex5, out var shockerGroup5))
@@ -309,6 +343,12 @@ public class PiShockModule : Module, ISpeechHandler
                 break;
 
             case PiShockParameter.BeepGroup:
+                if (!parameter.IsWildcardType<int>(0))
+                {
+                    Log("Invalid group for specific group beep parameter");
+                    return;
+                }
+
                 var groupIndex6 = parameter.GetWildcard<int>(0);
 
                 if (getShockerGroupFromIndex(groupIndex6, out var shockerGroup6))
@@ -340,6 +380,7 @@ public class PiShockModule : Module, ISpeechHandler
         IntensityGroup,
         ShockGroup,
         VibrateGroup,
-        BeepGroup
+        BeepGroup,
+        Success
     }
 }

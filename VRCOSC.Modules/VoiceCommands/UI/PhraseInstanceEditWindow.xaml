@@ -28,7 +28,7 @@
                              FontSize="16"
                              HorizontalAlignment="Stretch" VerticalContentAlignment="Center" />
                 </core:TitleDescriptionContent>
-                <core:TitleDescriptionContent Title="Parameters" Description="The parameters this phrase will effect">
+                <core:TitleDescriptionContent Title="Parameters" Description="The parameters this phrase will affect">
                     <core:HeaderFooterListView
                         ItemsSource="{Binding Parameters, Mode=OneWay}"
                         HideHeaderWhenEmpty="True"
