@@ -108,8 +108,9 @@ public class SteamVRStatisticsModule : Module
         CreateVariable<int>(SteamVRVariable.Waist_Battery, "Waist Battery (%)");
         CreateVariable<bool>(SteamVRVariable.Chest_Charging, "Chest Charging");
         CreateVariable<int>(SteamVRVariable.Chest_Battery, "Chest Battery (%)");
-
-        var trackerAverageBattery = CreateVariable<int>(SteamVRVariable.TrackerAverageBattery, "Tracker Average Battery (%)")!;
+        var trackerAverageBattery = CreateVariable<int>(SteamVRVariable.TrackerAverageBattery, "Average Tracker Battery (%)")!;
+        CreateVariable<string>(SteamVRVariable.TrackerLowestRole, "Lowest Tracker Role");
+        CreateVariable<int>(SteamVRVariable.TrackerLowestBattery, "Lowest Tracker Battery (%)");
 
         CreateState(SteamVRState.Default, "Default", "HMD: {0}\nLHand: {1}\nRHand: {2}\nTrackers: {3}", new[] { hmdBatteryReference, lcBatteryReference, rcBatteryReference, trackerAverageBattery });
     }
@@ -152,6 +153,9 @@ public class SteamVRStatisticsModule : Module
         var totalBatteryPercentage = 0f;
         var totalTrackers = 0;
 
+        var lowestBattery = 1f;
+        var lowestBatteryName = string.Empty;
+
         foreach (var deviceRole in Enum.GetValues<DeviceRole>())
         {
             if (deviceRole is DeviceRole.Head or DeviceRole.LeftHand or DeviceRole.RightHand or DeviceRole.Unset) continue;
@@ -162,10 +166,19 @@ public class SteamVRStatisticsModule : Module
 
             totalTrackers++;
             totalBatteryPercentage += device.BatteryPercentage;
+
+            if (device.BatteryPercentage <= lowestBattery)
+            {
+                lowestBattery = device.BatteryPercentage;
+                lowestBatteryName = device.Role.ToString();
+            }
         }
 
         var trackerAverageBattery = totalBatteryPercentage / totalTrackers;
         SetVariableValue(SteamVRVariable.TrackerAverageBattery, (int)(trackerAverageBattery * 100f));
+
+        SetVariableValue(SteamVRVariable.TrackerLowestRole, lowestBatteryName);
+        SetVariableValue(SteamVRVariable.TrackerLowestBattery, lowestBattery);
     }
 
     [ModuleUpdate(ModuleUpdateMode.Custom, true, 1000)]
@@ -334,6 +347,8 @@ public class SteamVRStatisticsModule : Module
         LKnee_Charging,
         RKnee_Charging,
         Waist_Charging,
-        Chest_Charging
+        Chest_Charging,
+        TrackerLowestRole,
+        TrackerLowestBattery
     }
 }
