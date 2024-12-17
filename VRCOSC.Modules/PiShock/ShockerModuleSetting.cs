@@ -14,6 +14,8 @@ public class ShockerModuleSetting : ListModuleSetting<Shocker>
         : base("Shockers", "Individual shockers. Name them something recognisable", typeof(ShockerModuleSettingView), [])
     {
     }
+
+    protected override Shocker CreateItem() => new();
 }
 
 [JsonObject(MemberSerialization.OptIn)]

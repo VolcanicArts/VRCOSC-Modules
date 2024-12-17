@@ -15,6 +15,8 @@ public class CountersModuleSetting : ListModuleSetting<Counter>
         : base("Counters", "Add, edit, and remove counters", typeof(CountersModuleSettingView), [])
     {
     }
+
+    protected override Counter CreateItem() => new();
 }
 
 [JsonObject(MemberSerialization.OptIn)]

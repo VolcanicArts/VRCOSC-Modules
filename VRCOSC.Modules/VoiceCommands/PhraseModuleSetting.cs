@@ -15,6 +15,8 @@ public class PhraseModuleSetting : ListModuleSetting<Phrase>
         : base("Phrases", "The phrases to recognise and drive avatar parameters", typeof(PhraseModuleSettingView), [])
     {
     }
+
+    protected override Phrase CreateItem() => new();
 }
 
 [JsonObject(MemberSerialization.OptIn)]

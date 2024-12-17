@@ -16,6 +16,8 @@ public class KeybindsModuleSetting : ListModuleSetting<KeybindsInstance>
         : base("Keybinds", "Create, edit, and delete keybinds", typeof(KeybindsModuleSettingView), [])
     {
     }
+
+    protected override KeybindsInstance CreateItem() => new();
 }
 
 [JsonObject(MemberSerialization.OptIn)]

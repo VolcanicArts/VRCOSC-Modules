@@ -15,6 +15,8 @@ public class EquationModuleSetting : ListModuleSetting<Equation>
         : base("Equations", "Define the equations to run\nChanges to this setting requires a module restart", typeof(EquationModuleSettingView), [])
     {
     }
+
+    protected override Equation CreateItem() => new();
 }
 
 [JsonObject(MemberSerialization.OptIn)]

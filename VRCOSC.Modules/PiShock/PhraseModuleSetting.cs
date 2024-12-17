@@ -16,6 +16,8 @@ public class PhraseModuleSetting : ListModuleSetting<Phrase>
         : base("Phrases", "Execute groups when a phrase is said", typeof(PhraseModuleSettingView), [])
     {
     }
+
+    protected override Phrase CreateItem() => new();
 }
 
 [JsonObject(MemberSerialization.OptIn)]

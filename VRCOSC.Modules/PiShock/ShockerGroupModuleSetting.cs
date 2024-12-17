@@ -15,6 +15,8 @@ public class ShockerGroupModuleSetting : ListModuleSetting<ShockerGroup>
         : base("Groups", "Create, edit, and delete shocker groups\nThe left number is the group index for the group parameter and wildcard parameters", typeof(ShockerGroupModuleSettingView), [])
     {
     }
+
+    protected override ShockerGroup CreateItem() => new();
 }
 
 [JsonObject(MemberSerialization.OptIn)]
