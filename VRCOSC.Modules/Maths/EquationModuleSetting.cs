@@ -20,7 +20,7 @@ public class EquationModuleSetting : ListModuleSetting<Equation>
 }
 
 [JsonObject(MemberSerialization.OptIn)]
-public class Equation : ICloneable, IEquatable<Equation>
+public class Equation : IEquatable<Equation>
 {
     [JsonProperty("name")]
     public Observable<string> Name { get; set; } = new("My Equation");
@@ -38,16 +38,6 @@ public class Equation : ICloneable, IEquatable<Equation>
     public Equation()
     {
     }
-
-    public Equation(Equation other)
-    {
-        Name.Value = other.Name.Value;
-        TriggerParameters.AddRange(other.TriggerParameters.Select(triggerParameter => new Observable<string>(triggerParameter.Value)));
-        EquationString.Value = other.EquationString.Value;
-        OutputParameter.Value = other.OutputParameter.Value;
-    }
-
-    public object Clone() => new Equation(this);
 
     public bool Equals(Equation? other)
     {

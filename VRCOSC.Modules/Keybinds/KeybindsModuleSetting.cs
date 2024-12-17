@@ -21,7 +21,7 @@ public class KeybindsModuleSetting : ListModuleSetting<KeybindsInstance>
 }
 
 [JsonObject(MemberSerialization.OptIn)]
-public class KeybindsInstance : ICloneable, IEquatable<KeybindsInstance>
+public class KeybindsInstance : IEquatable<KeybindsInstance>
 {
     [JsonProperty("id")]
     public string ID { get; set; } = Guid.NewGuid().ToString();
@@ -42,15 +42,6 @@ public class KeybindsInstance : ICloneable, IEquatable<KeybindsInstance>
     public KeybindsInstance()
     {
     }
-
-    public KeybindsInstance(KeybindsInstance other)
-    {
-        Name.Value = other.Name.Value;
-        ParameterNames.AddRange(other.ParameterNames.Select(parameter => new Observable<string>(parameter.Value)));
-        Keybinds.AddRange(other.Keybinds.Select(keybind => new Observable<Keybind>(keybind.Value)));
-    }
-
-    public object Clone() => new KeybindsInstance(this);
 
     public bool Equals(KeybindsInstance? other)
     {

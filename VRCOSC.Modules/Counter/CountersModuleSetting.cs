@@ -20,7 +20,7 @@ public class CountersModuleSetting : ListModuleSetting<Counter>
 }
 
 [JsonObject(MemberSerialization.OptIn)]
-public class Counter : ICloneable, IEquatable<Counter>
+public class Counter : IEquatable<Counter>
 {
     [JsonProperty("id")]
     public string ID { get; set; } = Guid.NewGuid().ToString();
@@ -47,17 +47,6 @@ public class Counter : ICloneable, IEquatable<Counter>
     public Counter()
     {
     }
-
-    public Counter(Counter other)
-    {
-        Name.Value = other.Name.Value;
-        FloatThreshold.Value = other.FloatThreshold.Value;
-        ParameterNames.AddRange(other.ParameterNames.Select(parameterName => new Observable<string>(parameterName.Value)));
-        MilestoneParameter.Value = other.MilestoneParameter.Value;
-        Milestones.AddRange(other.Milestones.Select(milestone => new Observable<int>(milestone.Value)));
-    }
-
-    public object Clone() => new Counter(this);
 
     public bool Equals(Counter? other)
     {

@@ -20,7 +20,7 @@ public class ShockerGroupModuleSetting : ListModuleSetting<ShockerGroup>
 }
 
 [JsonObject(MemberSerialization.OptIn)]
-public class ShockerGroup : ICloneable, IEquatable<ShockerGroup>
+public class ShockerGroup : IEquatable<ShockerGroup>
 {
     [JsonProperty("id")]
     public string ID { get; set; } = Guid.NewGuid().ToString();
@@ -41,16 +41,6 @@ public class ShockerGroup : ICloneable, IEquatable<ShockerGroup>
     public ShockerGroup()
     {
     }
-
-    public ShockerGroup(ShockerGroup other)
-    {
-        Name.Value = other.Name.Value;
-        Shockers.AddRange(other.Shockers.Select(shocker => new Observable<string>(shocker.Value)));
-        MaxDuration.Value = other.MaxDuration.Value;
-        MaxIntensity.Value = other.MaxIntensity.Value;
-    }
-
-    public object Clone() => new ShockerGroup(this);
 
     public bool Equals(ShockerGroup? other)
     {

@@ -21,7 +21,7 @@ public class PhraseModuleSetting : ListModuleSetting<Phrase>
 }
 
 [JsonObject(MemberSerialization.OptIn)]
-public class Phrase : ICloneable, IEquatable<Phrase>
+public class Phrase : IEquatable<Phrase>
 {
     [JsonProperty("name")]
     public Observable<string> Name { get; } = new("New Phrase");
@@ -41,16 +41,10 @@ public class Phrase : ICloneable, IEquatable<Phrase>
     [JsonProperty("shocker_groups")]
     public ObservableCollection<Observable<string>> ShockerGroups { get; } = [];
 
+    [JsonConstructor]
     public Phrase()
     {
     }
-
-    private Phrase(Phrase other)
-    {
-        Text.Value = other.Text.Value;
-    }
-
-    public object Clone() => new Phrase(this);
 
     public bool Equals(Phrase? other)
     {

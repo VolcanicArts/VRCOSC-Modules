@@ -20,7 +20,7 @@ public class PhraseModuleSetting : ListModuleSetting<Phrase>
 }
 
 [JsonObject(MemberSerialization.OptIn)]
-public class Phrase : ICloneable, IEquatable<Phrase>
+public class Phrase : IEquatable<Phrase>
 {
     [JsonProperty("name")]
     public Observable<string> Name { get; set; } = new("New Phrase");
@@ -36,29 +36,11 @@ public class Phrase : ICloneable, IEquatable<Phrase>
     {
     }
 
-    public Phrase(Phrase other)
-    {
-        Name.Value = other.Name.Value;
-        Text.Value = other.Text.Value;
-        Parameters.AddRange(other.Parameters.Select(parameter => (Parameter)parameter.Clone()));
-    }
-
-    public object Clone() => new Phrase(this);
-
     public bool Equals(Phrase? other)
     {
         if (other is null) return false;
         if (ReferenceEquals(this, other)) return true;
 
         return Name.Equals(other.Name) && Text.Equals(other.Text) && Parameters.SequenceEqual(other.Parameters);
-    }
-
-    public override bool Equals(object? obj)
-    {
-        if (obj is null) return false;
-        if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != GetType()) return false;
-
-        return Equals((Phrase)obj);
     }
 }
