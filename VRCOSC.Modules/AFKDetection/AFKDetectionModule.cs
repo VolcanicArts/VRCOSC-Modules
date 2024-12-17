@@ -109,7 +109,7 @@ public class AFKDetectionModule : Module
         if (!GetSettingValue<bool>(AFKDetectionSetting.ManageVRChatWindow)) return;
 
         var vrchatProcesses = Process.GetProcessesByName("vrchat");
-        if (vrchatProcesses.Length != 1) return;
+        if (vrchatProcesses.Length != 1 || vrchatProcesses[0].MainWindowHandle == IntPtr.Zero) return;
 
         vrchatProcesses[0].SetWindowVisibility(showWindow);
     }
