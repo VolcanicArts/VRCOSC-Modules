@@ -3,6 +3,7 @@
 
 using VRCOSC.App.SDK.Handlers;
 using VRCOSC.App.SDK.Modules;
+using VRCOSC.App.SDK.Parameters;
 
 namespace VRCOSC.Modules.VoiceCommands;
 
@@ -44,9 +45,20 @@ public class VoiceCommandsModule : Module, ISpeechHandler
                         }
                         else
                         {
-                            var parameterValue = (bool?)await FindParameterValue(parameter.ParameterName.Value);
-                            parameterValue ??= false;
-                            SendParameter(parameter.ParameterName.Value, !parameterValue);
+                            var receivedParameter = await FindParameter(parameter.ParameterName.Value);
+
+                            if (receivedParameter is null)
+                            {
+                                SendParameter(parameter.ParameterName.Value, true);
+                            }
+                            else
+                            {
+                                if (receivedParameter.Type == ParameterType.Bool)
+                                {
+                                    var parameterValue = receivedParameter.GetValue<bool>();
+                                    SendParameter(parameter.ParameterName.Value, !parameterValue);
+                                }
+                            }
                         }
 
                         break;

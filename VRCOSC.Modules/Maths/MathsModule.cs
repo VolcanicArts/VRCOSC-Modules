@@ -54,16 +54,30 @@ public class MathsModule : Module
             var parameterReplacer = parameterMatch.Groups[0].Value;
             var parameterName = parameterMatch.Groups[1].Value;
 
-            var parameterValue = await FindParameterValue(parameterName);
+            var foundParameter = await FindParameter(parameterName);
 
-            if (parameterValue is null)
+            if (foundParameter is null)
             {
                 Log($"Could not retrieve value for parameter '{parameterName}'. Aborting equation '{instance.Name.Value}'");
                 return;
             }
 
-            if (parameterValue is bool boolValue)
-                parameterValue = boolValue ? 1 : 0;
+            object parameterValue = null!;
+
+            switch (foundParameter.Type)
+            {
+                case ParameterType.Bool:
+                    parameterValue = foundParameter.GetValue<bool>() ? 1 : 0;
+                    break;
+
+                case ParameterType.Int:
+                    parameterValue = foundParameter.GetValue<int>();
+                    break;
+
+                case ParameterType.Float:
+                    parameterValue = foundParameter.GetValue<float>();
+                    break;
+            }
 
             equationString = equationString.Replace(parameterReplacer, parameterValue.ToString());
         }
@@ -73,9 +87,9 @@ public class MathsModule : Module
         var expression = new Expression(equationString, elements.ToArray());
         expression.disableImpliedMultiplicationMode();
 
-        var outputType = await FindParameterType(instance.OutputParameter.Value);
+        var outputParameter = await FindParameter(instance.OutputParameter.Value);
 
-        if (outputType is null)
+        if (outputParameter is null)
         {
             Log($"Could not find output parameter '{instance.OutputParameter.Value}'");
             return;
@@ -83,32 +97,32 @@ public class MathsModule : Module
 
         var output = expression.calculate();
 
-        var finalValue = convertToOutputType(output, outputType.Value);
+        var finalValue = convertToOutputType(output, outputParameter.Type);
         SendParameter(instance.OutputParameter.Value, finalValue);
     }
 
-    private object convertToOutputType(double value, TypeCode valueType)
+    private object convertToOutputType(double value, ParameterType parameterType)
     {
         try
         {
-            return valueType switch
+            return parameterType switch
             {
-                TypeCode.Boolean => Convert.ToBoolean(value),
-                TypeCode.Int32 => Convert.ToInt32(value),
-                TypeCode.Single => Convert.ToSingle(value),
-                _ => throw new ArgumentOutOfRangeException(nameof(valueType), valueType, null)
+                ParameterType.Bool => Convert.ToBoolean(value),
+                ParameterType.Int => Convert.ToInt32(value),
+                ParameterType.Float => Convert.ToSingle(value),
+                _ => throw new ArgumentOutOfRangeException(nameof(parameterType), parameterType, null)
             };
         }
         catch (Exception e)
         {
             Log($"Output error for value '{value}': '{e.Message}'");
 
-            return valueType switch
+            return parameterType switch
             {
-                TypeCode.Boolean => default(bool),
-                TypeCode.Int32 => default(int),
-                TypeCode.Single => default(float),
-                _ => throw new ArgumentOutOfRangeException(nameof(valueType), valueType, null)
+                ParameterType.Bool => false,
+                ParameterType.Int => 0,
+                ParameterType.Float => 0f,
+                _ => throw new ArgumentOutOfRangeException(nameof(parameterType), parameterType, null)
             };
         }
     }

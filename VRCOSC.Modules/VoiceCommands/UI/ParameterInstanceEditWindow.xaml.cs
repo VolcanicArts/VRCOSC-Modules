@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Windows;
+using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.UI.Core;
 
 namespace VRCOSC.Modules.VoiceCommands.UI;
