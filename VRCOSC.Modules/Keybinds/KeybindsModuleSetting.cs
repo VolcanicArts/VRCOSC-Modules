@@ -4,6 +4,7 @@
 using System.Collections.ObjectModel;
 using Newtonsoft.Json;
 using VRCOSC.App.SDK.Modules.Attributes.Settings;
+using VRCOSC.App.SDK.Parameters.Queryable;
 using VRCOSC.App.SDK.Utils;
 using VRCOSC.App.Utils;
 using VRCOSC.Modules.Keybinds.UI;
@@ -29,11 +30,8 @@ public class KeybindsInstance : IEquatable<KeybindsInstance>
     [JsonProperty("name")]
     public Observable<string> Name { get; set; } = new("New Keybind");
 
-    [JsonProperty("mode")]
-    public Observable<KeybindInstanceMode> Mode { get; set; } = new(KeybindInstanceMode.Press);
-
-    [JsonProperty("parameter_names")]
-    public ObservableCollection<Observable<string>> ParameterNames { get; set; } = [];
+    [JsonProperty("parameters")]
+    public QueryableParameterList Parameters { get; set; } = new(typeof(ActionableQueryableParameter<KeybindAction>));
 
     [JsonProperty("keybinds")]
     public ObservableCollection<Observable<Keybind>> Keybinds { get; set; } = [];
@@ -48,12 +46,6 @@ public class KeybindsInstance : IEquatable<KeybindsInstance>
         if (ReferenceEquals(null, other)) return false;
         if (ReferenceEquals(this, other)) return true;
 
-        return Name.Equals(other.Name) && Mode.Equals(other.Mode) && ParameterNames.SequenceEqual(other.ParameterNames) && Keybinds.SequenceEqual(other.Keybinds);
+        return Name.Equals(other.Name) && Parameters.Parameters.SequenceEqual(other.Parameters.Parameters) && Keybinds.SequenceEqual(other.Keybinds);
     }
-}
-
-public enum KeybindInstanceMode
-{
-    Press,
-    HoldRelease
 }

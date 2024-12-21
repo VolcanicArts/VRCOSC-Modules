@@ -4,6 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:core="clr-namespace:VRCOSC.App.UI.Core;assembly=VRCOSC.App"
+        xmlns:queryableParameter="clr-namespace:VRCOSC.App.UI.Views.Modules.Settings.QueryableParameter;assembly=VRCOSC.App"
         mc:Ignorable="d"
         Background="{StaticResource CBackground2}"
         MinWidth="600" MinHeight="600" Width="600" Height="768">
@@ -29,55 +30,7 @@
                 </core:TitleDescriptionContent>
                 <core:TitleDescriptionContent Title="Parameters"
                                               Description="The parameters that will trigger the keybinds">
-                    <core:HeaderFooterListView ItemsSource="{Binding Instance.ParameterNames}" AlternationCount="2"
-                                               ShouldTruncateHeight="False" HideHeaderWhenEmpty="True">
-                        <core:HeaderFooterListView.Header>
-                            <Border Background="{StaticResource CBackground1}" Height="5" />
-                        </core:HeaderFooterListView.Header>
-                        <ListView.ItemContainerStyle>
-                            <Style TargetType="ListViewItem">
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate>
-                                            <Border
-                                                Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}">
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="*" />
-                                                        <ColumnDefinition Width="Auto" />
-                                                    </Grid.ColumnDefinitions>
-                                                    <TextBox Grid.Column="0" FontSize="16" Margin="5"
-                                                             Background="{StaticResource CBackground2}"
-                                                             Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                                                    <core:IconButton Grid.Column="1" ButtonColour="Red"
-                                                                     Icon="Solid_Minus"
-                                                                     Width="25"
-                                                                     Height="25"
-                                                                     Click="RemoveParameter_OnClick" Margin="0 0 5 0">
-                                                        <core:IconButton.Tag>
-                                                            <Binding />
-                                                        </core:IconButton.Tag>
-                                                    </core:IconButton>
-                                                </Grid>
-                                            </Border>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </ListView.ItemContainerStyle>
-                        <core:HeaderFooterListView.Footer>
-                            <Border Background="{StaticResource CBackground1}">
-                                <core:IconButton
-                                    ButtonColour="Green"
-                                    Width="100"
-                                    Height="20"
-                                    Margin="0 5"
-                                    Icon="Solid_Plus"
-                                    Click="AddParameter_OnClick">
-                                </core:IconButton>
-                            </Border>
-                        </core:HeaderFooterListView.Footer>
-                    </core:HeaderFooterListView>
+                    <queryableParameter:QueryableParameterSettingView QueryableParameterList="{Binding Instance.Parameters, Mode=OneWay}"/>
                 </core:TitleDescriptionContent>
                 <core:TitleDescriptionContent Title="Keybinds"
                                               Description="The keybinds that will be triggered">

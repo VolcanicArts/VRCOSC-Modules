@@ -11,7 +11,6 @@ namespace VRCOSC.Modules.Keybinds.UI;
 public partial class KeybindsInstanceEditWindow : IManagedWindow
 {
     public KeybindsInstance Instance { get; }
-    public IEnumerable<KeybindInstanceMode> ModeItemsSource => Enum.GetValues<KeybindInstanceMode>();
 
     public KeybindsInstanceEditWindow(KeybindsInstance instance)
     {
@@ -21,19 +20,6 @@ public partial class KeybindsInstanceEditWindow : IManagedWindow
         DataContext = this;
 
         instance.Name.Subscribe(newName => Title = $"{newName.Pluralise()} Settings", true);
-    }
-
-    private void AddParameter_OnClick(object sender, RoutedEventArgs e)
-    {
-        Instance.ParameterNames.Add(new Observable<string>(string.Empty));
-    }
-
-    private void RemoveParameter_OnClick(object sender, RoutedEventArgs e)
-    {
-        var element = (FrameworkElement)sender;
-        var parameterName = (Observable<string>)element.Tag;
-
-        Instance.ParameterNames.Remove(parameterName);
     }
 
     private void AddKeybind_OnClick(object sender, RoutedEventArgs e)
