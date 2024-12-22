@@ -46,6 +46,6 @@ public class KeybindsInstance : IEquatable<KeybindsInstance>
         if (ReferenceEquals(null, other)) return false;
         if (ReferenceEquals(this, other)) return true;
 
-        return Name.Equals(other.Name) && Parameters.Parameters.SequenceEqual(other.Parameters.Parameters) && Keybinds.SequenceEqual(other.Keybinds);
+        return Name.Equals(other.Name) && Parameters.Parameters.Count == other.Parameters.Parameters.Count && Keybinds.SequenceEqual(other.Keybinds);
     }
 }

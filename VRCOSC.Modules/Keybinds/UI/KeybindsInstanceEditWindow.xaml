@@ -22,12 +22,6 @@
                              FontSize="16"
                              HorizontalAlignment="Stretch" VerticalContentAlignment="Center" />
                 </core:TitleDescriptionContent>
-                <core:TitleDescriptionContent Title="Mode" Description="How should the keys be triggered?">
-                    <ComboBox SelectedItem="{Binding Instance.Mode.Value}" ItemsSource="{Binding ModeItemsSource}"
-                              Background="{StaticResource CBackground3}"
-                              FontSize="16"
-                              HorizontalAlignment="Stretch" VerticalContentAlignment="Center" />
-                </core:TitleDescriptionContent>
                 <core:TitleDescriptionContent Title="Parameters"
                                               Description="The parameters that will trigger the keybinds">
                     <queryableParameter:QueryableParameterSettingView QueryableParameterList="{Binding Instance.Parameters, Mode=OneWay}"/>
