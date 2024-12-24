@@ -178,7 +178,7 @@ public class SteamVRStatisticsModule : Module
         SetVariableValue(SteamVRVariable.TrackerAverageBattery, (int)(trackerAverageBattery * 100f));
 
         SetVariableValue(SteamVRVariable.TrackerLowestRole, lowestBatteryName);
-        SetVariableValue(SteamVRVariable.TrackerLowestBattery, lowestBattery);
+        SetVariableValue(SteamVRVariable.TrackerLowestBattery, (int)(lowestBattery * 100f));
     }
 
     [ModuleUpdate(ModuleUpdateMode.Custom, true, 1000)]
