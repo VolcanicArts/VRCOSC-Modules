@@ -135,7 +135,7 @@ public class PiShockModule : Module, ISpeechHandler
 
             var tasks = phrase.ShockerGroups.DistinctBy(shockerGroupID => shockerGroupID.Value).Select(shockerGroupID =>
             {
-                var shockerGroup = GetSettingValue<IEnumerable<ShockerGroup>>(PiShockSetting.Groups).SingleOrDefault(shockerGroup => shockerGroup.ID == shockerGroupID.Value);
+                var shockerGroup = GetSettingValue<List<ShockerGroup>>(PiShockSetting.Groups).SingleOrDefault(shockerGroup => shockerGroup.ID == shockerGroupID.Value);
                 if (shockerGroup is null) return Task.CompletedTask;
 
                 var convertedDuration = Math.Min(phrase.Duration.Value, shockerGroup.MaxDuration.Value);
@@ -199,7 +199,7 @@ public class PiShockModule : Module, ISpeechHandler
 
     private async Task executeGroupAsync(string groupID, PiShockMode mode, float durationPercentage, float intensityPercentage)
     {
-        var shockerGroup = GetSettingValue<IEnumerable<ShockerGroup>>(PiShockSetting.Groups).SingleOrDefault(shockerGroup => shockerGroup.ID == groupID);
+        var shockerGroup = GetSettingValue<List<ShockerGroup>>(PiShockSetting.Groups).SingleOrDefault(shockerGroup => shockerGroup.ID == groupID);
         if (shockerGroup is null) return;
 
         var convertedDuration = (int)Math.Round(Interpolation.Map(durationPercentage, 0, 1, 1, shockerGroup.MaxDuration.Value));
@@ -216,7 +216,7 @@ public class PiShockModule : Module, ISpeechHandler
 
     private async Task executeShockerAsync(string shockerID, PiShockMode mode, int duration, int intensity)
     {
-        var shockerInstance = GetSettingValue<IEnumerable<Shocker>>(PiShockSetting.Shockers).SingleOrDefault(shocker => shocker.ID == shockerID);
+        var shockerInstance = GetSettingValue<List<Shocker>>(PiShockSetting.Shockers).SingleOrDefault(shocker => shocker.ID == shockerID);
         if (shockerInstance is null) return;
 
         var shockerName = shockerInstance.Name.Value;
