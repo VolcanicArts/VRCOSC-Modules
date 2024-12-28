@@ -129,7 +129,7 @@ public class MediaModule : Module, IVRCClientEventHandler
         SetVariableValue(MediaVariable.Volume, (int)MathF.Round(MediaProvider.TryGetVolume() * 100));
         SetVariableValue(MediaVariable.ProgressVisual, MediaProvider.CurrentState.Timeline.Progress);
         SetVariableValue(MediaVariable.Time, MediaProvider.CurrentState.Timeline.Position);
-        SetVariableValue(MediaVariable.TimeRemaining, MediaProvider.CurrentState.Timeline.End - MediaProvider.CurrentState.Timeline.Position);
+        SetVariableValue(MediaVariable.TimeRemaining, MediaProvider.CurrentState.Timeline.End >= MediaProvider.CurrentState.Timeline.Position ? MediaProvider.CurrentState.Timeline.End - MediaProvider.CurrentState.Timeline.Position : TimeSpan.Zero);
         SetVariableValue(MediaVariable.Duration, MediaProvider.CurrentState.Timeline.End);
     }
 
