@@ -35,6 +35,8 @@ public class PiShockModule : Module, ISpeechHandler
     private bool vibrateExecuted;
     private bool beepExecuted;
 
+    private readonly List<string> executedPhrases = [];
+
     public ShockerModuleSetting ShockersSetting => GetSetting<ShockerModuleSetting>(PiShockSetting.Shockers);
     public ShockerGroupModuleSetting GroupsSetting => GetSetting<ShockerGroupModuleSetting>(PiShockSetting.Groups);
 
@@ -119,105 +121,124 @@ public class PiShockModule : Module, ISpeechHandler
         shockExecuted = false;
         vibrateExecuted = false;
         beepExecuted = false;
+
+        executedPhrases.Clear();
     }
 
     public void OnPartialSpeechResult(string text)
     {
+        handleSpeechText(text);
     }
 
-    public async void OnFinalSpeechResult(string text)
+    public void OnFinalSpeechResult(string text)
+    {
+        handleSpeechText(text);
+        executedPhrases.Clear();
+    }
+
+    private void handleSpeechText(string text)
     {
         if (string.IsNullOrEmpty(text)) return;
 
-        foreach (var phrase in GetSettingValue<List<Phrase>>(PiShockSetting.Phrases).Where(phrase => text.Contains(phrase.Text.Value, StringComparison.InvariantCultureIgnoreCase)))
+        foreach (var phrase in GetSettingValue<List<Phrase>>(PiShockSetting.Phrases).Where(phrase => !executedPhrases.Contains(phrase.ID) && text.Contains(phrase.Text.Value, StringComparison.InvariantCultureIgnoreCase)))
         {
             Log($"Found phrase '{phrase.Text.Value}'");
-
-            var tasks = phrase.ShockerGroups.DistinctBy(shockerGroupID => shockerGroupID.Value).Select(shockerGroupID =>
-            {
-                var shockerGroup = GetSettingValue<List<ShockerGroup>>(PiShockSetting.Groups).SingleOrDefault(shockerGroup => shockerGroup.ID == shockerGroupID.Value);
-                if (shockerGroup is null) return Task.CompletedTask;
-
-                var convertedDuration = Math.Min(phrase.Duration.Value, shockerGroup.MaxDuration.Value);
-                var convertedIntensity = Math.Min(phrase.Intensity.Value, shockerGroup.MaxIntensity.Value);
-
-                var localDuration = (float)Interpolation.Map(convertedDuration, 1, shockerGroup.MaxDuration.Value, 0, 1);
-                var localIntensity = (float)Interpolation.Map(convertedIntensity, 1, shockerGroup.MaxIntensity.Value, 0, 1);
-
-                return Task.Run(async () => await executeGroupAsync(shockerGroupID.Value, phrase.Mode.Value, localDuration, localIntensity));
-            });
-
-            await Task.WhenAll(tasks);
-            Log($"Phrase '{phrase.Text.Value}' complete");
+            executedPhrases.Add(phrase.ID);
+            phrase.ShockerGroups.DistinctBy(shockerGroupID => shockerGroupID.Value).ForEach(shockerGroupID => _ = executeGroupAsync(shockerGroupID.Value, phrase.Mode.Value, phrase.Duration.Value, phrase.Intensity.Value));
         }
     }
 
     [ModuleUpdate(ModuleUpdateMode.Custom)]
-    private void checkForExecutions()
+    private void checkForActions()
     {
         var delay = TimeSpan.FromMilliseconds(GetSettingValue<int>(PiShockSetting.ButtonDelay));
 
-        if (shock is not null && shock.Value.Item1 + delay <= DateTimeOffset.Now && !shockExecuted)
+        if (shock is not null)
         {
-            var groupID = shock.Value.Item2;
-            var localDuration = string.IsNullOrEmpty(groupID) ? globalDuration : durations[groupID];
-            var localIntensity = string.IsNullOrEmpty(groupID) ? globalIntensity : intensities[groupID];
-            var localGroup = string.IsNullOrEmpty(groupID) ? globalGroupID : groupID;
-
-            shockExecuted = true;
-            _ = executeGroupAsync(localGroup, PiShockMode.Shock, localDuration, localIntensity);
+            if (shock.Value.Item1 + delay <= DateTimeOffset.Now && !shockExecuted)
+            {
+                handleAction(shock.Value.Item2, PiShockMode.Shock);
+                shockExecuted = true;
+            }
+        }
+        else
+        {
+            shockExecuted = false;
         }
 
-        if (shock is null) shockExecuted = false;
-
-        if (vibrate is not null && vibrate.Value.Item1 + delay <= DateTimeOffset.Now && !vibrateExecuted)
+        if (vibrate is not null)
         {
-            var groupID = vibrate.Value.Item2;
-            var localDuration = string.IsNullOrEmpty(groupID) ? globalDuration : durations[groupID];
-            var localIntensity = string.IsNullOrEmpty(groupID) ? globalIntensity : intensities[groupID];
-            var localGroup = string.IsNullOrEmpty(groupID) ? globalGroupID : groupID;
-
-            vibrateExecuted = true;
-            _ = executeGroupAsync(localGroup, PiShockMode.Vibrate, localDuration, localIntensity);
+            if (vibrate.Value.Item1 + delay <= DateTimeOffset.Now && !vibrateExecuted)
+            {
+                handleAction(vibrate.Value.Item2, PiShockMode.Vibrate);
+                vibrateExecuted = true;
+            }
+        }
+        else
+        {
+            vibrateExecuted = false;
         }
 
-        if (vibrate is null) vibrateExecuted = false;
-
-        if (beep is not null && beep.Value.Item1 + delay <= DateTimeOffset.Now && !beepExecuted)
+        if (beep is not null)
         {
-            var groupID = beep.Value.Item2;
-            var localDuration = string.IsNullOrEmpty(groupID) ? globalDuration : durations[groupID];
-            var localIntensity = string.IsNullOrEmpty(groupID) ? globalIntensity : intensities[groupID];
-            var localGroup = string.IsNullOrEmpty(groupID) ? globalGroupID : groupID;
-
-            beepExecuted = true;
-            _ = executeGroupAsync(localGroup, PiShockMode.Beep, localDuration, localIntensity);
+            if (beep.Value.Item1 + delay <= DateTimeOffset.Now && !beepExecuted)
+            {
+                handleAction(beep.Value.Item2, PiShockMode.Beep);
+                beepExecuted = true;
+            }
         }
-
-        if (beep is null) beepExecuted = false;
+        else
+        {
+            beepExecuted = false;
+        }
     }
 
-    private async Task executeGroupAsync(string groupID, PiShockMode mode, float durationPercentage, float intensityPercentage)
+    private async void handleAction(string? groupId, PiShockMode mode)
     {
-        var shockerGroup = GetSettingValue<List<ShockerGroup>>(PiShockSetting.Groups).SingleOrDefault(shockerGroup => shockerGroup.ID == groupID);
-        if (shockerGroup is null) return;
+        var localDuration = string.IsNullOrEmpty(groupId) ? globalDuration : durations[groupId];
+        var localIntensity = string.IsNullOrEmpty(groupId) ? globalIntensity : intensities[groupId];
+        var localGroup = string.IsNullOrEmpty(groupId) ? globalGroupID : groupId;
 
-        var convertedDuration = (int)Math.Round(Interpolation.Map(durationPercentage, 0, 1, 1, shockerGroup.MaxDuration.Value));
-        var convertedIntensity = (int)Math.Round(Interpolation.Map(intensityPercentage, 0, 1, 1, shockerGroup.MaxIntensity.Value));
+        await executeGroupAsync(localGroup, mode, localDuration, localIntensity);
+    }
 
-        var tasks = shockerGroup.Shockers.DistinctBy(shockerID => shockerID.Value).Select(shockerID =>
-        {
-            return Task.Run(async () => await executeShockerAsync(shockerID.Value, mode, convertedDuration, convertedIntensity));
-        });
+    private Task<bool> executeGroupAsync(string groupId, PiShockMode mode, float durationPercentage, float intensityPercentage)
+    {
+        var shockerGroup = GetSettingValue<List<ShockerGroup>>(PiShockSetting.Groups).SingleOrDefault(shockerGroup => shockerGroup.ID == groupId);
+        if (shockerGroup is null) return Task.FromResult(false);
 
+        var maxDuration = shockerGroup.MaxDuration.Value;
+        var maxIntensity = shockerGroup.MaxIntensity.Value;
+
+        var duration = (int)Math.Round(Interpolation.Map(maxDuration * durationPercentage, 0, maxDuration, 1, maxDuration));
+        var intensity = (int)Math.Round(Interpolation.Map(maxIntensity * intensityPercentage, 0, maxIntensity, 1, maxIntensity));
+
+        return executeGroupAsync(groupId, mode, duration, intensity);
+    }
+
+    private async Task<bool> executeGroupAsync(string groupId, PiShockMode mode, int duration, int intensity)
+    {
+        var shockerGroup = GetSettingValue<List<ShockerGroup>>(PiShockSetting.Groups).SingleOrDefault(shockerGroup => shockerGroup.ID == groupId);
+        if (shockerGroup is null) return false;
+
+        var localDuration = Math.Min(duration, shockerGroup.MaxDuration.Value);
+        var localIntensity = Math.Min(intensity, shockerGroup.MaxIntensity.Value);
+
+        var tasks = shockerGroup.Shockers.DistinctBy(shockerID => shockerID.Value).Select(shockerID => executeShockerAsync(shockerID.Value, mode, localDuration, localIntensity)).ToList();
         await Task.WhenAll(tasks);
+
         Log($"Group '{shockerGroup.Name.Value}' has been executed");
+
+        if (!tasks.All(task => task.Result)) return false;
+
+        sendSuccessParameter();
+        return true;
     }
 
-    private async Task executeShockerAsync(string shockerID, PiShockMode mode, int duration, int intensity)
+    private async Task<bool> executeShockerAsync(string shockerId, PiShockMode mode, int duration, int intensity)
     {
-        var shockerInstance = GetSettingValue<List<Shocker>>(PiShockSetting.Shockers).SingleOrDefault(shocker => shocker.ID == shockerID);
-        if (shockerInstance is null) return;
+        var shockerInstance = GetSettingValue<List<Shocker>>(PiShockSetting.Shockers).SingleOrDefault(shocker => shocker.ID == shockerId);
+        if (shockerInstance is null) return false;
 
         var shockerName = shockerInstance.Name.Value;
 
@@ -229,8 +250,7 @@ public class PiShockModule : Module, ISpeechHandler
 
         var response = await piShockProvider.Execute(username, apiKey, sharecode, mode, duration, intensity);
         Log(response.Success ? $"Shocker '{shockerName}' successfully executed mode {mode} at duration {response.FinalDuration} and intensity {response.FinalIntensity}" : $"Shocker '{shockerName}' failed with: '{response.Message}'");
-
-        if (response.Success) sendSuccessParameter();
+        return response.Success;
     }
 
     private async void sendSuccessParameter()
