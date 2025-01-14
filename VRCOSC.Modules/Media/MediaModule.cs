@@ -17,16 +17,12 @@ namespace VRCOSC.Modules.Media;
 [ModulePrefab("Official Prefabs", "https://vrcosc.com/docs/downloads#prefabs")]
 public class MediaModule : Module, IVRCClientEventHandler
 {
-    public WindowsMediaProvider MediaProvider { get; } = new();
+    private WindowsMediaProvider? mediaProviderInstance;
+    public WindowsMediaProvider MediaProvider => mediaProviderInstance ??= new WindowsMediaProvider();
+
     private bool currentlySeeking;
     private TimeSpan targetPosition;
     private bool instanceTransferPlay;
-
-    public MediaModule()
-    {
-        MediaProvider.OnPlaybackStateChanged += onPlaybackStateChanged;
-        MediaProvider.OnTrackChanged += onTrackChanged;
-    }
 
     protected override void OnPreLoad()
     {
@@ -74,6 +70,9 @@ public class MediaModule : Module, IVRCClientEventHandler
     {
         instanceTransferPlay = false;
 
+        MediaProvider.OnPlaybackStateChanged += onPlaybackStateChanged;
+        MediaProvider.OnTrackChanged += onTrackChanged;
+
         var hookResult = await MediaProvider.InitialiseAsync();
 
         if (!hookResult)
@@ -89,6 +88,9 @@ public class MediaModule : Module, IVRCClientEventHandler
 
     protected override Task OnModuleStop()
     {
+        MediaProvider.OnPlaybackStateChanged -= onPlaybackStateChanged;
+        MediaProvider.OnTrackChanged -= onTrackChanged;
+
         MediaProvider.Terminate();
         return Task.CompletedTask;
     }
