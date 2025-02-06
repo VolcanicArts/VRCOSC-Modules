@@ -229,7 +229,7 @@ public class MediaModule : Module, IVRCClientEventHandler
         }
     }
 
-    public void OnInstanceEnter(VRChatClientEventInstanceEnter eventArgs)
+    public void OnInstanceJoined(VRChatClientEventInstanceJoined eventArgs)
     {
         if (eventArgs.DateTime < moduleStartTime) return;
         if (!instanceTransferPlay) return;
@@ -238,7 +238,7 @@ public class MediaModule : Module, IVRCClientEventHandler
         instanceTransferPlay = false;
     }
 
-    public void OnInstanceExit(VRChatClientEventInstanceExit eventArgs)
+    public void OnInstanceLeft(VRChatClientEventInstanceLeft eventArgs)
     {
         if (eventArgs.DateTime < moduleStartTime) return;
         if (!GetSettingValue<bool>(MediaSetting.PlayOnInstanceTransfer)) return;

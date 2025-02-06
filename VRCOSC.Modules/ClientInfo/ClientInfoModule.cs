@@ -20,15 +20,12 @@ public class ClientInfoModule : Module, IVRCClientEventHandler
 
     protected override void OnPreLoad()
     {
-        RegisterParameter<bool>(ClientInfoParameter.Event_Instance_Exit,       "VRCOSC/ClientInfo/Event/Instance/Exit", ParameterMode.Write, "On Exit", "Sends true the moment you exit an instance, allowing you to trigger an exit animation");
-        RegisterParameter<bool>(ClientInfoParameter.Event_Instance_Enter,      "VRCOSC/ClientInfo/Event/Instance/Enter", ParameterMode.Write, "On Enter", "Sends true the moment you enter an instance, allowing you to trigger an enter animation");
-        RegisterParameter<bool>(ClientInfoParameter.Event_Instance_UserLeft,   "VRCOSC/ClientInfo/Event/Instance/UserLeft", ParameterMode.Write, "On User Left", "Sends true when a user leaves the instance");
-        RegisterParameter<bool>(ClientInfoParameter.Event_Instance_UserJoined, "VRCOSC/ClientInfo/Event/Instance/UserJoined", ParameterMode.Write, "On User Joined", "Sends true when a user joins the instance");
+        RegisterParameter<bool>(ClientInfoParameter.Event_InstanceLeft,    "VRCOSC/ClientInfo/Event/InstanceLeft", ParameterMode.Write, "Instance Left", "Sends true when you have left an instance");
+        RegisterParameter<bool>(ClientInfoParameter.Event_InstanceJoined,  "VRCOSC/ClientInfo/Event/InstanceJoined", ParameterMode.Write, "Instance Joined", "Sends true when you have joined an instance");
+        RegisterParameter<bool>(ClientInfoParameter.Event_UserLeft,        "VRCOSC/ClientInfo/Event/UserLeft", ParameterMode.Write, "User Left", "Sends true when a user has left your instance");
+        RegisterParameter<bool>(ClientInfoParameter.Event_UserJoined,      "VRCOSC/ClientInfo/Event/UserJoined", ParameterMode.Write, "User Joined", "Sends true when a user has joined your instance");
 
-        RegisterParameter<int>(ClientInfoParameter.Info_Instance_UserCount,    "VRCOSC/ClientInfo/Info/Instance/UserCount", ParameterMode.Write, "Instance User Count", "The current user count of the instance of the world you're in");
-
-        CreateEvent(ClientInfoEvent.OnInstanceExit, "On World Exit", "Goodbye!");
-        CreateEvent(ClientInfoEvent.OnInstanceEnter, "On World Enter", "Hello!");
+        RegisterParameter<int>(ClientInfoParameter.Info_InstanceUserCount, "VRCOSC/ClientInfo/Info/InstanceUserCount", ParameterMode.Write, "Instance User Count", "The current user count of the instance you're in");
     }
 
     protected override Task<bool> OnModuleStart()
@@ -43,7 +40,7 @@ public class ClientInfoModule : Module, IVRCClientEventHandler
         SendParameter(parameter, resetValue);
     }
 
-    public async void OnInstanceEnter(VRChatClientEventInstanceEnter eventArgs)
+    public async void OnInstanceJoined(VRChatClientEventInstanceJoined eventArgs)
     {
         instanceUserCount = 0;
 
@@ -52,42 +49,34 @@ public class ClientInfoModule : Module, IVRCClientEventHandler
         // delay to make sure avatar is loaded in
         await Task.Delay(500);
 
-        TriggerEvent(ClientInfoEvent.OnInstanceEnter);
-        sendAndReset(ClientInfoParameter.Event_Instance_Enter, true, false);
+        sendAndReset(ClientInfoParameter.Event_InstanceJoined, true, false);
     }
 
-    public void OnInstanceExit(VRChatClientEventInstanceExit eventArgs)
+    public void OnInstanceLeft(VRChatClientEventInstanceLeft eventArgs)
     {
         if (eventArgs.DateTime < moduleStartTime) return;
 
-        TriggerEvent(ClientInfoEvent.OnInstanceExit);
-        sendAndReset(ClientInfoParameter.Event_Instance_Exit, true, false);
+        sendAndReset(ClientInfoParameter.Event_InstanceLeft, true, false);
     }
 
     public void OnUserJoined(VRChatClientEventUserJoined eventArgs)
     {
         instanceUserCount++;
-        SendParameter(ClientInfoParameter.Info_Instance_UserCount, instanceUserCount);
+        SendParameter(ClientInfoParameter.Info_InstanceUserCount, instanceUserCount);
     }
 
     public void OnUserLeft(VRChatClientEventUserLeft eventArgs)
     {
         instanceUserCount--;
-        SendParameter(ClientInfoParameter.Info_Instance_UserCount, instanceUserCount);
+        SendParameter(ClientInfoParameter.Info_InstanceUserCount, instanceUserCount);
     }
 
     public enum ClientInfoParameter
     {
-        Event_Instance_Exit,
-        Event_Instance_Enter,
-        Event_Instance_UserLeft,
-        Event_Instance_UserJoined,
-        Info_Instance_UserCount
-    }
-
-    public enum ClientInfoEvent
-    {
-        OnInstanceExit,
-        OnInstanceEnter
+        Event_InstanceLeft,
+        Event_InstanceJoined,
+        Event_UserLeft,
+        Event_UserJoined,
+        Info_InstanceUserCount
     }
 }
