@@ -23,6 +23,7 @@ public class MediaModule : Module, IVRCClientEventHandler
     private bool currentlySeeking;
     private TimeSpan targetPosition;
     private bool instanceTransferPlay;
+    private DateTime moduleStartTime;
 
     protected override void OnPreLoad()
     {
@@ -82,6 +83,8 @@ public class MediaModule : Module, IVRCClientEventHandler
         }
 
         setState();
+
+        moduleStartTime = DateTime.Now;
 
         return true;
     }
@@ -224,8 +227,18 @@ public class MediaModule : Module, IVRCClientEventHandler
         }
     }
 
-    public void OnWorldExit()
+    public void OnInstanceEnter(VRChatClientEventInstanceEnter eventArgs)
     {
+        if (eventArgs.DateTime < moduleStartTime) return;
+        if (!instanceTransferPlay) return;
+
+        MediaProvider.Pause();
+        instanceTransferPlay = false;
+    }
+
+    public void OnInstanceExit(VRChatClientEventInstanceExit eventArgs)
+    {
+        if (eventArgs.DateTime < moduleStartTime) return;
         if (!GetSettingValue<bool>(MediaSetting.PlayOnInstanceTransfer)) return;
 
         if (MediaProvider.CurrentState.IsPaused)
@@ -235,12 +248,12 @@ public class MediaModule : Module, IVRCClientEventHandler
         }
     }
 
-    public void OnWorldEnter(string worldID)
+    public void OnUserJoined(VRChatClientEventUserJoined eventArgs)
     {
-        if (!instanceTransferPlay) return;
+    }
 
-        MediaProvider.Pause();
-        instanceTransferPlay = false;
+    public void OnUserLeft(VRChatClientEventUserLeft eventArgs)
+    {
     }
 
     private enum MediaSetting
