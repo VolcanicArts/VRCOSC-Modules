@@ -255,9 +255,10 @@ public class PiShockModule : Module, ISpeechHandler
 
     private async void sendSuccessParameter()
     {
-        SendParameter(PiShockParameter.Success, true);
-        await Task.Delay(1000);
-        SendParameter(PiShockParameter.Success, false);
+        var wasAcknowledged = await SendParameterAndWait(PiShockParameter.Success, true);
+
+        if (wasAcknowledged)
+            SendParameter(PiShockParameter.Success, false);
     }
 
     private bool getShockerGroupFromIndex(int index, [NotNullWhen(true)] out ShockerGroup? shockerGroup)

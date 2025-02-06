@@ -175,11 +175,13 @@ public class MediaModule : Module, IVRCClientEventHandler
         TriggerEvent(MediaEvent.OnTrackChange);
     }
 
-    private void sendMediaParameters()
+    private async void sendMediaParameters()
     {
-        SendParameter(MediaParameter.Play, MediaProvider.CurrentState.IsPlaying);
-        SendParameter(MediaParameter.Shuffle, MediaProvider.CurrentState.IsShuffle);
-        SendParameter(MediaParameter.Repeat, (int)MediaProvider.CurrentState.RepeatMode);
+        await Task.WhenAll(
+            SendParameterAndWait(MediaParameter.Play, MediaProvider.CurrentState.IsPlaying, true),
+            SendParameterAndWait(MediaParameter.Shuffle, MediaProvider.CurrentState.IsShuffle, true),
+            SendParameterAndWait(MediaParameter.Repeat, (int)MediaProvider.CurrentState.RepeatMode, true)
+        );
     }
 
     protected override void OnRegisteredParameterReceived(RegisteredParameter parameter)
