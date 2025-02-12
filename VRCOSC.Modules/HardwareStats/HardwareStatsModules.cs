@@ -41,10 +41,12 @@ public sealed class HardwareStatsModule : Module
 
     protected override void OnPostLoad()
     {
+        CreateVariable<string>(HardwareStatsVariable.CPUName, "CPU Name");
         var cpuUsageReference = CreateVariable<int>(HardwareStatsVariable.CPUUsage, "CPU Usage (%)")!;
         CreateVariable<int>(HardwareStatsVariable.CPUPower, "CPU Power (W)");
         CreateVariable<int>(HardwareStatsVariable.CPUTemp, "CPU Temp (C)");
 
+        CreateVariable<string>(HardwareStatsVariable.GPUName, "GPU Name");
         var gpuUsageReference = CreateVariable<int>(HardwareStatsVariable.GPUUsage, "GPU Usage (%)")!;
         CreateVariable<int>(HardwareStatsVariable.GPUPower, "GPU Power (W)");
         CreateVariable<int>(HardwareStatsVariable.GPUTemp, "GPU Temp (C)");
@@ -144,10 +146,12 @@ public sealed class HardwareStatsModule : Module
         SendParameter(HardwareStatsParameter.VRAMUsed, gpu.MemoryUsed / 1000f);
         SendParameter(HardwareStatsParameter.VRAMFree, gpu.MemoryFree / 1000f);
 
+        SetVariableValue(HardwareStatsVariable.CPUName, cpu.Name);
         SetVariableValue(HardwareStatsVariable.CPUUsage, (int)cpu.Usage);
         SetVariableValue(HardwareStatsVariable.CPUPower, cpu.Power);
         SetVariableValue(HardwareStatsVariable.CPUTemp, cpu.Temperature);
 
+        SetVariableValue(HardwareStatsVariable.GPUName, gpu.Name);
         SetVariableValue(HardwareStatsVariable.GPUUsage, (int)gpu.Usage);
         SetVariableValue(HardwareStatsVariable.GPUPower, gpu.Power);
         SetVariableValue(HardwareStatsVariable.GPUTemp, gpu.Temperature);
@@ -200,9 +204,11 @@ public sealed class HardwareStatsModule : Module
 
     private enum HardwareStatsVariable
     {
+        CPUName,
         CPUUsage,
         CPUPower,
         CPUTemp,
+        GPUName,
         GPUUsage,
         GPUPower,
         GPUTemp,

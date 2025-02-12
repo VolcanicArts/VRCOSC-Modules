@@ -15,10 +15,14 @@ public sealed class DateTimeModule : Module
 {
     protected override void OnPreLoad()
     {
+        List<Timezone> timezoneList = [new("Local", string.Empty)];
+        timezoneList.AddRange(TimeZoneInfo.GetSystemTimeZones().Select(info => new Timezone(info.DisplayName, info.Id)));
+
         CreateToggle(DateTimeSetting.SmoothSecond, "Smooth Second", "If the Second Normalised parameter should be smoothed", true);
         CreateToggle(DateTimeSetting.SmoothMinute, "Smooth Minute", "If the Minute Normalised parameter should be smoothed", true);
         CreateToggle(DateTimeSetting.SmoothHour, "Smooth Hour", "If the Hour Normalised parameter should be smoothed", true);
         CreateToggle(DateTimeSetting.Mode, "12/24 Mode", "Off for 12 hour. On for 24 hour", false);
+        CreateDropdown(DateTimeSetting.Timezone, "Timezone", "The timezone that is set for the parameters", timezoneList, timezoneList[0], nameof(Timezone.Title), nameof(Timezone.Id));
 
         RegisterParameter<bool>(DateTimeParameter.Period, "VRCOSC/Time/Period", ParameterMode.Write, "Period", "False for AM. True for PM");
         RegisterParameter<bool>(DateTimeParameter.Mode, "VRCOSC/Time/Mode", ParameterMode.Write, "Mode", "False for 12 hour. True for 24 hour");
@@ -41,7 +45,7 @@ public sealed class DateTimeModule : Module
         RegisterParameter<float>(DateTimeParameter.LegacySeconds, "VRCOSC/Clock/Seconds", ParameterMode.Write, "Seconds", "The current second normalised between 0 and 1", true);
         RegisterParameter<bool>(DateTimeParameter.LegacyPeriod, "VRCOSC/Clock/Period", ParameterMode.Write, "Period", "False for AM. True for PM", true);
 
-        CreateGroup("Tweaks", DateTimeSetting.Mode);
+        CreateGroup("Tweaks", DateTimeSetting.Mode, DateTimeSetting.Timezone);
         CreateGroup("Smoothing", DateTimeSetting.SmoothSecond, DateTimeSetting.SmoothMinute, DateTimeSetting.SmoothHour);
     }
 
@@ -49,7 +53,7 @@ public sealed class DateTimeModule : Module
     {
         var timeReference = CreateVariable<DateTimeOffset>(DateTimeVariable.Now, "Now")!;
 
-        CreateState(DateTimeState.Default, "Default", "{0}", new[] { timeReference });
+        CreateState(DateTimeState.Default, "Default", "{0}", [timeReference]);
     }
 
     protected override Task<bool> OnModuleStart()
@@ -68,11 +72,12 @@ public sealed class DateTimeModule : Module
     [ModuleUpdate(ModuleUpdateMode.Custom, true, 100)]
     private void updateVariables()
     {
-        var time = DateTime.Now;
+        var timezoneId = GetSettingValue<Timezone>(DateTimeSetting.Timezone).Id;
+        var time = string.IsNullOrEmpty(timezoneId) ? DateTimeOffset.Now : TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, TimeZoneInfo.FindSystemTimeZoneById(timezoneId));
 
         var hourValue = GetSettingValue<bool>(DateTimeSetting.Mode) ? time.Hour : time.Hour % 12;
-        var minuteValue = GetSettingValue<bool>(DateTimeSetting.Mode) ? time.Minute : time.Minute % 60;
-        var secondValue = GetSettingValue<bool>(DateTimeSetting.Mode) ? time.Second : time.Second % 60;
+        var minuteValue = time.Minute;
+        var secondValue = time.Second;
 
         var smoothedHours = GetSettingValue<bool>(DateTimeSetting.SmoothHour) ? getSmoothedHour(time) : time.Hour;
         var smoothedMinutes = GetSettingValue<bool>(DateTimeSetting.SmoothMinute) ? getSmoothedMinute(time) : time.Minute;
@@ -105,9 +110,9 @@ public sealed class DateTimeModule : Module
         SendParameter(DateTimeParameter.Weekday, ((int)time.DayOfWeek + 6) % 7 + 1);
     }
 
-    private static float getSmoothedSecond(DateTime time) => time.Second + time.Millisecond / 1000f;
-    private static float getSmoothedMinute(DateTime time) => time.Minute + getSmoothedSecond(time) / 60f;
-    private static float getSmoothedHour(DateTime time) => time.Hour + getSmoothedMinute(time) / 60f;
+    private static float getSmoothedSecond(DateTimeOffset time) => time.Second + time.Millisecond / 1000f;
+    private static float getSmoothedMinute(DateTimeOffset time) => time.Minute + getSmoothedSecond(time) / 60f;
+    private static float getSmoothedHour(DateTimeOffset time) => time.Hour + getSmoothedMinute(time) / 60f;
 
     private enum DateTimeParameter
     {
@@ -132,6 +137,7 @@ public sealed class DateTimeModule : Module
     private enum DateTimeSetting
     {
         Mode,
+        Timezone,
         SmoothSecond,
         SmoothMinute,
         SmoothHour
@@ -146,4 +152,6 @@ public sealed class DateTimeModule : Module
     {
         Now
     }
+
+    public record Timezone(string Title, string Id);
 }

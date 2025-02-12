@@ -10,7 +10,7 @@
     <UserControl.Resources>
         <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
                                          Colour2="{StaticResource CBackground4}" />
-        <core:IndexConverter x:Key="IndexConverter"/>
+        <core:IndexFromListConverter x:Key="IndexConverter"/>
     </UserControl.Resources>
     <core:HeaderFooterListView
         ItemsSource="{Binding Attribute, Mode=OneWay}"

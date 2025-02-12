@@ -17,16 +17,13 @@ namespace VRCOSC.Modules.Media;
 [ModulePrefab("Official Prefabs", "https://vrcosc.com/docs/downloads#prefabs")]
 public class MediaModule : Module, IVRCClientEventHandler
 {
-    public WindowsMediaProvider MediaProvider { get; } = new();
+    private WindowsMediaProvider? mediaProviderInstance;
+    public WindowsMediaProvider MediaProvider => mediaProviderInstance ??= new WindowsMediaProvider();
+
     private bool currentlySeeking;
     private TimeSpan targetPosition;
     private bool instanceTransferPlay;
-
-    public MediaModule()
-    {
-        MediaProvider.OnPlaybackStateChanged += onPlaybackStateChanged;
-        MediaProvider.OnTrackChanged += onTrackChanged;
-    }
+    private DateTime moduleStartTime;
 
     protected override void OnPreLoad()
     {
@@ -74,6 +71,9 @@ public class MediaModule : Module, IVRCClientEventHandler
     {
         instanceTransferPlay = false;
 
+        MediaProvider.OnPlaybackStateChanged += onPlaybackStateChanged;
+        MediaProvider.OnTrackChanged += onTrackChanged;
+
         var hookResult = await MediaProvider.InitialiseAsync();
 
         if (!hookResult)
@@ -84,11 +84,16 @@ public class MediaModule : Module, IVRCClientEventHandler
 
         setState();
 
+        moduleStartTime = DateTime.Now;
+
         return true;
     }
 
     protected override Task OnModuleStop()
     {
+        MediaProvider.OnPlaybackStateChanged -= onPlaybackStateChanged;
+        MediaProvider.OnTrackChanged -= onTrackChanged;
+
         MediaProvider.Terminate();
         return Task.CompletedTask;
     }
@@ -129,7 +134,7 @@ public class MediaModule : Module, IVRCClientEventHandler
         SetVariableValue(MediaVariable.Volume, (int)MathF.Round(MediaProvider.TryGetVolume() * 100));
         SetVariableValue(MediaVariable.ProgressVisual, MediaProvider.CurrentState.Timeline.Progress);
         SetVariableValue(MediaVariable.Time, MediaProvider.CurrentState.Timeline.Position);
-        SetVariableValue(MediaVariable.TimeRemaining, MediaProvider.CurrentState.Timeline.End - MediaProvider.CurrentState.Timeline.Position);
+        SetVariableValue(MediaVariable.TimeRemaining, MediaProvider.CurrentState.Timeline.End >= MediaProvider.CurrentState.Timeline.Position ? MediaProvider.CurrentState.Timeline.End - MediaProvider.CurrentState.Timeline.Position : TimeSpan.Zero);
         SetVariableValue(MediaVariable.Duration, MediaProvider.CurrentState.Timeline.End);
     }
 
@@ -170,11 +175,13 @@ public class MediaModule : Module, IVRCClientEventHandler
         TriggerEvent(MediaEvent.OnTrackChange);
     }
 
-    private void sendMediaParameters()
+    private async void sendMediaParameters()
     {
-        SendParameter(MediaParameter.Play, MediaProvider.CurrentState.IsPlaying);
-        SendParameter(MediaParameter.Shuffle, MediaProvider.CurrentState.IsShuffle);
-        SendParameter(MediaParameter.Repeat, (int)MediaProvider.CurrentState.RepeatMode);
+        await Task.WhenAll(
+            SendParameterAndWait(MediaParameter.Play, MediaProvider.CurrentState.IsPlaying, true),
+            SendParameterAndWait(MediaParameter.Shuffle, MediaProvider.CurrentState.IsShuffle, true),
+            SendParameterAndWait(MediaParameter.Repeat, (int)MediaProvider.CurrentState.RepeatMode, true)
+        );
     }
 
     protected override void OnRegisteredParameterReceived(RegisteredParameter parameter)
@@ -222,8 +229,18 @@ public class MediaModule : Module, IVRCClientEventHandler
         }
     }
 
-    public void OnWorldExit()
+    public void OnInstanceJoined(VRChatClientEventInstanceJoined eventArgs)
     {
+        if (eventArgs.DateTime < moduleStartTime) return;
+        if (!instanceTransferPlay) return;
+
+        MediaProvider.Pause();
+        instanceTransferPlay = false;
+    }
+
+    public void OnInstanceLeft(VRChatClientEventInstanceLeft eventArgs)
+    {
+        if (eventArgs.DateTime < moduleStartTime) return;
         if (!GetSettingValue<bool>(MediaSetting.PlayOnInstanceTransfer)) return;
 
         if (MediaProvider.CurrentState.IsPaused)
@@ -233,12 +250,12 @@ public class MediaModule : Module, IVRCClientEventHandler
         }
     }
 
-    public void OnWorldEnter(string worldID)
+    public void OnUserJoined(VRChatClientEventUserJoined eventArgs)
     {
-        if (!instanceTransferPlay) return;
+    }
 
-        MediaProvider.Pause();
-        instanceTransferPlay = false;
+    public void OnUserLeft(VRChatClientEventUserLeft eventArgs)
+    {
     }
 
     private enum MediaSetting

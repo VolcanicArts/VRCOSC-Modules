@@ -23,6 +23,8 @@ public class PhraseModuleSetting : ListModuleSetting<Phrase>
 [JsonObject(MemberSerialization.OptIn)]
 public class Phrase : IEquatable<Phrase>
 {
+    public string ID = Guid.NewGuid().ToString();
+
     [JsonProperty("name")]
     public Observable<string> Name { get; } = new("New Phrase");
 
