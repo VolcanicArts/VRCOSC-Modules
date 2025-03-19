@@ -1,10 +1,9 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.ObjectModel;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Parameters;
-using VRCOSC.App.SDK.Parameters.Queryable;
 using VRCOSC.App.SDK.Utils;
 using VRCOSC.App.Utils;
 
@@ -25,14 +24,9 @@ public class KeybindsModule : Module
 
     protected override async Task<bool> OnModuleStart()
     {
-        var keybinds = GetSettingValue<List<KeybindsInstance>>(KeybindsSetting.Keybinds);
-
-        foreach (var keybind in keybinds)
+        foreach (var queryableParameter in GetSettingValue<List<KeybindsInstance>>(KeybindsSetting.Keybinds).SelectMany(instance => instance.Parameters))
         {
-            foreach (ActionableQueryableParameter<KeybindAction> queryableParameter in keybind.Parameters.Parameters)
-            {
-                await queryableParameter.Init();
-            }
+            await queryableParameter.Init();
         }
 
         return true;
@@ -44,12 +38,11 @@ public class KeybindsModule : Module
 
         foreach (var keybind in keybinds)
         {
-            foreach (ActionableQueryableParameter<KeybindAction> queryableParameter in keybind.Parameters.Parameters)
+            foreach (KeybindQueryableParameter queryableParameter in keybind.Parameters.Where(queryableParameter => queryableParameter.Name.Value == receivedParameter.Name))
             {
-                if (receivedParameter.Name != queryableParameter.Name.Value) continue;
-
                 var result = queryableParameter.Evaluate(receivedParameter);
 
+                // TODO Do this filter in the UI
                 if (queryableParameter.Comparison.Value == ComparisonOperation.Changed)
                 {
                     switch (queryableParameter.Action.Value)

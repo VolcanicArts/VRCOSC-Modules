@@ -31,7 +31,7 @@ public class KeybindsInstance : IEquatable<KeybindsInstance>
     public Observable<string> Name { get; set; } = new("New Keybind");
 
     [JsonProperty("parameters")]
-    public QueryableParameterList Parameters { get; set; } = new(typeof(ActionableQueryableParameter<KeybindAction>));
+    public ObservableCollection<KeybindQueryableParameter> Parameters { get; set; } = [];
 
     [JsonProperty("keybinds")]
     public ObservableCollection<Observable<Keybind>> Keybinds { get; set; } = [];
@@ -46,6 +46,12 @@ public class KeybindsInstance : IEquatable<KeybindsInstance>
         if (ReferenceEquals(null, other)) return false;
         if (ReferenceEquals(this, other)) return true;
 
-        return Name.Equals(other.Name) && Parameters.Parameters.Count == other.Parameters.Parameters.Count && Keybinds.SequenceEqual(other.Keybinds);
+        return Name.Equals(other.Name) && Parameters.SequenceEqual(other.Parameters) && Keybinds.SequenceEqual(other.Keybinds);
     }
+}
+
+public class KeybindQueryableParameter : QueryableParameter
+{
+    [JsonProperty("action")]
+    public Observable<KeybindAction> Action { get; } = new();
 }
