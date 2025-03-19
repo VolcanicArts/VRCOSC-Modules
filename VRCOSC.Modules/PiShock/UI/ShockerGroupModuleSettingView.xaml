@@ -35,13 +35,13 @@
                                         <ColumnDefinition Width="10" />
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" FontSize="16" Margin="5 0 0 0" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource CForeground3}" Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}, Converter={StaticResource IndexConverter}}"/>
+                                    <TextBlock Grid.Column="0" FontSize="16" FontWeight="Regular" Margin="5 0 0 0" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource CForeground3}" Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}, Converter={StaticResource IndexConverter}}"/>
                                     <TextBlock Grid.Column="1"
                                                Margin="5"
                                                Text="{Binding Name.Value, Mode=OneWay}"
                                                Foreground="{StaticResource CForeground2}"
                                                TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"
-                                               FontSize="16" VerticalAlignment="Center" TextAlignment="Left" />
+                                               FontSize="16" FontWeight="Regular" VerticalAlignment="Center" TextAlignment="Left" />
                                     <core:SpacedStackPanel Grid.Column="3" Spacing="5" FlowDirection="RightToLeft"
                                                            Orientation="Horizontal" Margin="5 0">
                                         <core:IconButton ButtonColour="Red" Icon="Solid_Minus" Width="25" Height="25"

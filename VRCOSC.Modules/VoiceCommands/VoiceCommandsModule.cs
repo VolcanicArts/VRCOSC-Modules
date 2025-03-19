@@ -16,7 +16,7 @@ public class VoiceCommandsModule : Module, ISpeechHandler
     {
         CreateCustomSetting(VoiceCommandsSetting.Phrases, new PhraseModuleSetting());
 
-        CreateGroup("Phrases", VoiceCommandsSetting.Phrases);
+        CreateGroup("Configuration", string.Empty, VoiceCommandsSetting.Phrases);
     }
 
     public void OnPartialSpeechResult(string text)

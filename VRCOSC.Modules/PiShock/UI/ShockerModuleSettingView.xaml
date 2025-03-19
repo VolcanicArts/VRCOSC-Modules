@@ -22,10 +22,10 @@
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Text="Name"
                                Foreground="{StaticResource CForeground2}" FontSize="16" TextAlignment="Center"
-                               VerticalAlignment="Center" />
+                               VerticalAlignment="Center" FontWeight="Regular" />
                     <TextBlock Grid.Column="2" Text="Sharecode"
                                Foreground="{StaticResource CForeground2}" FontSize="16" TextAlignment="Center"
-                               VerticalAlignment="Center" />
+                               VerticalAlignment="Center" FontWeight="Regular" />
                 </Grid>
             </Border>
         </core:HeaderFooterListView.Header>
@@ -46,7 +46,7 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBox Grid.Column="0"
                                              Text="{Binding Name.Value, UpdateSourceTrigger=PropertyChanged}"
-                                             Background="{StaticResource CBackground5}"
+                                             Background="{StaticResource CBackground5}" FontWeight="Regular"
                                              Foreground="{StaticResource CForeground1}" FontSize="16">
                                     </TextBox>
                                     <PasswordBox Grid.Column="2" core:PasswordHelper.Attach="True" core:PasswordHelper.Password="{Binding Sharecode.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
