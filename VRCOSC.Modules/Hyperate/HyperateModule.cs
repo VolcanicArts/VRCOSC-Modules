@@ -16,9 +16,9 @@ public sealed class HypeRateModule : HeartrateModule<HypeRateProvider>
 
     protected override void OnPreLoad()
     {
-        CreateTextBox(HypeRateSetting.Id, "HypeRate ID", "Your HypeRate ID given on your device", string.Empty);
+        CreateTextBox(HypeRateSetting.Id, "HypeRate ID", "Your HypeRate ID is the characters at the end of the link on PC or the ID given on your screen", string.Empty);
 
-        CreateGroup("Access", HypeRateSetting.Id);
+        CreateGroup("Access", string.Empty, HypeRateSetting.Id);
 
         base.OnPreLoad();
     }

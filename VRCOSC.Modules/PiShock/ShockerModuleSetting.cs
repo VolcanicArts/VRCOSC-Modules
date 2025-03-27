@@ -11,7 +11,7 @@ namespace VRCOSC.Modules.PiShock;
 public class ShockerModuleSetting : ListModuleSetting<Shocker>
 {
     public ShockerModuleSetting()
-        : base("Shockers", "Individual shockers. Name them something recognisable", typeof(ShockerModuleSettingView), [])
+        : base("Shockers", "These are your individual shockers. Name them something you'll understand as these names are used in groups and phrases", typeof(ShockerModuleSettingView), [])
     {
     }
 

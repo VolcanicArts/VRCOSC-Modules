@@ -18,11 +18,11 @@ public sealed class DateTimeModule : Module
         List<Timezone> timezoneList = [new("Local", string.Empty)];
         timezoneList.AddRange(TimeZoneInfo.GetSystemTimeZones().Select(info => new Timezone(info.DisplayName, info.Id)));
 
-        CreateToggle(DateTimeSetting.SmoothSecond, "Smooth Second", "If the Second Normalised parameter should be smoothed", true);
-        CreateToggle(DateTimeSetting.SmoothMinute, "Smooth Minute", "If the Minute Normalised parameter should be smoothed", true);
-        CreateToggle(DateTimeSetting.SmoothHour, "Smooth Hour", "If the Hour Normalised parameter should be smoothed", true);
+        CreateToggle(DateTimeSetting.SmoothSecond, "Smooth Second", string.Empty, true);
+        CreateToggle(DateTimeSetting.SmoothMinute, "Smooth Minute", string.Empty, true);
+        CreateToggle(DateTimeSetting.SmoothHour, "Smooth Hour", string.Empty, true);
         CreateToggle(DateTimeSetting.Mode, "12/24 Mode", "Off for 12 hour. On for 24 hour", false);
-        CreateDropdown(DateTimeSetting.Timezone, "Timezone", "The timezone that is set for the parameters", timezoneList, timezoneList[0], nameof(Timezone.Title), nameof(Timezone.Id));
+        CreateDropdown(DateTimeSetting.Timezone, "Timezone", "The chosen timezone", timezoneList, timezoneList[0], nameof(Timezone.Title), nameof(Timezone.Id));
 
         RegisterParameter<bool>(DateTimeParameter.Period, "VRCOSC/Time/Period", ParameterMode.Write, "Period", "False for AM. True for PM");
         RegisterParameter<bool>(DateTimeParameter.Mode, "VRCOSC/Time/Mode", ParameterMode.Write, "Mode", "False for 12 hour. True for 24 hour");
@@ -45,8 +45,8 @@ public sealed class DateTimeModule : Module
         RegisterParameter<float>(DateTimeParameter.LegacySeconds, "VRCOSC/Clock/Seconds", ParameterMode.Write, "Seconds", "The current second normalised between 0 and 1", true);
         RegisterParameter<bool>(DateTimeParameter.LegacyPeriod, "VRCOSC/Clock/Period", ParameterMode.Write, "Period", "False for AM. True for PM", true);
 
-        CreateGroup("Tweaks", DateTimeSetting.Mode, DateTimeSetting.Timezone);
-        CreateGroup("Smoothing", DateTimeSetting.SmoothSecond, DateTimeSetting.SmoothMinute, DateTimeSetting.SmoothHour);
+        CreateGroup("Tweaks", "These are tweaks that affect the parameters. For the ChatBox, edit the Now variable's settings", DateTimeSetting.Mode, DateTimeSetting.Timezone);
+        CreateGroup("Smoothing", "This is where you can adjust the smoothing of the normalised parameters.\nFor analogue clocks enable minute and hour. For digital clocks disable all", DateTimeSetting.SmoothSecond, DateTimeSetting.SmoothMinute, DateTimeSetting.SmoothHour);
     }
 
     protected override void OnPostLoad()

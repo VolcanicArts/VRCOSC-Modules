@@ -11,7 +11,7 @@
                      Background="{StaticResource CBackground3}" Foreground="{StaticResource CForeground1}" FontSize="16"
                      HorizontalAlignment="Stretch" VerticalContentAlignment="Center" PasswordChar="*"/>
         <core:VRCOSCButton ButtonColour="Blue" CornerRadius="4" Click="GenerateAPIKey_OnClick">
-            <TextBlock FontSize="16" Text="Generate API Key" Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <TextBlock FontSize="16" FontWeight="Regular" Text="Generate API Key" Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </core:VRCOSCButton>
     </core:SpacedStackPanel>
 </UserControl>

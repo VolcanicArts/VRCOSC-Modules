@@ -10,6 +10,7 @@ namespace VRCOSC.Modules.Keybinds.UI;
 
 public partial class KeybindsInstanceEditWindow : IManagedWindow
 {
+    private WindowManager windowManager = null!;
     public KeybindsInstance Instance { get; }
 
     public KeybindsInstanceEditWindow(KeybindsInstance instance)
@@ -18,8 +19,14 @@ public partial class KeybindsInstanceEditWindow : IManagedWindow
 
         Instance = instance;
         DataContext = this;
+        SourceInitialized += OnSourceInitialized;
 
         instance.Name.Subscribe(newName => Title = $"{newName.Pluralise()} Settings", true);
+    }
+
+    private void OnSourceInitialized(object? sender, EventArgs e)
+    {
+        windowManager = new WindowManager(this);
     }
 
     private void AddKeybind_OnClick(object sender, RoutedEventArgs e)
@@ -36,4 +43,9 @@ public partial class KeybindsInstanceEditWindow : IManagedWindow
     }
 
     public object GetComparer() => Instance;
+
+    private void EditParametersButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        windowManager.TrySpawnChild(new QueryableParameterListWindow(Instance.Parameters));
+    }
 }

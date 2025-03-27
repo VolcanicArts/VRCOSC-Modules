@@ -8,29 +8,32 @@
              Loaded="EquationModuleSettingView_OnLoaded"
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
-        <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
-                                         Colour2="{StaticResource CBackground4}" />
+        <core:AlternatingColourConverterMulti x:Key="AlternatingColourConverter" />
+        <core:BindingProxy x:Key="CBackground3Proxy" Data="{DynamicResource CBackground3}"/>
+        <core:BindingProxy x:Key="CBackground4Proxy" Data="{DynamicResource CBackground4}"/>
     </UserControl.Resources>
     <core:SpacedStackPanel Spacing="10">
-        <core:VRCOSCButton ButtonColour="Blue" CornerRadius="4" Click="OpenEquationDocs_OnClick">
-            <TextBlock FontSize="16" Text="Open Equation Docs" Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        </core:VRCOSCButton>
         <core:HeaderFooterListView
             ItemsSource="{Binding Attribute, Mode=OneWay}"
             HideHeaderWhenEmpty="True"
             ShouldTruncateHeight="False"
             AlternationCount="2">
             <core:HeaderFooterListView.Header>
-                <Border Background="{StaticResource CBackground1}" Height="5" />
+                <Border Background="{DynamicResource CBackground1}" Height="5" />
             </core:HeaderFooterListView.Header>
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate>
-                                <Border
-                                    Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}"
-                                    VerticalAlignment="Top">
+                                <Border VerticalAlignment="Top">
+                                    <Border.Background>
+                                        <MultiBinding Converter="{StaticResource AlternatingColourConverter}">
+                                            <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="(ItemsControl.AlternationIndex)" />
+                                            <Binding Source="{StaticResource CBackground3Proxy}" Path="Data"/>
+                                            <Binding Source="{StaticResource CBackground4Proxy}" Path="Data"/>
+                                        </MultiBinding>
+                                    </Border.Background>
                                     <Grid VerticalAlignment="Center">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
@@ -40,9 +43,9 @@
                                         <TextBlock Grid.Column="0"
                                                    Margin="5"
                                                    Text="{Binding Name.Value, Mode=OneWay}"
-                                                   Foreground="{StaticResource CForeground2}"
+                                                   Foreground="{DynamicResource CForeground2}"
                                                    TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"
-                                                   FontSize="16" VerticalAlignment="Center" TextAlignment="Left" />
+                                                   FontSize="16" FontWeight="Regular" VerticalAlignment="Center" TextAlignment="Left" />
                                         <core:SpacedStackPanel Grid.Column="2" Spacing="5" FlowDirection="RightToLeft"
                                                                Orientation="Horizontal" Margin="5 0">
                                             <core:IconButton ButtonColour="Red" Icon="Solid_Minus" Width="25"
@@ -62,7 +65,7 @@
                 </Style>
             </ListView.ItemContainerStyle>
             <core:HeaderFooterListView.Footer>
-                <Border Background="{StaticResource CBackground1}">
+                <Border Background="{DynamicResource CBackground1}">
                     <core:IconButton
                         ButtonColour="Green"
                         Width="100"
@@ -74,5 +77,8 @@
                 </Border>
             </core:HeaderFooterListView.Footer>
         </core:HeaderFooterListView>
+        <core:VRCOSCButton ButtonColour="Blue" CornerRadius="4" Click="OpenEquationDocs_OnClick" Width="200">
+            <TextBlock FontSize="16" FontWeight="Regular" Text="Open Equation Docs" Foreground="{DynamicResource CForeground1}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </core:VRCOSCButton>
     </core:SpacedStackPanel>
 </UserControl>

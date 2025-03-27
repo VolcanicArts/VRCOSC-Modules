@@ -45,16 +45,17 @@ public class PiShockModule : Module, ISpeechHandler
         CreateTextBox(PiShockSetting.Username, "Username", "Your PiShock username", string.Empty);
         CreateCustomSetting(PiShockSetting.APIKey, new StringModuleSetting("API Key", "Your PiShock API key", typeof(PiShockAPIKeyView), string.Empty));
 
-        CreateTextBox(PiShockSetting.ButtonDelay, "Button Delay", "The amount of time in milliseconds the shock, vibrate, and beep parameters need to be true to execute the action. This is helpful for if you accidentally press buttons on your action menu", 0);
+        CreateSlider(PiShockSetting.ButtonDelay, "Button Delay",
+            "The amount of time in milliseconds the shock, vibrate, and beep parameters need to be true to execute the action. This is helpful for if you accidentally press buttons on your action menu", 0, 0, 1000, 10);
 
         CreateCustomSetting(PiShockSetting.Shockers, new ShockerModuleSetting());
         CreateCustomSetting(PiShockSetting.Groups, new ShockerGroupModuleSetting());
         CreateCustomSetting(PiShockSetting.Phrases, new PhraseModuleSetting());
 
-        CreateGroup("Credentials", PiShockSetting.Username, PiShockSetting.APIKey);
-        CreateGroup("Management", PiShockSetting.Shockers, PiShockSetting.Groups);
-        CreateGroup("Tweaks", PiShockSetting.ButtonDelay);
-        CreateGroup("Speech", PiShockSetting.Phrases);
+        CreateGroup("Credentials", string.Empty, PiShockSetting.Username, PiShockSetting.APIKey);
+        CreateGroup("Management", string.Empty, PiShockSetting.Shockers, PiShockSetting.Groups);
+        CreateGroup("Tweaks", string.Empty, PiShockSetting.ButtonDelay);
+        CreateGroup("Speech", string.Empty, PiShockSetting.Phrases);
 
         RegisterParameter<int>(PiShockParameter.Group, "VRCOSC/PiShock/Group", ParameterMode.Read, "Group", "Sets the specific group to use when using the non-specific action parameters");
         RegisterParameter<float>(PiShockParameter.Duration, "VRCOSC/PiShock/Duration", ParameterMode.Read, "Duration", "The duration of the action as a 0-1 float for the group set by the Group parameter");

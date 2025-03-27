@@ -37,7 +37,7 @@
                                                Text="{Binding Name.Value, Mode=OneWay}"
                                                Foreground="{StaticResource CForeground2}"
                                                TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"
-                                               FontSize="16" VerticalAlignment="Center" TextAlignment="Left" />
+                                               FontSize="16" FontWeight="Regular" VerticalAlignment="Center" TextAlignment="Left" />
                                     <core:SpacedStackPanel Grid.Column="2" Spacing="5" FlowDirection="RightToLeft"
                                                            Orientation="Horizontal" Margin="5 0">
                                         <core:IconButton ButtonColour="Red" Icon="Solid_Minus" Width="25" Height="25"
