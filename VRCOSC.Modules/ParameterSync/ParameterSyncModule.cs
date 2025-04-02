@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.App.SDK.Handlers;
@@ -34,10 +34,32 @@ public class ParameterSyncModule : Module, IVRCClientEventHandler
         ignoreParameters = false;
         currentAvatarId = await FindCurrentAvatar();
 
+        if (currentAvatarId is not null)
+        {
+            var instances = GetSettingValue<List<ParameterSync>>(ParameterSyncSetting.Instances).Where(instance => instance.Avatars.Select(item => item.Value).Contains(currentAvatarId));
+
+            foreach (var instance in instances)
+            {
+                foreach (var parameter in instance.Parameters)
+                {
+                    var receivedParameter = await FindParameter(parameter.Value);
+
+                    if (receivedParameter is not null)
+                        cacheParameterToCurrentAvatar(receivedParameter);
+                }
+            }
+        }
+
         var moduleSetting = GetSetting<ParameterSyncListModuleSetting>(ParameterSyncSetting.Instances);
         moduleSetting.Attribute.OnCollectionChanged(instancesCollectionChanged, true);
 
         return true;
+    }
+
+    protected override Task OnModuleStop()
+    {
+        currentAvatarId = null;
+        return Task.CompletedTask;
     }
 
     private void instancesCollectionChanged(IEnumerable<ParameterSync> newItems, IEnumerable<ParameterSync> oldItems)
@@ -69,6 +91,11 @@ public class ParameterSyncModule : Module, IVRCClientEventHandler
     {
         if (ignoreParameters || currentAvatarId is null) return;
 
+        cacheParameterToCurrentAvatar(parameter);
+    }
+
+    private void cacheParameterToCurrentAvatar(ReceivedParameter parameter)
+    {
         var instances = GetSettingValue<List<ParameterSync>>(ParameterSyncSetting.Instances).Where(instance => instance.Avatars.Select(item => item.Value).Contains(currentAvatarId));
 
         foreach (var instance in instances)
