@@ -15,8 +15,10 @@ public class VoiceCommandsModule : Module, ISpeechHandler
     protected override void OnPreLoad()
     {
         CreateCustomSetting(VoiceCommandsSetting.Phrases, new PhraseModuleSetting());
+        CreateToggle(VoiceCommandsSetting.SpeechLog, "Speech Log", "Log all the final speech results to debug what the speech engine heard", false);
 
         CreateGroup("Configuration", string.Empty, VoiceCommandsSetting.Phrases);
+        CreateGroup("Debug", string.Empty, VoiceCommandsSetting.SpeechLog);
     }
 
     public void OnPartialSpeechResult(string text)
@@ -25,10 +27,17 @@ public class VoiceCommandsModule : Module, ISpeechHandler
 
     public async void OnFinalSpeechResult(string text)
     {
+        if (GetSettingValue<bool>(VoiceCommandsSetting.SpeechLog))
+        {
+            Log(text);
+        }
+
         var phrases = GetSettingValue<List<Phrase>>(VoiceCommandsSetting.Phrases);
 
-        foreach (var phrase in phrases.Where(phrase => text.Contains(phrase.Text.Value, StringComparison.InvariantCultureIgnoreCase)))
+        foreach (var phrase in phrases.Where(phrase => !string.IsNullOrEmpty(phrase.Text.Value) && text.Contains(phrase.Text.Value, StringComparison.InvariantCultureIgnoreCase)))
         {
+            Log($"Found '{phrase.Text.Value}' from phrase '{phrase.Name.Value}'");
+
             foreach (var parameter in phrase.Parameters)
             {
                 switch (parameter.ParameterType.Value)
@@ -78,6 +87,7 @@ public class VoiceCommandsModule : Module, ISpeechHandler
 
     public enum VoiceCommandsSetting
     {
-        Phrases
+        Phrases,
+        SpeechLog
     }
 }
