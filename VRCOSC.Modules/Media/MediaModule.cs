@@ -258,6 +258,10 @@ public class MediaModule : Module, IVRCClientEventHandler
     {
     }
 
+    public void OnAvatarPreChange(VRChatClientEventAvatarPreChange eventArgs)
+    {
+    }
+
     private enum MediaSetting
     {
         PlayOnInstanceTransfer

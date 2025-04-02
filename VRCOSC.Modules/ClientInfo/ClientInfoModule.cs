@@ -71,6 +71,10 @@ public class ClientInfoModule : Module, IVRCClientEventHandler
         SendParameter(ClientInfoParameter.Info_InstanceUserCount, instanceUserCount);
     }
 
+    public void OnAvatarPreChange(VRChatClientEventAvatarPreChange eventArgs)
+    {
+    }
+
     public enum ClientInfoParameter
     {
         Event_InstanceLeft,
