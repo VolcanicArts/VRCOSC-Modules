@@ -6,6 +6,6 @@ using System.Reflection;
 
 [assembly: AssemblyTitle("Official Modules")]
 [assembly: AssemblyDescription("VRCOSC's official modules")]
-[assembly: AssemblyVersion("2025.327.0.0")]
-[assembly: AssemblyFileVersion("2025.327.0.0")]
+[assembly: AssemblyVersion("2025.501.0.0")]
+[assembly: AssemblyFileVersion("2025.501.0.0")]
 [assembly: SuppressMessage("Platform Compatibility", "CA1416:This call site is reachable on all platforms")]

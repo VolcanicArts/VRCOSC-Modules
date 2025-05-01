@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Globalization;
 using System.Text.RegularExpressions;
 using org.mariuszgromada.math.mxparser;
 using VRCOSC.App.SDK.Modules;
@@ -35,8 +36,8 @@ public class MathsModule : Module
         GetSettingValue<List<Equation>>(MathsSetting.Equations)!
             .Where(instance => !string.IsNullOrEmpty(instance.EquationString.Value) && instance.TriggerParameters.Count != 0 && instance.TriggerParameters.All(triggerParameter => !string.IsNullOrEmpty(triggerParameter.Value)) && !string.IsNullOrEmpty(instance.OutputParameter.Value))
             .ForEach(instance => instances.TryAdd(instance.TriggerParameters.Select(triggerParameter => triggerParameter.Value).ToList(), instance));
-        elements.AddRange(GetSettingValue<List<string>>(MathsSetting.Constants)!.Select(constant => new Constant(constant)));
-        elements.AddRange(GetSettingValue<List<string>>(MathsSetting.Functions)!.Select(function => new Function(function)));
+        elements.AddRange(GetSettingValue<List<string>>(MathsSetting.Constants).Select(constant => new Constant(constant)));
+        elements.AddRange(GetSettingValue<List<string>>(MathsSetting.Functions).Select(function => new Function(function)));
 
         return Task.FromResult(true);
     }
@@ -62,24 +63,15 @@ public class MathsModule : Module
                 return;
             }
 
-            object parameterValue = null!;
-
-            switch (foundParameter.Type)
+            var parameterValue = foundParameter.Type switch
             {
-                case ParameterType.Bool:
-                    parameterValue = foundParameter.GetValue<bool>() ? 1 : 0;
-                    break;
+                ParameterType.Bool => foundParameter.GetValue<bool>() ? "1" : "0",
+                ParameterType.Int => foundParameter.GetValue<int>().ToString(),
+                ParameterType.Float => foundParameter.GetValue<float>().ToString(CultureInfo.InvariantCulture),
+                _ => throw new Exception("Impossible")
+            };
 
-                case ParameterType.Int:
-                    parameterValue = foundParameter.GetValue<int>();
-                    break;
-
-                case ParameterType.Float:
-                    parameterValue = foundParameter.GetValue<float>();
-                    break;
-            }
-
-            equationString = equationString.Replace(parameterReplacer, parameterValue.ToString());
+            equationString = equationString.Replace(parameterReplacer, parameterValue);
         }
 
         Log($"New equation: {equationString}");
