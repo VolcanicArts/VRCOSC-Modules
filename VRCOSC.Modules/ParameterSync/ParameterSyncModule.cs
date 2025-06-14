@@ -87,14 +87,14 @@ public class ParameterSyncModule : Module, IVRCClientEventHandler
         currentAvatarId = avatarConfig.Id;
     }
 
-    protected override void OnAnyParameterReceived(ReceivedParameter parameter)
+    protected override void OnAnyParameterReceived(VRChatParameter parameter)
     {
         if (ignoreParameters || currentAvatarId is null) return;
 
         cacheParameterToCurrentAvatar(parameter);
     }
 
-    private void cacheParameterToCurrentAvatar(ReceivedParameter parameter)
+    private void cacheParameterToCurrentAvatar(VRChatParameter parameter)
     {
         var instances = GetSettingValue<List<ParameterSync>>(ParameterSyncSetting.Instances).Where(instance => instance.Avatars.Select(item => item.Value).Contains(currentAvatarId));
 

@@ -32,7 +32,7 @@ public class KeybindsModule : Module
         return true;
     }
 
-    protected override async void OnAnyParameterReceived(ReceivedParameter receivedParameter)
+    protected override async void OnAnyParameterReceived(VRChatParameter receivedParameter)
     {
         var keybinds = GetSettingValue<List<KeybindsInstance>>(KeybindsSetting.Keybinds);
 

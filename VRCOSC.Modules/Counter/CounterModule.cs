@@ -16,7 +16,7 @@ namespace VRCOSC.Modules.Counter;
 public class CounterModule : Module
 {
     [ModulePersistent("counts")]
-    private Dictionary<string, CountTracker> counts { get; set; } = new();
+    public Dictionary<string, CountTracker> Counts { get; set; } = new();
 
     private readonly Dictionary<string, object> parameterValues = new();
 
@@ -26,7 +26,7 @@ public class CounterModule : Module
 
         CreateState(CounterState.Default, "Default");
 
-        CreateGroup("Counters", CounterSetting.CountInstances);
+        CreateGroup("Counters", string.Empty, CounterSetting.CountInstances);
     }
 
     protected override void OnPostLoad()
@@ -103,12 +103,12 @@ public class CounterModule : Module
     private void auditCounts()
     {
         var counterInstances = GetSettingValue<List<Counter>>(CounterSetting.CountInstances)!;
-        counterInstances.ForEach(countInstance => counts.TryAdd(countInstance.ID, new CountTracker()));
-        counts.RemoveIf(pair => counterInstances.All(instance => instance.ID != pair.Key));
+        counterInstances.ForEach(countInstance => Counts.TryAdd(countInstance.ID, new CountTracker()));
+        Counts.RemoveIf(pair => counterInstances.All(instance => instance.ID != pair.Key));
 
         foreach (var counter in counterInstances)
         {
-            var countTracker = counts[counter.ID];
+            var countTracker = Counts[counter.ID];
             SetVariableValue($"{counter.ID}_value", countTracker.Value);
             SetVariableValue($"{counter.ID}_valuetoday", countTracker.ValueToday);
         }
@@ -128,7 +128,7 @@ public class CounterModule : Module
     {
         if (counter.Milestones.Count == 0) return false;
 
-        var countValue = counts[counter.ID].Value;
+        var countValue = Counts[counter.ID].Value;
 
         var previousMilestone = counter.Milestones.LastOrDefault(milestone => milestone.Value <= countValue);
         var nextMilestone = counter.Milestones.FirstOrDefault(milestone => milestone.Value > countValue);
@@ -138,8 +138,12 @@ public class CounterModule : Module
 
         var milestoneProgress = (float)countValue / (nextMilestoneValue - previousMilestoneValue);
 
-        SetVariableValue($"{counter.ID}_milestoneprevious", previousMilestone);
-        SetVariableValue($"{counter.ID}_milestonenext", nextMilestone);
+        if (previousMilestone is not null)
+            SetVariableValue($"{counter.ID}_milestoneprevious", previousMilestone.Value);
+
+        if (nextMilestone is not null)
+            SetVariableValue($"{counter.ID}_milestonenext", nextMilestone.Value);
+
         SetVariableValue($"{counter.ID}_milestoneprogress", milestoneProgress);
 
         if (!string.IsNullOrEmpty(counter.MilestoneParameter.Value))
@@ -151,9 +155,9 @@ public class CounterModule : Module
         return countValue == previousMilestoneValue;
     }
 
-    protected override void OnAnyParameterReceived(ReceivedParameter parameter)
+    protected override void OnAnyParameterReceived(VRChatParameter parameter)
     {
-        var countInstances = GetSettingValue<List<Counter>>(CounterSetting.CountInstances)!.Where(countInstance => countInstance.ParameterNames.Select(instance => instance.Value).Contains(parameter.Name));
+        var countInstances = GetSettingValue<List<Counter>>(CounterSetting.CountInstances).Where(countInstance => countInstance.ParameterNames.Select(instance => instance.Value).Contains(parameter.Name));
 
         foreach (var countInstance in countInstances)
         {
@@ -220,18 +224,23 @@ public class CounterModule : Module
 
     private void updateCounter(Counter counter)
     {
-        counts[counter.ID].Value++;
-        counts[counter.ID].ValueToday++;
+        Counts[counter.ID].Value++;
+        Counts[counter.ID].ValueToday++;
 
-        SetVariableValue($"{counter.ID}_value", counts[counter.ID].Value);
-        SetVariableValue($"{counter.ID}_valuetoday", counts[counter.ID].ValueToday);
+        HandleChatBox(counter);
+    }
+
+    public void HandleChatBox(Counter counter)
+    {
+        SetVariableValue($"{counter.ID}_value", Counts[counter.ID].Value);
+        SetVariableValue($"{counter.ID}_valuetoday", Counts[counter.ID].ValueToday);
 
         TriggerEvent($"{counter.ID}_countchanged");
 
         if (checkMilestone(counter)) TriggerEvent($"{counter.ID}_milestoneachieved");
     }
 
-    private enum CounterSetting
+    public enum CounterSetting
     {
         CountInstances
     }

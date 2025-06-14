@@ -145,12 +145,12 @@ public class PiShockModule : Module, ISpeechHandler
         {
             Log($"Found phrase '{phrase.Text.Value}'");
             executedPhrases.Add(phrase.ID);
-            phrase.ShockerGroups.DistinctBy(shockerGroupID => shockerGroupID.Value).ForEach(shockerGroupID => _ = executeGroupAsync(shockerGroupID.Value, phrase.Mode.Value, phrase.Duration.Value, phrase.Intensity.Value));
+            phrase.ShockerGroups.DistinctBy(shockerGroupID => shockerGroupID.Value).ForEach(shockerGroupID => _ = ExecuteGroupAsync(shockerGroupID.Value, phrase.Mode.Value, phrase.Duration.Value, phrase.Intensity.Value));
         }
     }
 
     [ModuleUpdate(ModuleUpdateMode.Custom)]
-    private void checkForActions()
+    private async void checkForActions()
     {
         var delay = TimeSpan.FromMilliseconds(GetSettingValue<int>(PiShockSetting.ButtonDelay));
 
@@ -158,7 +158,7 @@ public class PiShockModule : Module, ISpeechHandler
         {
             if (shock.Value.Item1 + delay <= DateTimeOffset.Now && !shockExecuted)
             {
-                handleAction(shock.Value.Item2, PiShockMode.Shock);
+                await HandleAction(shock.Value.Item2, PiShockMode.Shock);
                 shockExecuted = true;
             }
         }
@@ -171,7 +171,7 @@ public class PiShockModule : Module, ISpeechHandler
         {
             if (vibrate.Value.Item1 + delay <= DateTimeOffset.Now && !vibrateExecuted)
             {
-                handleAction(vibrate.Value.Item2, PiShockMode.Vibrate);
+                await HandleAction(vibrate.Value.Item2, PiShockMode.Vibrate);
                 vibrateExecuted = true;
             }
         }
@@ -184,7 +184,7 @@ public class PiShockModule : Module, ISpeechHandler
         {
             if (beep.Value.Item1 + delay <= DateTimeOffset.Now && !beepExecuted)
             {
-                handleAction(beep.Value.Item2, PiShockMode.Beep);
+                await HandleAction(beep.Value.Item2, PiShockMode.Beep);
                 beepExecuted = true;
             }
         }
@@ -194,16 +194,16 @@ public class PiShockModule : Module, ISpeechHandler
         }
     }
 
-    private async void handleAction(string? groupId, PiShockMode mode)
+    public async Task HandleAction(string? groupId, PiShockMode mode)
     {
         var localDuration = string.IsNullOrEmpty(groupId) ? globalDuration : durations[groupId];
         var localIntensity = string.IsNullOrEmpty(groupId) ? globalIntensity : intensities[groupId];
         var localGroup = string.IsNullOrEmpty(groupId) ? globalGroupID : groupId;
 
-        await executeGroupAsync(localGroup, mode, localDuration, localIntensity);
+        await ExecuteGroupAsync(localGroup, mode, localDuration, localIntensity);
     }
 
-    private Task<bool> executeGroupAsync(string groupId, PiShockMode mode, float durationPercentage, float intensityPercentage)
+    public Task<bool> ExecuteGroupAsync(string groupId, PiShockMode mode, float durationPercentage, float intensityPercentage)
     {
         var shockerGroup = GetSettingValue<List<ShockerGroup>>(PiShockSetting.Groups).SingleOrDefault(shockerGroup => shockerGroup.ID == groupId);
         if (shockerGroup is null) return Task.FromResult(false);
@@ -214,10 +214,10 @@ public class PiShockModule : Module, ISpeechHandler
         var duration = (int)Math.Round(Interpolation.Map(maxDuration * durationPercentage, 0, maxDuration, 1, maxDuration));
         var intensity = (int)Math.Round(Interpolation.Map(maxIntensity * intensityPercentage, 0, maxIntensity, 1, maxIntensity));
 
-        return executeGroupAsync(groupId, mode, duration, intensity);
+        return ExecuteGroupAsync(groupId, mode, duration, intensity);
     }
 
-    private async Task<bool> executeGroupAsync(string groupId, PiShockMode mode, int duration, int intensity)
+    public async Task<bool> ExecuteGroupAsync(string groupId, PiShockMode mode, int duration, int intensity)
     {
         var shockerGroup = GetSettingValue<List<ShockerGroup>>(PiShockSetting.Groups).SingleOrDefault(shockerGroup => shockerGroup.ID == groupId);
         if (shockerGroup is null) return false;

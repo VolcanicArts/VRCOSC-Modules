@@ -42,7 +42,7 @@ public class MathsModule : Module
         return Task.FromResult(true);
     }
 
-    protected override async void OnAnyParameterReceived(ReceivedParameter parameter)
+    protected override async void OnAnyParameterReceived(VRChatParameter parameter)
     {
         var instance = instances.FirstOrDefault(pair => pair.Key.Contains(parameter.Name)).Value;
         if (instance is null) return;
