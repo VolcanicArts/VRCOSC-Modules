@@ -16,6 +16,7 @@ public class ParameterSyncModule : Module, IVRCClientEventHandler
 {
     private DateTime startTime;
     private bool ignoreParameters;
+    private readonly List<IDisposable> disposables = new();
     private string? currentAvatarId;
 
     [ModulePersistent("parameter_cache")]
@@ -32,102 +33,143 @@ public class ParameterSyncModule : Module, IVRCClientEventHandler
     {
         startTime = DateTime.Now;
         ignoreParameters = false;
+        disposables.Clear();
         currentAvatarId = await FindCurrentAvatar();
 
-        if (currentAvatarId is not null)
-        {
-            var instances = GetSettingValue<List<ParameterSync>>(ParameterSyncSetting.Instances).Where(instance => instance.Avatars.Select(item => item.Value).Contains(currentAvatarId));
-
-            foreach (var instance in instances)
-            {
-                foreach (var parameter in instance.Parameters)
-                {
-                    var receivedParameter = await FindParameter(parameter.Value);
-
-                    if (receivedParameter is not null)
-                        cacheParameterToCurrentAvatar(receivedParameter);
-                }
-            }
-        }
-
         var moduleSetting = GetSetting<ParameterSyncListModuleSetting>(ParameterSyncSetting.Instances);
-        moduleSetting.Attribute.OnCollectionChanged(instancesCollectionChanged, true);
+        disposables.Add(moduleSetting.Attribute.OnCollectionChanged(instancesCollectionChanged, true));
 
+        sendSyncedParameters(null, currentAvatarId);
         return true;
     }
 
     protected override Task OnModuleStop()
     {
         currentAvatarId = null;
+
+        foreach (var disposable in disposables)
+        {
+            disposable.Dispose();
+        }
+
         return Task.CompletedTask;
+    }
+
+    private void updateCacheLayout()
+    {
+        var instances = GetSettingValue<List<ParameterSync>>(ParameterSyncSetting.Instances);
+
+        foreach (var parameterSync in instances)
+        {
+            if (!Cache.ContainsKey(parameterSync.Id))
+            {
+                Cache.Add(parameterSync.Id, new Dictionary<string, object>());
+            }
+        }
+
+        Cache.RemoveIf(pair => instances.All(instance => instance.Id != pair.Key));
+
+        foreach (var (id, store) in Cache)
+        {
+            var instance = instances.Single(instance => instance.Id == id);
+            store.RemoveIf(d => !instance.Parameters.Select(p => p.Value).Contains(d.Key));
+        }
     }
 
     private void instancesCollectionChanged(IEnumerable<ParameterSync> newItems, IEnumerable<ParameterSync> oldItems)
     {
         foreach (var newItem in newItems)
         {
-            Cache.TryAdd(newItem.Id, new Dictionary<string, object>());
+            disposables.Add(newItem.Parameters.OnCollectionChanged((_, _) => updateCacheLayout()));
         }
 
-        foreach (var oldItem in oldItems)
-        {
-            Cache.Remove(oldItem.Id);
-        }
+        updateCacheLayout();
     }
 
     protected override void OnAvatarChange(AvatarConfig? avatarConfig)
     {
-        if (avatarConfig is null) return;
+        ignoreParameters = false;
 
-        Log("Avatar has been changed");
-
-        if (currentAvatarId is not null)
+        if (avatarConfig is null)
+        {
+            Log("Local avatar detected. Not syncing.");
+        }
+        else
+        {
+            Log("Avatar has been changed.");
             sendSyncedParameters(currentAvatarId, avatarConfig.Id);
+        }
 
-        currentAvatarId = avatarConfig.Id;
+        currentAvatarId = avatarConfig?.Id;
     }
 
     protected override void OnAnyParameterReceived(VRChatParameter parameter)
     {
-        if (ignoreParameters || currentAvatarId is null) return;
+        if (ignoreParameters) return;
 
-        cacheParameterToCurrentAvatar(parameter);
+        cacheParameter(parameter);
     }
 
-    private void cacheParameterToCurrentAvatar(VRChatParameter parameter)
+    private void cacheParameter(VRChatParameter parameter)
     {
-        var instances = GetSettingValue<List<ParameterSync>>(ParameterSyncSetting.Instances).Where(instance => instance.Avatars.Select(item => item.Value).Contains(currentAvatarId));
-
-        foreach (var instance in instances)
-        {
-            var parameterValues = Cache[instance.Id];
-            parameterValues[parameter.Name] = parameter.Value;
-        }
-    }
-
-    private void sendSyncedParameters(string previousAvatarId, string newAvatarId)
-    {
-        ignoreParameters = false;
+        if (string.IsNullOrEmpty(currentAvatarId)) return;
 
         var instances = GetSettingValue<List<ParameterSync>>(ParameterSyncSetting.Instances)
-                        .Where(instance => instance.Avatars.Select(item => item.Value).Contains(previousAvatarId) && instance.Avatars.Select(item => item.Value).Contains(newAvatarId))
+                        .Where(instance => instance.Avatars.Select(item => item.Value).Contains(currentAvatarId))
                         .ToList();
+
+        if (instances.Count == 0) return;
 
         if (instances.Count > 1)
         {
-            Log("Multiple syncs have the previous and new avatar assigned. Not syncing due to ambiguity");
-            Log($"Ambiguous syncs: {string.Join(", ", instances.Select(instance => instance.Name.Value))}");
+            Log($"Multiple syncs have the same avatar assigned with ID {currentAvatarId}. Unable to cache parameter value.");
+            Log($"Ambiguous syncs: {string.Join(", ", instances.Select(instance => instance.Name.Value))}.");
             return;
         }
 
-        var instance = instances.FirstOrDefault();
-        if (instance is null) return;
+        var instance = instances[0];
 
-        Log($"Sending synced parameters from sync {instance.Name.Value}");
+        if (!instance.Parameters.Select(p => p.Value).Contains(parameter.Name)) return;
 
-        var parameterValues = Cache[instance.Id];
+        var store = Cache[instance.Id];
+        store[parameter.Name] = parameter.Value;
+    }
 
-        foreach (var (name, value) in parameterValues)
+    private void sendSyncedParameters(string? previousAvatarId, string? newAvatarId)
+    {
+        if (string.IsNullOrEmpty(newAvatarId)) return;
+
+        List<ParameterSync> instances;
+
+        if (string.IsNullOrEmpty(previousAvatarId))
+        {
+            instances = GetSettingValue<List<ParameterSync>>(ParameterSyncSetting.Instances)
+                        .Where(instance => instance.Avatars.Select(item => item.Value).Contains(newAvatarId))
+                        .ToList();
+        }
+        else
+        {
+            instances = GetSettingValue<List<ParameterSync>>(ParameterSyncSetting.Instances)
+                        .Where(instance => instance.Avatars.Select(item => item.Value).Contains(previousAvatarId) && instance.Avatars.Select(item => item.Value).Contains(newAvatarId))
+                        .ToList();
+        }
+
+        if (instances.Count == 0) return;
+
+        if (instances.Count > 1)
+        {
+            Log("Multiple syncs have the previous and new avatar assigned. Not syncing due to ambiguity.");
+            Log($"Ambiguous syncs: {string.Join(", ", instances.Select(instance => instance.Name.Value))}.");
+            return;
+        }
+
+        var instance = instances[0];
+
+        Log($"Sending parameters from sync {instance.Name.Value}.");
+
+        var store = Cache[instance.Id];
+
+        foreach (var (name, value) in store)
         {
             SendParameter(name, value);
         }
@@ -154,6 +196,7 @@ public class ParameterSyncModule : Module, IVRCClientEventHandler
         if (eventArgs.DateTime < startTime) return;
 
         ignoreParameters = true;
+        Log("Avatar pre-change occurred.");
     }
 
     private enum ParameterSyncSetting
