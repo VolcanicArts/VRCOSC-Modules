@@ -2,7 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.App.SDK.Modules;
-using VRCOSC.App.SDK.OVR.Input;
+using VRCOSC.App.SDK.OVR.Device;
 using VRCOSC.App.SDK.Parameters;
 
 namespace VRCOSC.Modules.OpenVR;
@@ -24,11 +24,14 @@ public class GestureExtensionsModule : Module
     [ModuleUpdate(ModuleUpdateMode.Custom)]
     private void sendParameters()
     {
-        SendParameter(GestureExtensionsParameter.GestureLeft, (int)getControllerGesture(GetOVRClient().GetLeftController().Input));
-        SendParameter(GestureExtensionsParameter.GestureRight, (int)getControllerGesture(GetOVRClient().GetRightController().Input));
+        var lc = GetOVRClient().GetLeftController();
+        var rc = GetOVRClient().GetRightController();
+
+        if (lc is not null) SendParameter(GestureExtensionsParameter.GestureLeft, (int)getControllerGesture(lc.Input));
+        if (rc is not null) SendParameter(GestureExtensionsParameter.GestureRight, (int)getControllerGesture(rc.Input));
     }
 
-    private GestureNames getControllerGesture(InputStates input)
+    private GestureNames getControllerGesture(InputState input)
     {
         if (isGestureDoubleGun(input)) return GestureNames.DoubleGun;
         if (isGestureMiddleFinger(input)) return GestureNames.MiddleFinger;
@@ -39,24 +42,24 @@ public class GestureExtensionsModule : Module
 
     private float getThreshold() => GetSettingValue<float>(GestureExtensionsSetting.Threshold);
 
-    private bool isGestureDoubleGun(InputStates input) =>
-        input.IndexFinger <= getThreshold()
-        && input.MiddleFinger <= getThreshold()
-        && input.RingFinger > getThreshold()
-        && input.PinkyFinger > getThreshold()
-        && input.ThumbUp;
+    private bool isGestureDoubleGun(InputState input) =>
+        input.Skeleton.Index <= getThreshold()
+        && input.Skeleton.Middle <= getThreshold()
+        && input.Skeleton.Ring > getThreshold()
+        && input.Skeleton.Pinky > getThreshold()
+        && !input.Primary.Touch && !input.Secondary.Touch && !input.Stick.Touch && !input.Pad.Touch;
 
-    private bool isGestureMiddleFinger(InputStates input) =>
-        input.IndexFinger > getThreshold()
-        && input.MiddleFinger <= getThreshold()
-        && input.RingFinger > getThreshold()
-        && input.PinkyFinger > getThreshold();
+    private bool isGestureMiddleFinger(InputState input) =>
+        input.Skeleton.Index > getThreshold()
+        && input.Skeleton.Middle <= getThreshold()
+        && input.Skeleton.Ring > getThreshold()
+        && input.Skeleton.Pinky > getThreshold();
 
-    private bool isGesturePinkyFinger(InputStates input) =>
-        input.IndexFinger > getThreshold()
-        && input.MiddleFinger > getThreshold()
-        && input.RingFinger > getThreshold()
-        && input.PinkyFinger <= getThreshold();
+    private bool isGesturePinkyFinger(InputState input) =>
+        input.Skeleton.Index > getThreshold()
+        && input.Skeleton.Middle > getThreshold()
+        && input.Skeleton.Ring > getThreshold()
+        && input.Skeleton.Pinky <= getThreshold();
 
     private enum GestureExtensionsSetting
     {

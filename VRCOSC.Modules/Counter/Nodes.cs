@@ -9,7 +9,7 @@ namespace VRCOSC.Modules.Counter;
 [Node("Read Counter")]
 public sealed class ReadCounterNode : ModuleNode<CounterModule>, IFlowInput
 {
-    public FlowContinuation OnRead = new("On Read");
+    public FlowContinuation Next = new("Next");
 
     public ValueInput<string> Name = new("Counter Name");
     public ValueOutput<int> Value = new("Value");
@@ -25,13 +25,13 @@ public sealed class ReadCounterNode : ModuleNode<CounterModule>, IFlowInput
         Value.Write(Module.Counts[counter.ID].Value, c);
         ValueToday.Write(Module.Counts[counter.ID].ValueToday, c);
 
-        OnRead.Execute(c);
+        Next.Execute(c);
     }
 }
 
 [Node("Counter Source")]
 [NodeForceReprocess]
-public sealed class CounterSourceNode : ModuleNode<CounterModule>, IHasTextProperty
+public sealed class CounterSourceNode : ModuleNode<CounterModule>, IHasTextProperty, IUpdateNode
 {
     [NodeProperty("text")]
     public string Text { get; set; } = string.Empty;
@@ -48,6 +48,8 @@ public sealed class CounterSourceNode : ModuleNode<CounterModule>, IHasTextPrope
         Value.Write(countTracker.Value, c);
         ValueToday.Write(countTracker.ValueToday, c);
     }
+
+    public bool OnUpdate(PulseContext c) => true;
 }
 
 [Node("Direct Write Counter")]
