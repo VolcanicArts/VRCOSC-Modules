@@ -11,10 +11,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="VolcanicArts.VRCOSC.SDK" Version="2025.623.0" />
-    </ItemGroup>
-
-    <ItemGroup>
         <Page Update="Counter\UI\CounterInstanceEditWindow.xaml">
             <Generator>MSBuild:Compile</Generator>
             <XamlRuntime>Wpf</XamlRuntime>
@@ -36,6 +32,10 @@
       <Compile Update="Pulsoid\PulsoidAccessTokenView.xaml.cs">
         <DependentUpon>PulsoidAccessTokenView.xaml</DependentUpon>
       </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="VolcanicArts.VRCOSC.SDK" Version="2025.628.0" />
     </ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
