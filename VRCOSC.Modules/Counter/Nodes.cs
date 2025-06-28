@@ -15,7 +15,7 @@ public sealed class ReadCounterNode : ModuleNode<CounterModule>, IFlowInput
     public ValueOutput<int> Value = new("Value");
     public ValueOutput<int> ValueToday = new("Value Today");
 
-    protected override void Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
         var name = Name.Read(c);
 
@@ -25,7 +25,7 @@ public sealed class ReadCounterNode : ModuleNode<CounterModule>, IFlowInput
         Value.Write(Module.Counts[counter.ID].Value, c);
         ValueToday.Write(Module.Counts[counter.ID].ValueToday, c);
 
-        Next.Execute(c);
+        await Next.Execute(c);
     }
 }
 
@@ -39,14 +39,15 @@ public sealed class CounterSourceNode : ModuleNode<CounterModule>, IHasTextPrope
     public ValueOutput<int> Value = new("Value");
     public ValueOutput<int> ValueToday = new("Value Today");
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         var counter = Module.GetSettingValue<List<Counter>>(CounterModule.CounterSetting.CountInstances).SingleOrDefault(counter => counter.Name.Value == Text);
-        if (counter is null) return;
+        if (counter is null) return Task.CompletedTask;
 
         var countTracker = Module.Counts[counter.ID];
         Value.Write(countTracker.Value, c);
         ValueToday.Write(countTracker.ValueToday, c);
+        return Task.CompletedTask;
     }
 
     public bool OnUpdate(PulseContext c) => true;
@@ -63,7 +64,7 @@ public sealed class DirectWriteCounterNode : ModuleNode<CounterModule>, IFlowInp
     public ValueInput<int> Value = new("Value", -1);
     public ValueInput<int> ValueToday = new("Value Today", -1);
 
-    protected override void Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
         var counter = Module.GetSettingValue<List<Counter>>(CounterModule.CounterSetting.CountInstances).SingleOrDefault(counter => counter.Name.Value == Text);
         if (counter is null) return;
@@ -76,8 +77,7 @@ public sealed class DirectWriteCounterNode : ModuleNode<CounterModule>, IFlowInp
         if (valueToday != -1) countTracker.ValueToday = valueToday;
 
         Module.HandleChatBox(counter);
-
-        OnWrite.Execute(c);
+        await OnWrite.Execute(c);
     }
 }
 
@@ -90,7 +90,7 @@ public sealed class IndirectWriteCounterNode : ModuleNode<CounterModule>, IFlowI
     public ValueInput<int> Value = new("Value", -1);
     public ValueInput<int> ValueToday = new("Value Today", -1);
 
-    protected override void Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
         var name = Name.Read(c);
 
@@ -105,7 +105,6 @@ public sealed class IndirectWriteCounterNode : ModuleNode<CounterModule>, IFlowI
         if (valueToday != -1) countTracker.ValueToday = valueToday;
 
         Module.HandleChatBox(counter);
-
-        OnWrite.Execute(c);
+        await OnWrite.Execute(c);
     }
 }
