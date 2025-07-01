@@ -22,12 +22,14 @@
                              FontSize="16" />
                 </core:TitleDescriptionContent>
                 <core:TitleDescriptionContent Title="Max Duration"
-                                              Description="The maximum duration that this group is allowed">
-                    <core:VRCOSCSlider Height="50" Value="{Binding ShockerGroup.MaxDuration.Value}" MinValue="1" MaxValue="15" SliderType="Int"/>
+                                              Description="The maximum duration that this group is allowed in milliseconds">
+                    <TextBox Text="{Binding ShockerGroup.MaxDuration.Value, UpdateSourceTrigger=PropertyChanged}"
+                             Background="{StaticResource CBackground3}" Foreground="{StaticResource CForeground1}"
+                             FontSize="16" />
                 </core:TitleDescriptionContent>
                 <core:TitleDescriptionContent Title="Max Intensity"
                                               Description="The maximum intensity that this group is allowed">
-                    <core:VRCOSCSlider Height="50" Value="{Binding ShockerGroup.MaxIntensity.Value}" MinValue="1" MaxValue="100" SliderType="Int"/>
+                    <core:VRCOSCSlider Height="50" Value="{Binding ShockerGroup.MaxIntensity.Value}" MinValue="0" MaxValue="100" SliderType="Int"/>
                 </core:TitleDescriptionContent>
                 <core:TitleDescriptionContent Title="Shockers" Description="The shockers this group should control">
                     <core:HeaderFooterListView ItemsSource="{Binding ShockerGroup.Shockers}" AlternationCount="2"

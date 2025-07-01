@@ -7,21 +7,28 @@ using VRCOSC.App.SDK.Providers.PiShock;
 
 namespace VRCOSC.Modules.PiShock;
 
-[Node("PiShock Execute")]
-public sealed class PiShockExecuteNode : ModuleNode<PiShockModule>, IFlowInput
+[Node("PiShock Execute Group")]
+public sealed class PiShockExecuteGroupNode : ModuleNode<PiShockModule>, IFlowInput
 {
     public FlowContinuation OnSuccess = new("On Success");
     public FlowContinuation OnFail = new("On Fail");
 
-    public ValueInput<string> GroupName = new("Group Name");
+    public ValueInput<int> Group = new();
     public ValueInput<PiShockMode> Mode = new();
     public ValueInput<float> Intensity = new();
     public ValueInput<float> Duration = new();
 
     protected override async Task Process(PulseContext c)
     {
-        var groupName = GroupName.Read(c);
-        var group = Module.GroupsSetting.Attribute.SingleOrDefault(group => group.Name.Value == groupName);
+        var groupIndex = Group.Read(c);
+
+        if (groupIndex < 0 || groupIndex >= Module.GroupsSetting.Attribute.Count)
+        {
+            await OnFail.Execute(c);
+            return;
+        }
+
+        var group = Module.GroupsSetting.Attribute[groupIndex];
 
         if (group is null)
         {
@@ -33,7 +40,51 @@ public sealed class PiShockExecuteNode : ModuleNode<PiShockModule>, IFlowInput
         var intensity = float.Clamp(Intensity.Read(c), 0f, 1f);
         var duration = float.Clamp(Duration.Read(c), 0f, 1f);
 
-        await Module.ExecuteGroupAsync(group.ID, mode, intensity, duration);
+        var result = await Module.ExecuteGroupAsync(group.ID, mode, intensity, duration);
+
+        if (!result)
+        {
+            await OnFail.Execute(c);
+            return;
+        }
+
+        await OnSuccess.Execute(c);
+    }
+}
+
+[Node("PiShock Execute Sharecode")]
+public sealed class PiShockExecuteSharecodeNode : ModuleNode<PiShockModule>, IFlowInput
+{
+    public FlowContinuation OnSuccess = new("On Success");
+    public FlowContinuation OnFail = new("On Fail");
+
+    public ValueInput<string> Sharecode = new("Sharecode");
+    public ValueInput<PiShockMode> Mode = new();
+    public ValueInput<int> Intensity = new();
+    public ValueInput<int> Duration = new("Duration Milli");
+
+    protected override async Task Process(PulseContext c)
+    {
+        var sharecode = Sharecode.Read(c);
+
+        if (sharecode is null)
+        {
+            await OnFail.Execute(c);
+            return;
+        }
+
+        var mode = Mode.Read(c);
+        var intensity = int.Clamp(Intensity.Read(c), 0, 100);
+        var duration = int.Max(Duration.Read(c), 0);
+
+        var result = await Module.ExecuteSharecode(sharecode, mode, intensity, duration);
+
+        if (!result)
+        {
+            await OnFail.Execute(c);
+            return;
+        }
+
         await OnSuccess.Execute(c);
     }
 }
