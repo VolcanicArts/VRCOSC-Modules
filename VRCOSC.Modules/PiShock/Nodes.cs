@@ -88,3 +88,28 @@ public sealed class PiShockExecuteSharecodeNode : ModuleNode<PiShockModule>, IFl
         await OnSuccess.Execute(c);
     }
 }
+
+[Node("PiShock Execute Serial")]
+public sealed class PiShockExecuteSerial : ModuleNode<PiShockModule>, IFlowInput
+{
+    public FlowContinuation OnSuccess = new("On Success");
+    public FlowContinuation OnFail = new("On Fail");
+
+    public ValueInput<PiShockMode> Mode = new();
+    public ValueInput<int> Intensity = new();
+    public ValueInput<int> Duration = new("Duration Milli");
+
+    protected override async Task Process(PulseContext c)
+    {
+        var mode = Mode.Read(c);
+        var intensity = int.Clamp(Intensity.Read(c), 0, 100);
+        var duration = int.Max(Duration.Read(c), 0);
+
+        var success = await Module.ExecuteSerial(mode, intensity, duration, null);
+
+        if (success)
+            await OnSuccess.Execute(c);
+        else
+            await OnFail.Execute(c);
+    }
+}

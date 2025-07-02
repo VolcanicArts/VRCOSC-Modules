@@ -84,7 +84,7 @@ public class PiShockModule : Module, ISpeechHandler
         });
     }
 
-    protected override Task<bool> OnModuleStart()
+    protected override async Task<bool> OnModuleStart()
     {
         reset();
 
@@ -92,9 +92,11 @@ public class PiShockModule : Module, ISpeechHandler
         var apiKey = GetSettingValue<string>(PiShockSetting.APIKey);
 
         piShockProvider = new PiShockProvider(username, apiKey);
-        piShockProvider.Initialise();
 
-        return Task.FromResult(true);
+        Log("Initialising provider...");
+        var result = await piShockProvider.Initialise();
+
+        return result;
     }
 
     protected override async Task OnModuleStop()
@@ -264,6 +266,16 @@ public class PiShockModule : Module, ISpeechHandler
     public async Task<bool> ExecuteSharecode(string sharecode, PiShockMode mode, int intensity, int duration)
     {
         var result = await piShockProvider.ExecuteAsync([sharecode], mode, intensity, duration);
+
+        if (!result.Success)
+            Log(result.Message);
+
+        return result.Success;
+    }
+
+    public async Task<bool> ExecuteSerial(PiShockMode mode, int intensity, int duration, int? shockerId)
+    {
+        var result = await piShockProvider.ExecuteSerialAsync(mode, intensity, duration, shockerId);
 
         if (!result.Success)
             Log(result.Message);
