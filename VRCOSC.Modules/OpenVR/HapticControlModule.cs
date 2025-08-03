@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.App.SDK.Modules;
-using VRCOSC.App.SDK.OVR;
 using VRCOSC.App.SDK.Parameters;
 
 namespace VRCOSC.Modules.OpenVR;
@@ -81,9 +80,25 @@ public class HapticControlModule : Module
 
     private async void triggerHaptic(bool left, bool right, float? localDuration = null, float? localFrequency = null, float? localAmplitude = null)
     {
-        if (left) GetOVRClient().TriggerHaptic(DeviceRole.LeftHand, localDuration ?? duration, localFrequency ?? frequency, localAmplitude ?? amplitude);
+        var ovrManager = GetOpenVRManager();
+
+        if (left)
+        {
+            var lc = ovrManager.GetLeftController();
+
+            if (lc is not null)
+                ovrManager.TriggerHaptic(lc, localDuration ?? duration, localFrequency ?? frequency, localAmplitude ?? amplitude);
+        }
+
         await Task.Delay(10);
-        if (right) GetOVRClient().TriggerHaptic(DeviceRole.RightHand, localDuration ?? duration, localFrequency ?? frequency, localAmplitude ?? amplitude);
+
+        if (right)
+        {
+            var rc = ovrManager.GetRightController();
+
+            if (rc is not null)
+                ovrManager.TriggerHaptic(rc, localDuration ?? duration, localFrequency ?? frequency, localAmplitude ?? amplitude);
+        }
     }
 
     private enum HapticControlParameter

@@ -1,8 +1,8 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using VRCOSC.App.OpenVR.Device;
 using VRCOSC.App.SDK.Modules;
-using VRCOSC.App.SDK.OVR.Device;
 using VRCOSC.App.SDK.Parameters;
 
 namespace VRCOSC.Modules.OpenVR;
@@ -24,8 +24,8 @@ public class GestureExtensionsModule : Module
     [ModuleUpdate(ModuleUpdateMode.Custom)]
     private void sendParameters()
     {
-        var lc = GetOVRClient().GetLeftController();
-        var rc = GetOVRClient().GetRightController();
+        var lc = GetOpenVRManager().GetLeftController();
+        var rc = GetOpenVRManager().GetRightController();
 
         if (lc is not null) SendParameter(GestureExtensionsParameter.GestureLeft, (int)getControllerGesture(lc.Input));
         if (rc is not null) SendParameter(GestureExtensionsParameter.GestureRight, (int)getControllerGesture(rc.Input));
