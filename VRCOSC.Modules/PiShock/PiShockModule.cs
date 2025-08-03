@@ -265,6 +265,8 @@ public class PiShockModule : Module, ISpeechHandler
 
     public async Task<bool> ExecuteSharecode(string sharecode, PiShockMode mode, int intensity, int duration)
     {
+        Log($"Sharecode '{sharecode}' has been executed");
+
         var result = await piShockProvider.ExecuteAsync([sharecode], mode, intensity, duration);
 
         if (!result.Success)
@@ -275,6 +277,8 @@ public class PiShockModule : Module, ISpeechHandler
 
     public async Task<bool> ExecuteSerial(PiShockMode mode, int intensity, int duration, int? shockerId)
     {
+        Log("Serial has been executed");
+
         var result = await piShockProvider.ExecuteSerialAsync(mode, intensity, duration, shockerId);
 
         if (!result.Success)
