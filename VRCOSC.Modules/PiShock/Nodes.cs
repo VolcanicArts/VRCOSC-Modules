@@ -98,14 +98,16 @@ public sealed class PiShockExecuteSerial : ModuleNode<PiShockModule>, IFlowInput
     public ValueInput<PiShockMode> Mode = new();
     public ValueInput<int> Intensity = new();
     public ValueInput<int> Duration = new("Duration Milli");
+    public ValueInput<int?> ShockerId = new("Shocker Id");
 
     protected override async Task Process(PulseContext c)
     {
         var mode = Mode.Read(c);
         var intensity = int.Clamp(Intensity.Read(c), 0, 100);
         var duration = int.Max(Duration.Read(c), 0);
+        var shockerId = ShockerId.Read(c);
 
-        var success = await Module.ExecuteSerial(mode, intensity, duration, null);
+        var success = await Module.ExecuteSerial(mode, intensity, duration, shockerId);
 
         if (success)
             await OnSuccess.Execute(c);
