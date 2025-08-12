@@ -25,8 +25,10 @@ public class ParameterSyncModule : Module, IVRCClientEventHandler
     protected override void OnPreLoad()
     {
         CreateCustomSetting(ParameterSyncSetting.Instances, new ParameterSyncListModuleSetting());
+        CreateTextBox(ParameterSyncSetting.Delay, "Delay", "A delay in milliseconds to wait after you've changed into a new avatar before sending the synced parameters to VRChat", 0);
 
-        CreateGroup("Configuration", string.Empty, ParameterSyncSetting.Instances);
+        CreateGroup("Instances", string.Empty, ParameterSyncSetting.Instances);
+        CreateGroup("Configuration", string.Empty, ParameterSyncSetting.Delay);
     }
 
     protected override async Task<bool> OnModuleStart()
@@ -135,7 +137,7 @@ public class ParameterSyncModule : Module, IVRCClientEventHandler
         store[parameter.Name] = parameter.Value;
     }
 
-    private void sendSyncedParameters(string? previousAvatarId, string? newAvatarId)
+    private async void sendSyncedParameters(string? previousAvatarId, string? newAvatarId)
     {
         if (string.IsNullOrEmpty(newAvatarId)) return;
 
@@ -166,6 +168,14 @@ public class ParameterSyncModule : Module, IVRCClientEventHandler
         var instance = instances[0];
 
         Log($"Sending parameters from sync {instance.Name.Value}.");
+
+        var delay = GetSettingValue<int>(ParameterSyncSetting.Delay);
+
+        if (delay > 0)
+        {
+            Log($"Waiting {delay} milliseconds");
+            await Task.Delay(delay);
+        }
 
         var store = Cache[instance.Id];
 
@@ -201,6 +211,7 @@ public class ParameterSyncModule : Module, IVRCClientEventHandler
 
     private enum ParameterSyncSetting
     {
-        Instances
+        Instances,
+        Delay
     }
 }
