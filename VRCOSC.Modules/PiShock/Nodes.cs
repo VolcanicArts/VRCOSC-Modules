@@ -90,7 +90,7 @@ public sealed class PiShockExecuteSharecodeNode : ModuleNode<PiShockModule>, IFl
 }
 
 [Node("PiShock Execute Serial")]
-public sealed class PiShockExecuteSerial : ModuleNode<PiShockModule>, IFlowInput
+public sealed class PiShockExecuteSerialNode : ModuleNode<PiShockModule>, IFlowInput
 {
     public FlowContinuation OnSuccess = new("On Success");
     public FlowContinuation OnFail = new("On Fail");

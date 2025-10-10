@@ -8,10 +8,12 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.Modules.Media;
 
-public partial class MediaModuleRuntimeView
+public partial class MediaModuleRuntimeView : IDisposable
 {
     public MediaModule Module { get; }
     public ObservableCollection<string> Sessions { get; } = new();
+
+    private readonly IDisposable sessionsChangedDisposable;
 
     public MediaModuleRuntimeView(MediaModule module)
     {
@@ -20,7 +22,7 @@ public partial class MediaModuleRuntimeView
 
         DataContext = this;
 
-        Module.MediaProvider.Sessions.OnCollectionChanged((newItems, oldItems) => Dispatcher.Invoke(() =>
+        sessionsChangedDisposable = Module.MediaProvider.Sessions.OnCollectionChanged((newItems, oldItems) => Dispatcher.Invoke(() =>
         {
             foreach (string newSession in newItems)
             {
@@ -44,5 +46,10 @@ public partial class MediaModuleRuntimeView
         var selectedValue = (string)comboBox.SelectedValue;
 
         Module.MediaProvider.SetFocusedSession(selectedValue);
+    }
+
+    public void Dispose()
+    {
+        sessionsChangedDisposable.Dispose();
     }
 }

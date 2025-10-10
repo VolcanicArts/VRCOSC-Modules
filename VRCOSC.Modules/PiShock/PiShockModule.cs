@@ -37,6 +37,8 @@ public class PiShockModule : Module, ISpeechHandler
 
     private readonly List<string> executedPhrases = [];
 
+    private IDisposable? shockerSettingsDisposable;
+
     public ShockerModuleSetting ShockersSetting => GetSetting<ShockerModuleSetting>(PiShockSetting.Shockers);
     public ShockerGroupModuleSetting GroupsSetting => GetSetting<ShockerGroupModuleSetting>(PiShockSetting.Groups);
 
@@ -73,7 +75,7 @@ public class PiShockModule : Module, ISpeechHandler
 
     protected override void OnPostLoad()
     {
-        GetSetting<ShockerModuleSetting>(PiShockSetting.Shockers).Attribute.OnCollectionChanged((_, _) =>
+        shockerSettingsDisposable = GetSetting<ShockerModuleSetting>(PiShockSetting.Shockers).Attribute.OnCollectionChanged((_, _) =>
         {
             var groupSetting = GetSetting<ShockerGroupModuleSetting>(PiShockSetting.Groups);
 
@@ -102,6 +104,7 @@ public class PiShockModule : Module, ISpeechHandler
     protected override async Task OnModuleStop()
     {
         await piShockProvider.Teardown();
+        shockerSettingsDisposable?.Dispose();
     }
 
     protected override void OnAvatarChange(AvatarConfig? avatarConfig)

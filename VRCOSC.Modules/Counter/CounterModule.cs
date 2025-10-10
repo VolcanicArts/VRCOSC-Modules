@@ -20,6 +20,8 @@ public class CounterModule : Module
 
     private readonly Dictionary<string, object> parameterValues = new();
 
+    private IDisposable? countersCollectionChangedDisposable;
+
     protected override void OnPreLoad()
     {
         CreateCustomSetting(CounterSetting.CountInstances, new CountersModuleSetting());
@@ -33,7 +35,7 @@ public class CounterModule : Module
     {
         var moduleSetting = GetSetting<CountersModuleSetting>(CounterSetting.CountInstances)!;
 
-        moduleSetting.Attribute.OnCollectionChanged(countersCollectionChanged, true);
+        countersCollectionChangedDisposable = moduleSetting.Attribute.OnCollectionChanged(countersCollectionChanged, true);
     }
 
     private void countersCollectionChanged(IEnumerable<Counter> newItems, IEnumerable<Counter> oldItems)
@@ -93,6 +95,12 @@ public class CounterModule : Module
         auditMilestones();
 
         return Task.FromResult(true);
+    }
+
+    protected override Task OnModuleStop()
+    {
+        countersCollectionChangedDisposable?.Dispose();
+        return Task.CompletedTask;
     }
 
     protected override void OnAvatarChange(AvatarConfig? avatarConfig)
