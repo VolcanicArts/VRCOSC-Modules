@@ -34,6 +34,8 @@ public partial class MediaModuleRuntimeView : IDisposable
                 Sessions.RemoveIf(session => session == oldSession);
             }
         }), true);
+
+        SourceComboBox.SelectedValue = module.SourceSelection;
     }
 
     private void SourceSelection_OnLostMouseCapture(object sender, MouseEventArgs e)
@@ -45,6 +47,7 @@ public partial class MediaModuleRuntimeView : IDisposable
         var comboBox = (ComboBox)sender;
         var selectedValue = (string)comboBox.SelectedValue;
 
+        Module.SourceSelection = selectedValue;
         Module.MediaProvider.SetFocusedSession(selectedValue);
     }
 

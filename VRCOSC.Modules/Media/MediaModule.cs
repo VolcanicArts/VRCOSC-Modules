@@ -26,6 +26,9 @@ public class MediaModule : Module, IVRCClientEventHandler
     private bool instanceTransferPlay;
     private DateTime moduleStartTime;
 
+    [ModulePersistent("source_selection")]
+    public string? SourceSelection { get; set; }
+
     protected override void OnPreLoad()
     {
         CreateToggle(MediaSetting.PlayOnInstanceTransfer, "Play On Instance Transfer", "Should your media source play, if paused, when transferring between instances?", false);
