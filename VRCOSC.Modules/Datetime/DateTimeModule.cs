@@ -4,6 +4,7 @@
 using System.Globalization;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Parameters;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.Modules.Datetime;
 
@@ -41,10 +42,14 @@ public sealed class DateTimeModule : Module
         RegisterParameter<float>(DateTimeParameter.SecondNormalised, "VRCOSC/Time/Second/Normalised", ParameterMode.Write, "Second Normalised", "The current second normalised between 0 and 1");
 
         RegisterParameter<int>(DateTimeParameter.Day, "VRCOSC/Date/Day", ParameterMode.Write, "Day", "The current day (1-31)");
+        RegisterParameter<float>(DateTimeParameter.DayNormalised, "VRCOSC/Date/Day/Normalised", ParameterMode.Write, "Day Normalised", "The current day normalised between 0 and 1");
         RegisterParameter<int>(DateTimeParameter.Month, "VRCOSC/Date/Month", ParameterMode.Write, "Month", "The current month (1-12)");
+        RegisterParameter<float>(DateTimeParameter.MonthNormalised, "VRCOSC/Date/Month/Normalised", ParameterMode.Write, "Month Normalised", "The current month normalised between 0 and 1");
         RegisterParameter<int>(DateTimeParameter.Year, "VRCOSC/Date/Year", ParameterMode.Write, "Year", "The current year (2024 = 24)");
+        RegisterParameter<float>(DateTimeParameter.YearNormalised, "VRCOSC/Date/Year/Normalised", ParameterMode.Write, "Year Normalised", "The current year normalised between 0 and 1");
 
         RegisterParameter<int>(DateTimeParameter.Weekday, "VRCOSC/Date/Weekday", ParameterMode.Write, "Weekday", "The current weekday (1-7 Mon-Sun)");
+        RegisterParameter<int>(DateTimeParameter.WeekdayNormalised, "VRCOSC/Date/Weekday/Normalised", ParameterMode.Write, "Weekday Normalised", "The current weekday normalised between 0 and 1");
 
         RegisterParameter<float>(DateTimeParameter.LegacyHours, "VRCOSC/Clock/Hours", ParameterMode.Write, "Hours", "The current hour normalised between 0 and 1", true);
         RegisterParameter<float>(DateTimeParameter.LegacyMinutes, "VRCOSC/Clock/Minutes", ParameterMode.Write, "Minutes", "The current minute normalised between 0 and 1", true);
@@ -110,10 +115,15 @@ public sealed class DateTimeModule : Module
         SendParameter(DateTimeParameter.LegacyPeriod, string.Equals(time.ToString("tt", CultureInfo.InvariantCulture), "PM", StringComparison.InvariantCultureIgnoreCase));
 
         SendParameter(DateTimeParameter.Day, time.Day);
+        SendParameter(DateTimeParameter.DayNormalised, Interpolation.Map(time.Day, 1f, 31f, 0f, 1f));
         SendParameter(DateTimeParameter.Month, time.Month);
+        SendParameter(DateTimeParameter.MonthNormalised, Interpolation.Map(time.Month, 1f, 12f, 0f, 1f));
         SendParameter(DateTimeParameter.Year, time.Year % 100);
+        SendParameter(DateTimeParameter.YearNormalised, Interpolation.Map(time.Year % 100, 0f, 99f, 0f, 1f));
 
-        SendParameter(DateTimeParameter.Weekday, ((int)time.DayOfWeek + 6) % 7 + 1);
+        var weekday = ((int)time.DayOfWeek + 6) % 7 + 1;
+        SendParameter(DateTimeParameter.Weekday, weekday);
+        SendParameter(DateTimeParameter.WeekdayNormalised, Interpolation.Map(weekday, 1f, 7f, 0f, 1f));
     }
 
     private static float getSmoothedSecond(DateTimeOffset time) => time.Second + time.Millisecond / 1000f;
@@ -131,9 +141,13 @@ public sealed class DateTimeModule : Module
         MinuteNormalised,
         SecondNormalised,
         Day,
+        DayNormalised,
         Month,
+        MonthNormalised,
         Year,
+        YearNormalised,
         Weekday,
+        WeekdayNormalised,
         LegacyHours,
         LegacyMinutes,
         LegacySeconds,
