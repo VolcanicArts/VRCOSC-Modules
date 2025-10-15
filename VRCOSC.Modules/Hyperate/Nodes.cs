@@ -7,7 +7,7 @@ using VRCOSC.App.SDK.Nodes;
 namespace VRCOSC.Modules.Hyperate;
 
 [Node("Hyperate Source")]
-public sealed class HyperateSourceNode : ModuleNode<HypeRateModule>, IUpdateNode
+public sealed class HyperateSourceNode : ModuleNode<HypeRateModule>, IActiveUpdateNode
 {
     public ValueOutput<int> Heartrate = new();
 

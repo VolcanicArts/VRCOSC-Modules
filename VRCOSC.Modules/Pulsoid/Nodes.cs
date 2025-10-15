@@ -8,7 +8,7 @@ namespace VRCOSC.Modules.Pulsoid;
 
 [Node("Pulsoid Source")]
 [NodeForceReprocess]
-public sealed class PulsoidSourceNode : ModuleNode<PulsoidModule>, IUpdateNode
+public sealed class PulsoidSourceNode : ModuleNode<PulsoidModule>, IActiveUpdateNode
 {
     public ValueOutput<int> Heartrate = new();
 

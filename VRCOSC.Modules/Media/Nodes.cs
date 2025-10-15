@@ -9,7 +9,7 @@ using VRCOSC.App.SDK.Nodes;
 namespace VRCOSC.Modules.Media;
 
 [Node("Media Info Source")]
-public sealed class MediaInfoSourceNode : ModuleNode<MediaModule>, IUpdateNode
+public sealed class MediaInfoSourceNode : ModuleNode<MediaModule>, IActiveUpdateNode
 {
     public ValueOutput<string> Title = new();
     public ValueOutput<string> Subtitle = new();
@@ -47,7 +47,7 @@ public sealed class MediaInfoSourceNode : ModuleNode<MediaModule>, IUpdateNode
 }
 
 [Node("Media State Source")]
-public sealed class MediaStateSourceNode : ModuleNode<MediaModule>, IUpdateNode
+public sealed class MediaStateSourceNode : ModuleNode<MediaModule>, IActiveUpdateNode
 {
     public ValueOutput<bool> Playing = new();
     public ValueOutput<bool> Shuffling = new();

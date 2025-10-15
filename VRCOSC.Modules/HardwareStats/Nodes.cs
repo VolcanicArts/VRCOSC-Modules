@@ -8,7 +8,7 @@ namespace VRCOSC.Modules.HardwareStats;
 
 [Node("CPU Info Source")]
 [NodeForceReprocess]
-public sealed class CPUInfoSourceNode : ModuleNode<HardwareStatsModule>, IUpdateNode
+public sealed class CPUInfoSourceNode : ModuleNode<HardwareStatsModule>, IActiveUpdateNode
 {
     public ValueOutput<float> Usage = new();
     public ValueOutput<int> Power = new();
@@ -29,7 +29,7 @@ public sealed class CPUInfoSourceNode : ModuleNode<HardwareStatsModule>, IUpdate
 }
 
 [Node("GPU Info Source")]
-public sealed class GPUInfoSourceNode : ModuleNode<HardwareStatsModule>, IUpdateNode
+public sealed class GPUInfoSourceNode : ModuleNode<HardwareStatsModule>, IActiveUpdateNode
 {
     public ValueOutput<float> Usage = new();
     public ValueOutput<int> Power = new();
@@ -50,7 +50,7 @@ public sealed class GPUInfoSourceNode : ModuleNode<HardwareStatsModule>, IUpdate
 }
 
 [Node("RAM Info Source")]
-public sealed class RAMInfoSourceNode : ModuleNode<HardwareStatsModule>, IUpdateNode
+public sealed class RAMInfoSourceNode : ModuleNode<HardwareStatsModule>, IActiveUpdateNode
 {
     public ValueOutput<float> Usage = new();
     public ValueOutput<float> Total = new();
@@ -73,7 +73,7 @@ public sealed class RAMInfoSourceNode : ModuleNode<HardwareStatsModule>, IUpdate
 }
 
 [Node("VRAM Info Source")]
-public sealed class VRAMInfoSourceNode : ModuleNode<HardwareStatsModule>, IUpdateNode
+public sealed class VRAMInfoSourceNode : ModuleNode<HardwareStatsModule>, IActiveUpdateNode
 {
     public ValueOutput<float> Usage = new();
     public ValueOutput<float> Total = new();

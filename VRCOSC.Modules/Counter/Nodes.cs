@@ -31,7 +31,7 @@ public sealed class ReadCounterNode : ModuleNode<CounterModule>, IFlowInput
 
 [Node("Counter Source")]
 [NodeForceReprocess]
-public sealed class CounterSourceNode : ModuleNode<CounterModule>, IHasTextProperty, IUpdateNode
+public sealed class CounterSourceNode : ModuleNode<CounterModule>, IHasTextProperty, IActiveUpdateNode
 {
     [NodeProperty("text")]
     public string Text { get; set; } = string.Empty;
