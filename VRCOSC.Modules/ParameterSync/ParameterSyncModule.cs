@@ -59,6 +59,7 @@ public class ParameterSyncModule : Module, IVRCClientEventHandler
 
     private void updateCacheLayout()
     {
+        LogDebug("Updating cache layout");
         var instances = GetSettingValue<List<ParameterSync>>(ParameterSyncSetting.Instances);
 
         foreach (var parameterSync in instances)
@@ -116,6 +117,8 @@ public class ParameterSyncModule : Module, IVRCClientEventHandler
     {
         if (string.IsNullOrEmpty(currentAvatarId)) return;
 
+        LogDebug($"Attempting to cache parameter {parameter.Name}. Type: {parameter.Type}. Value {parameter.Value}");
+
         var instances = GetSettingValue<List<ParameterSync>>(ParameterSyncSetting.Instances)
                         .Where(instance => instance.Avatars.Select(item => item.Value).Contains(currentAvatarId))
                         .ToList();
@@ -132,6 +135,8 @@ public class ParameterSyncModule : Module, IVRCClientEventHandler
         var instance = instances[0];
 
         if (!instance.Parameters.Select(p => p.Value).Contains(parameter.Name)) return;
+
+        LogDebug("Found an instance. Caching parameter");
 
         var store = Cache[instance.Id];
         store[parameter.Name] = parameter.Value;
@@ -167,20 +172,23 @@ public class ParameterSyncModule : Module, IVRCClientEventHandler
 
         var instance = instances[0];
 
-        Log($"Sending parameters from sync {instance.Name.Value}.");
-
         var delay = GetSettingValue<int>(ParameterSyncSetting.Delay);
 
         if (delay > 0)
         {
             Log($"Waiting {delay} milliseconds");
+            LogDebug($"Waiting {delay} milliseconds");
             await Task.Delay(delay);
         }
+
+        Log($"Sending parameters from sync {instance.Name.Value}.");
+        LogDebug($"Sending parameters from sync {instance.Name.Value}.");
 
         var store = Cache[instance.Id];
 
         foreach (var (name, value) in store)
         {
+            LogDebug($"Sending {name}. Value {value}");
             SendParameter(name, value);
         }
     }
