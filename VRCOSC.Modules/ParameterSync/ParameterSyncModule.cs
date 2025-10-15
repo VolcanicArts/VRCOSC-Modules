@@ -14,7 +14,6 @@ namespace VRCOSC.Modules.ParameterSync;
 [ModuleType(ModuleType.Generic)]
 public class ParameterSyncModule : Module, IVRCClientEventHandler
 {
-    private DateTime startTime;
     private bool ignoreParameters;
     private readonly List<IDisposable> disposables = new();
     private string? currentAvatarId;
@@ -25,7 +24,7 @@ public class ParameterSyncModule : Module, IVRCClientEventHandler
     protected override void OnPreLoad()
     {
         CreateCustomSetting(ParameterSyncSetting.Instances, new ParameterSyncListModuleSetting());
-        CreateTextBox(ParameterSyncSetting.Delay, "Delay", "A delay in milliseconds to wait after you've changed into a new avatar before sending the synced parameters to VRChat", 0);
+        CreateTextBox(ParameterSyncSetting.Delay, "Delay", "A delay in milliseconds to wait after you've changed into a new avatar before sending the synced parameters to VRChat and to start receiving parameters to sync again", 100);
 
         CreateGroup("Instances", string.Empty, ParameterSyncSetting.Instances);
         CreateGroup("Configuration", string.Empty, ParameterSyncSetting.Delay);
@@ -33,15 +32,14 @@ public class ParameterSyncModule : Module, IVRCClientEventHandler
 
     protected override async Task<bool> OnModuleStart()
     {
-        startTime = DateTime.Now;
-        ignoreParameters = false;
+        ignoreParameters = true;
         disposables.Clear();
         currentAvatarId = await FindCurrentAvatar();
 
         var moduleSetting = GetSetting<ParameterSyncListModuleSetting>(ParameterSyncSetting.Instances);
         disposables.Add(moduleSetting.Attribute.OnCollectionChanged(instancesCollectionChanged, true));
 
-        sendSyncedParameters(null, currentAvatarId);
+        handleAvatarChange(currentAvatarId);
         return true;
     }
 
@@ -91,19 +89,24 @@ public class ParameterSyncModule : Module, IVRCClientEventHandler
 
     protected override void OnAvatarChange(AvatarConfig? avatarConfig)
     {
-        ignoreParameters = false;
+        handleAvatarChange(avatarConfig?.Id);
+    }
 
-        if (avatarConfig is null)
+    private async void handleAvatarChange(string? avatarId)
+    {
+        if (avatarId is null)
         {
-            Log("Local avatar detected. Not syncing.");
+            Log("Local avatar detected. Not syncing");
         }
         else
         {
-            Log("Avatar has been changed.");
-            sendSyncedParameters(currentAvatarId, avatarConfig.Id);
+            Log("Valid avatar detected. Syncing");
+            await sendSyncedParameters(currentAvatarId, avatarId);
         }
 
-        currentAvatarId = avatarConfig?.Id;
+        currentAvatarId = avatarId;
+        ignoreParameters = false;
+        LogDebug("Listening for parameters");
     }
 
     protected override void OnAnyParameterReceived(VRChatParameter parameter)
@@ -117,8 +120,6 @@ public class ParameterSyncModule : Module, IVRCClientEventHandler
     {
         if (string.IsNullOrEmpty(currentAvatarId)) return;
 
-        LogDebug($"Attempting to cache parameter {parameter.Name}. Type: {parameter.Type}. Value {parameter.Value}");
-
         var instances = GetSettingValue<List<ParameterSync>>(ParameterSyncSetting.Instances)
                         .Where(instance => instance.Avatars.Select(item => item.Value).Contains(currentAvatarId))
                         .ToList();
@@ -127,8 +128,8 @@ public class ParameterSyncModule : Module, IVRCClientEventHandler
 
         if (instances.Count > 1)
         {
-            Log($"Multiple syncs have the same avatar assigned with ID {currentAvatarId}. Unable to cache parameter value.");
-            Log($"Ambiguous syncs: {string.Join(", ", instances.Select(instance => instance.Name.Value))}.");
+            Log($"Multiple syncs have the same avatar assigned with ID {currentAvatarId}. Unable to cache parameter value");
+            Log($"Ambiguous syncs: {string.Join(", ", instances.Select(instance => instance.Name.Value))}");
             return;
         }
 
@@ -136,13 +137,13 @@ public class ParameterSyncModule : Module, IVRCClientEventHandler
 
         if (!instance.Parameters.Select(p => p.Value).Contains(parameter.Name)) return;
 
-        LogDebug("Found an instance. Caching parameter");
+        LogDebug($"Found instance '{instance.Name.Value}'. Caching parameter: {parameter.Name} - {parameter.Value}");
 
         var store = Cache[instance.Id];
         store[parameter.Name] = parameter.Value;
     }
 
-    private async void sendSyncedParameters(string? previousAvatarId, string? newAvatarId)
+    private async Task sendSyncedParameters(string? previousAvatarId, string? newAvatarId)
     {
         if (string.IsNullOrEmpty(newAvatarId)) return;
 
@@ -165,8 +166,8 @@ public class ParameterSyncModule : Module, IVRCClientEventHandler
 
         if (instances.Count > 1)
         {
-            Log("Multiple syncs have the previous and new avatar assigned. Not syncing due to ambiguity.");
-            Log($"Ambiguous syncs: {string.Join(", ", instances.Select(instance => instance.Name.Value))}.");
+            Log("Multiple syncs have the previous and new avatar assigned. Not syncing due to ambiguity");
+            Log($"Ambiguous syncs: {string.Join(", ", instances.Select(instance => instance.Name.Value))}");
             return;
         }
 
@@ -176,20 +177,29 @@ public class ParameterSyncModule : Module, IVRCClientEventHandler
 
         if (delay > 0)
         {
-            Log($"Waiting {delay} milliseconds");
-            LogDebug($"Waiting {delay} milliseconds");
+            Log($"Pre-waiting {delay} milliseconds");
             await Task.Delay(delay);
         }
 
-        Log($"Sending parameters from sync {instance.Name.Value}.");
-        LogDebug($"Sending parameters from sync {instance.Name.Value}.");
+        Log($"Sending parameters from {instance.Name.Value}");
 
         var store = Cache[instance.Id];
 
+        var waitList = new List<Task>();
+
         foreach (var (name, value) in store)
         {
-            LogDebug($"Sending {name}. Value {value}");
-            SendParameter(name, value);
+            LogDebug($"Sending {name} - {value}");
+            waitList.Add(SendParameterAndWait(name, value, true));
+        }
+
+        await Task.WhenAll(waitList);
+
+        // This shouldn't be needed, but VRChat sends back 2 parameter events when writing to a parameter over OSC, so we have to delay a little bit
+        if (delay > 0)
+        {
+            Log($"Post-waiting {delay} milliseconds");
+            await Task.Delay(delay);
         }
     }
 
@@ -211,10 +221,8 @@ public class ParameterSyncModule : Module, IVRCClientEventHandler
 
     public void OnAvatarPreChange(VRChatClientEventAvatarPreChange eventArgs)
     {
-        if (eventArgs.DateTime < startTime) return;
-
         ignoreParameters = true;
-        Log("Avatar pre-change occurred.");
+        LogDebug("Avatar pre-change occured. Ignoring parameters");
     }
 
     private enum ParameterSyncSetting
