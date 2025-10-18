@@ -32,6 +32,18 @@ public class ParameterSyncModule : Module, IVRCClientEventHandler
 
     protected override async Task<bool> OnModuleStart()
     {
+        foreach (var instance in Cache)
+        {
+            foreach (var (key, value) in instance.Value)
+            {
+                if (value is double doubleValue)
+                    instance.Value[key] = (float)doubleValue;
+
+                if (value is long longValue)
+                    instance.Value[key] = (int)longValue;
+            }
+        }
+
         ignoreParameters = true;
         disposables.Clear();
         currentAvatarId = await FindCurrentAvatar();
