@@ -35,7 +35,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="VolcanicArts.VRCOSC.SDK" Version="2025.1016.0" />
+      <PackageReference Include="VolcanicArts.VRCOSC.SDK" Version="2025.1020.0" />
     </ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
