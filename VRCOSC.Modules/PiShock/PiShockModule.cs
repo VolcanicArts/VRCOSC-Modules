@@ -223,7 +223,7 @@ public class PiShockModule : Module, ISpeechHandler
         if (shockerGroup is null) return Task.FromResult(false);
 
         var intensity = (int)float.Round(shockerGroup.MaxIntensity.Value * intensityPercentage);
-        var duration = (int)float.Round(shockerGroup.MaxDuration.Value * durationPercentage);
+        var duration = (int)float.Round(shockerGroup.MaxDurationMilliseconds * durationPercentage);
 
         return ExecuteGroupAsync(groupId, mode, intensity, duration);
     }
@@ -234,7 +234,7 @@ public class PiShockModule : Module, ISpeechHandler
         if (shockerGroup is null) return false;
 
         var localIntensity = Math.Min(intensity, shockerGroup.MaxIntensity.Value);
-        var localDuration = Math.Min(duration, shockerGroup.MaxDuration.Value);
+        var localDuration = Math.Min(duration, shockerGroup.MaxDurationMilliseconds);
 
         var tasks = shockerGroup.Shockers.DistinctBy(shockerID => shockerID.Value).Select(shockerID => executeShockerAsync(shockerID.Value, mode, localIntensity, localDuration)).ToList();
         await Task.WhenAll(tasks);

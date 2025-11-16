@@ -22,8 +22,8 @@
                              FontSize="16" />
                 </core:TitleDescriptionContent>
                 <core:TitleDescriptionContent Title="Max Duration"
-                                              Description="The maximum duration that this group is allowed in milliseconds">
-                    <TextBox Text="{Binding ShockerGroup.MaxDuration.Value, UpdateSourceTrigger=PropertyChanged}"
+                                              Description="The maximum duration that this group is allowed in seconds">
+                    <TextBox Text="{Binding ShockerGroup.MaxDuration.Value}"
                              Background="{StaticResource CBackground3}" Foreground="{StaticResource CForeground1}"
                              FontSize="16" />
                 </core:TitleDescriptionContent>
