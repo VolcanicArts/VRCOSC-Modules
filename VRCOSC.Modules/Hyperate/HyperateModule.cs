@@ -12,7 +12,7 @@ namespace VRCOSC.Modules.Hyperate;
 [ModulePrefab("Official Prefabs", "https://vrcosc.com/docs/downloads#prefabs")]
 public sealed class HypeRateModule : HeartrateModule<HypeRateProvider>
 {
-    protected override HypeRateProvider CreateProvider() => new(GetSettingValue<string>(HypeRateSetting.Id)!, OfficialModuleSecrets.GetSecret(OfficialModuleSecretsKeys.Hyperate));
+    protected override HypeRateProvider CreateProvider() => new(GetSettingValue<string>(HypeRateSetting.Id), OfficialModuleSecrets.GetSecret(OfficialModuleSecretsKeys.Hyperate));
 
     protected override void OnPreLoad()
     {

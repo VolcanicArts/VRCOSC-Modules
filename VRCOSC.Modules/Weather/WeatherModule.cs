@@ -17,6 +17,8 @@ public class WeatherModule : Module
 {
     private WeatherProvider? weatherProvider;
 
+    public CurrentWeather? CurrentWeather { get; private set; }
+
     protected override void OnPreLoad()
     {
         CreateTextBox(WeatherSetting.Location, "Location", "The location to retrieve weather data for\nThis can be a city name, UK/US/Canada postcode, or IP address", string.Empty);
@@ -59,21 +61,21 @@ public class WeatherModule : Module
     {
         Debug.Assert(weatherProvider is not null);
 
-        var weather = await weatherProvider.RetrieveFor(GetSettingValue<string>(WeatherSetting.Location)!, DateTime.Now);
+        CurrentWeather = await weatherProvider.RetrieveFor(GetSettingValue<string>(WeatherSetting.Location)!, DateTime.Now);
 
-        if (weather is null)
+        if (CurrentWeather is null)
         {
             Log("Cannot retrieve weather for provided location");
             Log("This could mean the weather service is down. Please wait for it to return");
             return;
         }
 
-        SendParameter(WeatherParameter.Code, getConvertedWeatherCode(weather));
+        SendParameter(WeatherParameter.Code, getConvertedWeatherCode(CurrentWeather));
 
-        SetVariableValue(WeatherVariable.TempC, weather.TempC);
-        SetVariableValue(WeatherVariable.TempF, weather.TempF);
-        SetVariableValue(WeatherVariable.Humidity, weather.Humidity);
-        SetVariableValue(WeatherVariable.Condition, weather.ConditionString);
+        SetVariableValue(WeatherVariable.TempC, CurrentWeather.TempC);
+        SetVariableValue(WeatherVariable.TempF, CurrentWeather.TempF);
+        SetVariableValue(WeatherVariable.Humidity, CurrentWeather.Humidity);
+        SetVariableValue(WeatherVariable.Condition, CurrentWeather.ConditionString);
     }
 
     private static int getConvertedWeatherCode(CurrentWeather currentWeather) => currentWeather.Condition.Code switch

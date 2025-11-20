@@ -35,6 +35,7 @@ public class SpeechToTextModule : Module, ISpeechHandler
         listening = true;
         reset();
         SendParameter(SpeechToTextParameter.Listen, listening);
+        playerMuted = GetPlayer().IsMuted;
 
         ChangeState(SpeechToTextState.Default);
 

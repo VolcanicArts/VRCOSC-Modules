@@ -28,6 +28,13 @@ public class ClientInfoModule : Module, IVRCClientEventHandler
         RegisterParameter<int>(ClientInfoParameter.Info_InstanceUserCount, "VRCOSC/ClientInfo/Info/InstanceUserCount", ParameterMode.Write, "Instance User Count", "The current user count of the instance you're in");
     }
 
+    protected override void OnPostLoad()
+    {
+        var instanceCountVariable = CreateVariable<int>(ClientInfoVariable.InstanceCount, "Instance Count")!;
+
+        CreateState(ClientInfoState.Default, "Default", "{0}", [instanceCountVariable]);
+    }
+
     protected override Task<bool> OnModuleStart()
     {
         moduleStartTime = DateTime.Now;
@@ -69,6 +76,20 @@ public class ClientInfoModule : Module, IVRCClientEventHandler
     {
         instanceUserCount--;
         SendParameter(ClientInfoParameter.Info_InstanceUserCount, instanceUserCount);
+    }
+
+    public void OnAvatarPreChange(VRChatClientEventAvatarPreChange eventArgs)
+    {
+    }
+
+    public enum ClientInfoState
+    {
+        Default
+    }
+
+    public enum ClientInfoVariable
+    {
+        InstanceCount
     }
 
     public enum ClientInfoParameter

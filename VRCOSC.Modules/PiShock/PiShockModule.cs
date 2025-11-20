@@ -37,6 +37,8 @@ public class PiShockModule : Module, ISpeechHandler
 
     private readonly List<string> executedPhrases = [];
 
+    private IDisposable? shockerSettingsDisposable;
+
     public ShockerModuleSetting ShockersSetting => GetSetting<ShockerModuleSetting>(PiShockSetting.Shockers);
     public ShockerGroupModuleSetting GroupsSetting => GetSetting<ShockerGroupModuleSetting>(PiShockSetting.Groups);
 
@@ -73,7 +75,7 @@ public class PiShockModule : Module, ISpeechHandler
 
     protected override void OnPostLoad()
     {
-        GetSetting<ShockerModuleSetting>(PiShockSetting.Shockers).Attribute.OnCollectionChanged((_, _) =>
+        shockerSettingsDisposable = GetSetting<ShockerModuleSetting>(PiShockSetting.Shockers).Attribute.OnCollectionChanged((_, _) =>
         {
             var groupSetting = GetSetting<ShockerGroupModuleSetting>(PiShockSetting.Groups);
 
@@ -84,13 +86,25 @@ public class PiShockModule : Module, ISpeechHandler
         });
     }
 
-    protected override Task<bool> OnModuleStart()
+    protected override async Task<bool> OnModuleStart()
     {
         reset();
 
-        piShockProvider = new PiShockProvider();
+        var username = GetSettingValue<string>(PiShockSetting.Username);
+        var apiKey = GetSettingValue<string>(PiShockSetting.APIKey);
 
-        return Task.FromResult(true);
+        piShockProvider = new PiShockProvider(username, apiKey);
+
+        Log("Initialising provider...");
+        var result = await piShockProvider.Initialise();
+
+        return result;
+    }
+
+    protected override async Task OnModuleStop()
+    {
+        await piShockProvider.Teardown();
+        shockerSettingsDisposable?.Dispose();
     }
 
     protected override void OnAvatarChange(AvatarConfig? avatarConfig)
@@ -145,12 +159,12 @@ public class PiShockModule : Module, ISpeechHandler
         {
             Log($"Found phrase '{phrase.Text.Value}'");
             executedPhrases.Add(phrase.ID);
-            phrase.ShockerGroups.DistinctBy(shockerGroupID => shockerGroupID.Value).ForEach(shockerGroupID => _ = executeGroupAsync(shockerGroupID.Value, phrase.Mode.Value, phrase.Duration.Value, phrase.Intensity.Value));
+            phrase.ShockerGroups.DistinctBy(shockerGroupID => shockerGroupID.Value).ForEach(shockerGroupID => _ = ExecuteGroupAsync(shockerGroupID.Value, phrase.Mode.Value, phrase.Intensity.Value, phrase.Duration.Value));
         }
     }
 
     [ModuleUpdate(ModuleUpdateMode.Custom)]
-    private void checkForActions()
+    private async void checkForActions()
     {
         var delay = TimeSpan.FromMilliseconds(GetSettingValue<int>(PiShockSetting.ButtonDelay));
 
@@ -158,7 +172,7 @@ public class PiShockModule : Module, ISpeechHandler
         {
             if (shock.Value.Item1 + delay <= DateTimeOffset.Now && !shockExecuted)
             {
-                handleAction(shock.Value.Item2, PiShockMode.Shock);
+                await HandleAction(shock.Value.Item2, PiShockMode.Shock);
                 shockExecuted = true;
             }
         }
@@ -171,7 +185,7 @@ public class PiShockModule : Module, ISpeechHandler
         {
             if (vibrate.Value.Item1 + delay <= DateTimeOffset.Now && !vibrateExecuted)
             {
-                handleAction(vibrate.Value.Item2, PiShockMode.Vibrate);
+                await HandleAction(vibrate.Value.Item2, PiShockMode.Vibrate);
                 vibrateExecuted = true;
             }
         }
@@ -184,7 +198,7 @@ public class PiShockModule : Module, ISpeechHandler
         {
             if (beep.Value.Item1 + delay <= DateTimeOffset.Now && !beepExecuted)
             {
-                handleAction(beep.Value.Item2, PiShockMode.Beep);
+                await HandleAction(beep.Value.Item2, PiShockMode.Beep);
                 beepExecuted = true;
             }
         }
@@ -194,38 +208,35 @@ public class PiShockModule : Module, ISpeechHandler
         }
     }
 
-    private async void handleAction(string? groupId, PiShockMode mode)
+    public async Task HandleAction(string? groupId, PiShockMode mode)
     {
-        var localDuration = string.IsNullOrEmpty(groupId) ? globalDuration : durations[groupId];
         var localIntensity = string.IsNullOrEmpty(groupId) ? globalIntensity : intensities[groupId];
+        var localDuration = string.IsNullOrEmpty(groupId) ? globalDuration : durations[groupId];
         var localGroup = string.IsNullOrEmpty(groupId) ? globalGroupID : groupId;
 
-        await executeGroupAsync(localGroup, mode, localDuration, localIntensity);
+        await ExecuteGroupAsync(localGroup, mode, localIntensity, localDuration);
     }
 
-    private Task<bool> executeGroupAsync(string groupId, PiShockMode mode, float durationPercentage, float intensityPercentage)
+    public Task<bool> ExecuteGroupAsync(string groupId, PiShockMode mode, float intensityPercentage, float durationPercentage)
     {
         var shockerGroup = GetSettingValue<List<ShockerGroup>>(PiShockSetting.Groups).SingleOrDefault(shockerGroup => shockerGroup.ID == groupId);
         if (shockerGroup is null) return Task.FromResult(false);
 
-        var maxDuration = shockerGroup.MaxDuration.Value;
-        var maxIntensity = shockerGroup.MaxIntensity.Value;
+        var intensity = (int)float.Round(shockerGroup.MaxIntensity.Value * intensityPercentage);
+        var duration = (int)float.Round(shockerGroup.MaxDurationMilliseconds * durationPercentage);
 
-        var duration = (int)Math.Round(Interpolation.Map(maxDuration * durationPercentage, 0, maxDuration, 1, maxDuration));
-        var intensity = (int)Math.Round(Interpolation.Map(maxIntensity * intensityPercentage, 0, maxIntensity, 1, maxIntensity));
-
-        return executeGroupAsync(groupId, mode, duration, intensity);
+        return ExecuteGroupAsync(groupId, mode, intensity, duration);
     }
 
-    private async Task<bool> executeGroupAsync(string groupId, PiShockMode mode, int duration, int intensity)
+    public async Task<bool> ExecuteGroupAsync(string groupId, PiShockMode mode, int intensity, int duration)
     {
         var shockerGroup = GetSettingValue<List<ShockerGroup>>(PiShockSetting.Groups).SingleOrDefault(shockerGroup => shockerGroup.ID == groupId);
         if (shockerGroup is null) return false;
 
-        var localDuration = Math.Min(duration, shockerGroup.MaxDuration.Value);
         var localIntensity = Math.Min(intensity, shockerGroup.MaxIntensity.Value);
+        var localDuration = Math.Min(duration, shockerGroup.MaxDurationMilliseconds);
 
-        var tasks = shockerGroup.Shockers.DistinctBy(shockerID => shockerID.Value).Select(shockerID => executeShockerAsync(shockerID.Value, mode, localDuration, localIntensity)).ToList();
+        var tasks = shockerGroup.Shockers.DistinctBy(shockerID => shockerID.Value).Select(shockerID => executeShockerAsync(shockerID.Value, mode, localIntensity, localDuration)).ToList();
         await Task.WhenAll(tasks);
 
         Log($"Group '{shockerGroup.Name.Value}' has been executed");
@@ -236,7 +247,7 @@ public class PiShockModule : Module, ISpeechHandler
         return true;
     }
 
-    private async Task<bool> executeShockerAsync(string shockerId, PiShockMode mode, int duration, int intensity)
+    private async Task<bool> executeShockerAsync(string shockerId, PiShockMode mode, int intensity, int duration)
     {
         var shockerInstance = GetSettingValue<List<Shocker>>(PiShockSetting.Shockers).SingleOrDefault(shocker => shocker.ID == shockerId);
         if (shockerInstance is null) return false;
@@ -245,13 +256,38 @@ public class PiShockModule : Module, ISpeechHandler
 
         Log($"Executing shocker '{shockerName}'");
 
-        var username = GetSettingValue<string>(PiShockSetting.Username);
-        var apiKey = GetSettingValue<string>(PiShockSetting.APIKey);
         var sharecode = shockerInstance.Sharecode.Value;
 
-        var response = await piShockProvider.Execute(username, apiKey, sharecode, mode, duration, intensity);
-        Log(response.Success ? $"Shocker '{shockerName}' successfully executed mode {mode} at duration {response.FinalDuration} and intensity {response.FinalIntensity}" : $"Shocker '{shockerName}' failed with: '{response.Message}'");
-        return response.Success;
+        var result = await piShockProvider.ExecuteAsync([sharecode], mode, intensity, duration);
+
+        if (!result.Success)
+            Log(result.Message);
+
+        return result.Success;
+    }
+
+    public async Task<bool> ExecuteSharecode(string sharecode, PiShockMode mode, int intensity, int duration)
+    {
+        Log($"Sharecode '{sharecode}' has been executed");
+
+        var result = await piShockProvider.ExecuteAsync([sharecode], mode, intensity, duration);
+
+        if (!result.Success)
+            Log(result.Message);
+
+        return result.Success;
+    }
+
+    public async Task<bool> ExecuteSerial(PiShockMode mode, int intensity, int duration, int? shockerId)
+    {
+        Log("Serial has been executed");
+
+        var result = await piShockProvider.ExecuteSerialAsync(mode, intensity, duration, shockerId);
+
+        if (!result.Success)
+            Log(result.Message);
+
+        return result.Success;
     }
 
     private async void sendSuccessParameter()
@@ -289,11 +325,11 @@ public class PiShockModule : Module, ISpeechHandler
                 break;
 
             case PiShockParameter.Duration:
-                globalDuration = Math.Clamp(parameter.GetValue<float>(), 0f, 1f);
+                globalDuration = float.Clamp(parameter.GetValue<float>(), 0f, 1f);
                 break;
 
             case PiShockParameter.Intensity:
-                globalIntensity = Math.Clamp(parameter.GetValue<float>(), 0f, 1f);
+                globalIntensity = float.Clamp(parameter.GetValue<float>(), 0f, 1f);
                 break;
 
             case PiShockParameter.Shock:
@@ -318,7 +354,7 @@ public class PiShockModule : Module, ISpeechHandler
                 var groupIndex2 = parameter.GetWildcard<int>(0);
 
                 if (getShockerGroupFromIndex(groupIndex2, out var shockerGroup2))
-                    durations[shockerGroup2.ID] = Math.Clamp(parameter.GetValue<float>(), 0f, 1f);
+                    durations[shockerGroup2.ID] = float.Clamp(parameter.GetValue<float>(), 0f, 1f);
 
                 break;
 
@@ -332,7 +368,7 @@ public class PiShockModule : Module, ISpeechHandler
                 var groupIndex3 = parameter.GetWildcard<int>(0);
 
                 if (getShockerGroupFromIndex(groupIndex3, out var shockerGroup3))
-                    intensities[shockerGroup3.ID] = Math.Clamp(parameter.GetValue<float>(), 0f, 1f);
+                    intensities[shockerGroup3.ID] = float.Clamp(parameter.GetValue<float>(), 0f, 1f);
 
                 break;
 

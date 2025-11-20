@@ -19,11 +19,15 @@ public class MediaModule : Module, IVRCClientEventHandler
 {
     private WindowsMediaProvider? mediaProviderInstance;
     public WindowsMediaProvider MediaProvider => mediaProviderInstance ??= new WindowsMediaProvider();
+    public float CurrentVolume;
 
     private bool currentlySeeking;
     private TimeSpan targetPosition;
     private bool instanceTransferPlay;
     private DateTime moduleStartTime;
+
+    [ModulePersistent("source_selection")]
+    public string? SourceSelection { get; set; }
 
     protected override void OnPreLoad()
     {
@@ -70,6 +74,7 @@ public class MediaModule : Module, IVRCClientEventHandler
     protected override async Task<bool> OnModuleStart()
     {
         instanceTransferPlay = false;
+        CurrentVolume = 0f;
 
         MediaProvider.OnPlaybackStateChanged += onPlaybackStateChanged;
         MediaProvider.OnTrackChanged += onTrackChanged;
@@ -122,6 +127,8 @@ public class MediaModule : Module, IVRCClientEventHandler
     [ModuleUpdate(ModuleUpdateMode.ChatBox)]
     private void updateVariables()
     {
+        CurrentVolume = MediaProvider.TryGetVolume();
+
         SetVariableValue(MediaVariable.Title, MediaProvider.CurrentState.Title);
         SetVariableValue(MediaVariable.Subtitle, MediaProvider.CurrentState.Subtitle);
         SetVariableValue(MediaVariable.Genres, MediaProvider.CurrentState.Genres.Count != 0 ? string.Join(", ", MediaProvider.CurrentState.Genres) : string.Empty);
@@ -131,7 +138,7 @@ public class MediaModule : Module, IVRCClientEventHandler
         SetVariableValue(MediaVariable.AlbumTitle, MediaProvider.CurrentState.AlbumTitle);
         SetVariableValue(MediaVariable.AlbumArtist, MediaProvider.CurrentState.AlbumArtist);
         SetVariableValue(MediaVariable.AlbumTrackCount, MediaProvider.CurrentState.AlbumTrackCount);
-        SetVariableValue(MediaVariable.Volume, (int)MathF.Round(MediaProvider.TryGetVolume() * 100));
+        SetVariableValue(MediaVariable.Volume, (int)MathF.Round(CurrentVolume * 100));
         SetVariableValue(MediaVariable.ProgressVisual, MediaProvider.CurrentState.Timeline.Progress);
         SetVariableValue(MediaVariable.Time, MediaProvider.CurrentState.Timeline.Position);
         SetVariableValue(MediaVariable.TimeRemaining, MediaProvider.CurrentState.Timeline.End >= MediaProvider.CurrentState.Timeline.Position ? MediaProvider.CurrentState.Timeline.End - MediaProvider.CurrentState.Timeline.Position : TimeSpan.Zero);
@@ -255,6 +262,10 @@ public class MediaModule : Module, IVRCClientEventHandler
     }
 
     public void OnUserLeft(VRChatClientEventUserLeft eventArgs)
+    {
+    }
+
+    public void OnAvatarPreChange(VRChatClientEventAvatarPreChange eventArgs)
     {
     }
 

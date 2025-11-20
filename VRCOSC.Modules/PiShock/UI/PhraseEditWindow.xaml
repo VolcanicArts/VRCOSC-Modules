@@ -8,8 +8,9 @@
         Background="{StaticResource CBackground2}"
         MinWidth="600" MinHeight="600" Width="600" Height="768">
     <Window.Resources>
-        <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
-                                         Colour2="{StaticResource CBackground4}" />
+        <core:AlternatingColourConverterMulti x:Key="AlternatingColourConverter" />
+        <core:BindingProxy x:Key="CBackground3Proxy" Data="{DynamicResource CBackground3}"/>
+        <core:BindingProxy x:Key="CBackground4Proxy" Data="{DynamicResource CBackground4}"/>
     </Window.Resources>
     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
         <Border Background="{StaticResource CBackground1}" Margin="10"
@@ -49,9 +50,14 @@
                                 <Setter Property="Template">
                                     <Setter.Value>
                                         <ControlTemplate>
-                                            <Border
-                                                Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}"
-                                                Padding="2">
+                                            <Border Padding="2">
+                                                <Border.Background>
+                                                    <MultiBinding Converter="{StaticResource AlternatingColourConverter}">
+                                                        <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="(ItemsControl.AlternationIndex)" />
+                                                        <Binding Source="{StaticResource CBackground3Proxy}" Path="Data"/>
+                                                        <Binding Source="{StaticResource CBackground4Proxy}" Path="Data"/>
+                                                    </MultiBinding>
+                                                </Border.Background>
                                                 <Grid Margin="5" VerticalAlignment="Top">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="*" />

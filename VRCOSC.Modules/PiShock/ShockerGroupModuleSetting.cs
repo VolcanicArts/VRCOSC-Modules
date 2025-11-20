@@ -32,10 +32,13 @@ public class ShockerGroup : IEquatable<ShockerGroup>
     public ObservableCollection<Observable<string>> Shockers { get; set; } = new();
 
     [JsonProperty("max_duration")]
-    public Observable<int> MaxDuration { get; set; } = new(15);
+    public Observable<float> MaxDuration { get; set; } = new(15);
 
     [JsonProperty("max_intensity")]
     public Observable<int> MaxIntensity { get; set; } = new(100);
+
+    [JsonIgnore]
+    public int MaxDurationMilliseconds => (int)(MaxDuration.Value * 1000);
 
     [JsonConstructor]
     public ShockerGroup()

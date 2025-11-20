@@ -7,8 +7,9 @@
              mc:Ignorable="d"
              Loaded="phraseModuleSettingView_OnLoaded">
     <UserControl.Resources>
-        <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
-                                         Colour2="{StaticResource CBackground4}" />
+        <core:AlternatingColourConverterMulti x:Key="AlternatingColourConverter" />
+        <core:BindingProxy x:Key="CBackground3Proxy" Data="{DynamicResource CBackground3}"/>
+        <core:BindingProxy x:Key="CBackground4Proxy" Data="{DynamicResource CBackground4}"/>
     </UserControl.Resources>
     <core:HeaderFooterListView
         ItemsSource="{Binding Attribute, Mode=OneWay}"
@@ -23,9 +24,14 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate>
-                            <Border
-                                Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}"
-                                VerticalAlignment="Top">
+                            <Border VerticalAlignment="Top">
+                                <Border.Background>
+                                    <MultiBinding Converter="{StaticResource AlternatingColourConverter}">
+                                        <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="(ItemsControl.AlternationIndex)" />
+                                        <Binding Source="{StaticResource CBackground3Proxy}" Path="Data"/>
+                                        <Binding Source="{StaticResource CBackground4Proxy}" Path="Data"/>
+                                    </MultiBinding>
+                                </Border.Background>
                                 <Grid VerticalAlignment="Center">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />

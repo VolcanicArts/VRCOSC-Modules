@@ -114,6 +114,10 @@ public sealed class HardwareStatsModule : Module
         return true;
     }
 
+    public CPU? GetCPU() => hardwareStatsProvider?.CPUs.GetValueOrDefault(GetSettingValue<int>(HardwareStatsSetting.SelectedCPU));
+    public GPU? GetGPU() => hardwareStatsProvider?.GPUs.GetValueOrDefault(GetSettingValue<int>(HardwareStatsSetting.SelectedGPU));
+    public RAM? GetRAM() => hardwareStatsProvider?.RAM!;
+
     [ModuleUpdate(ModuleUpdateMode.Custom, true, 500)]
     private async void updateParameters()
     {

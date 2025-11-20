@@ -8,10 +8,12 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.Modules.Media;
 
-public partial class MediaModuleRuntimeView
+public partial class MediaModuleRuntimeView : IDisposable
 {
     public MediaModule Module { get; }
-    public ObservableCollection<string> Sessions { get; } = new();
+    public ObservableCollection<SourceSelectionItem> Sessions { get; } = new();
+
+    private readonly IDisposable sessionsChangedDisposable;
 
     public MediaModuleRuntimeView(MediaModule module)
     {
@@ -20,18 +22,22 @@ public partial class MediaModuleRuntimeView
 
         DataContext = this;
 
-        Module.MediaProvider.Sessions.OnCollectionChanged((newItems, oldItems) => Dispatcher.Invoke(() =>
+        Sessions.Add(new SourceSelectionItem("Auto-Switch", null));
+
+        sessionsChangedDisposable = Module.MediaProvider.Sessions.OnCollectionChanged((newItems, oldItems) => Dispatcher.Invoke(() =>
         {
             foreach (string newSession in newItems)
             {
-                Sessions.Add(newSession);
+                Sessions.Add(new SourceSelectionItem(newSession, newSession));
             }
 
             foreach (string oldSession in oldItems)
             {
-                Sessions.RemoveIf(session => session == oldSession);
+                Sessions.RemoveIf(session => session.Value == oldSession);
             }
         }), true);
+
+        SourceComboBox.SelectedValue = module.SourceSelection;
     }
 
     private void SourceSelection_OnLostMouseCapture(object sender, MouseEventArgs e)
@@ -43,6 +49,14 @@ public partial class MediaModuleRuntimeView
         var comboBox = (ComboBox)sender;
         var selectedValue = (string)comboBox.SelectedValue;
 
+        Module.SourceSelection = selectedValue;
         Module.MediaProvider.SetFocusedSession(selectedValue);
     }
+
+    public void Dispose()
+    {
+        sessionsChangedDisposable.Dispose();
+    }
 }
+
+public record SourceSelectionItem(string Name, string? Value);

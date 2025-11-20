@@ -13,13 +13,13 @@ namespace VRCOSC.Modules.Pulsoid;
 [ModulePrefab("Official Prefabs", "https://vrcosc.com/docs/downloads#prefabs")]
 public sealed class PulsoidModule : HeartrateModule<PulsoidProvider>
 {
-    protected override PulsoidProvider CreateProvider() => new(GetSettingValue<string>(PulsoidSetting.AccessToken)!);
+    protected override PulsoidProvider CreateProvider() => new(GetSettingValue<string>(PulsoidSetting.AccessToken));
 
     protected override void OnPreLoad()
     {
         CreateCustomSetting(PulsoidSetting.AccessToken, new StringModuleSetting("Access Token", "Your Pulsoid access token", typeof(PulsoidAccessTokenView), string.Empty));
 
-        CreateGroup("Access", PulsoidSetting.AccessToken);
+        CreateGroup("Access", string.Empty, PulsoidSetting.AccessToken);
 
         base.OnPreLoad();
     }

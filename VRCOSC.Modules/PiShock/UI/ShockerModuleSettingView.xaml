@@ -7,8 +7,9 @@
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
-        <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
-                                         Colour2="{StaticResource CBackground4}" />
+        <core:AlternatingColourConverterMulti x:Key="AlternatingColourConverter" />
+        <core:BindingProxy x:Key="CBackground3Proxy" Data="{DynamicResource CBackground3}"/>
+        <core:BindingProxy x:Key="CBackground4Proxy" Data="{DynamicResource CBackground4}"/>
     </UserControl.Resources>
     <core:HeaderFooterListView AlternationCount="2" ItemsSource="{Binding Attribute}" ShouldTruncateHeight="False">
         <core:HeaderFooterListView.Header>
@@ -34,8 +35,14 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate>
-                            <Border
-                                Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}">
+                            <Border>
+                                <Border.Background>
+                                    <MultiBinding Converter="{StaticResource AlternatingColourConverter}">
+                                        <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="(ItemsControl.AlternationIndex)" />
+                                        <Binding Source="{StaticResource CBackground3Proxy}" Path="Data"/>
+                                        <Binding Source="{StaticResource CBackground4Proxy}" Path="Data"/>
+                                    </MultiBinding>
+                                </Border.Background>
                                 <Grid Margin="5">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
