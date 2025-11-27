@@ -37,6 +37,7 @@ public class ClientInfoModule : Module, IVRCClientEventHandler
 
     protected override Task<bool> OnModuleStart()
     {
+        ChangeState(ClientInfoState.Default);
         moduleStartTime = DateTime.Now;
         return Task.FromResult(true);
     }
