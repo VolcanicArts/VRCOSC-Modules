@@ -21,7 +21,7 @@ public class PiShockModule : Module, ISpeechHandler
 {
     private PiShockProvider piShockProvider = null!;
 
-    private string globalGroupID = null!;
+    private string? globalGroupID;
     private float globalDuration;
     private float globalIntensity;
 
@@ -88,7 +88,7 @@ public class PiShockModule : Module, ISpeechHandler
 
     protected override async Task<bool> OnModuleStart()
     {
-        reset();
+        await reset();
 
         var username = GetSettingValue<string>(PiShockSetting.Username);
         var apiKey = GetSettingValue<string>(PiShockSetting.APIKey);
@@ -107,17 +107,18 @@ public class PiShockModule : Module, ISpeechHandler
         shockerSettingsDisposable?.Dispose();
     }
 
-    protected override void OnAvatarChange(AvatarConfig? avatarConfig)
+    protected override async void OnAvatarChange(AvatarConfig? avatarConfig)
     {
-        reset();
+        await reset();
     }
 
-    private void reset()
+    private async Task reset()
     {
         var groups = GetSettingValue<List<ShockerGroup>>(PiShockSetting.Groups);
 
-        if (groups.Count != 0)
-            globalGroupID = groups[0].ID;
+        globalGroupID = null;
+        globalDuration = 0f;
+        globalIntensity = 0f;
 
         durations.Clear();
         intensities.Clear();
@@ -128,8 +129,38 @@ public class PiShockModule : Module, ISpeechHandler
             intensities[shockerGroup.ID] = 0f;
         }
 
-        globalDuration = 0f;
-        globalIntensity = 0f;
+        try
+        {
+            var globalGroupParameter = await FindParameter("VRCOSC/PiShock/Group");
+            globalGroupID = getShockerGroupFromIndex(globalGroupParameter?.GetValue<int>() ?? -1, out var group) ? group.ID : null;
+
+            var globalDurationParameter = await FindParameter("VRCOSC/PiShock/Duration");
+            globalDuration = globalDurationParameter?.GetValue<float>() ?? 0f;
+
+            var globalIntensityParameter = await FindParameter("VRCOSC/PiShock/Intensity");
+            globalIntensity = globalIntensityParameter?.GetValue<float>() ?? 0f;
+        }
+        catch
+        {
+        }
+
+        for (var i = 0; i < groups.Count; i++)
+        {
+            try
+            {
+                var shockerGroup = groups[i];
+
+                var durationParameter = await FindParameter($"VRCOSC/PiShock/Duration/{i}");
+                durations[shockerGroup.ID] = durationParameter?.GetValue<float>() ?? 0f;
+
+                var intensityParameter = await FindParameter($"VRCOSC/PiShock/Intensity/{i}");
+                intensities[shockerGroup.ID] = intensityParameter?.GetValue<float>() ?? 0f;
+            }
+            catch
+            {
+            }
+        }
+
         shock = null;
         vibrate = null;
         beep = null;
@@ -214,6 +245,12 @@ public class PiShockModule : Module, ISpeechHandler
         var localDuration = string.IsNullOrEmpty(groupId) ? globalDuration : durations[groupId];
         var localGroup = string.IsNullOrEmpty(groupId) ? globalGroupID : groupId;
 
+        if (string.IsNullOrEmpty(localGroup))
+        {
+            Log("Cannot execute: Invalid group selected");
+            return;
+        }
+
         await ExecuteGroupAsync(localGroup, mode, localIntensity, localDuration);
     }
 
@@ -224,6 +261,8 @@ public class PiShockModule : Module, ISpeechHandler
 
         var intensity = (int)float.Round(shockerGroup.MaxIntensity.Value * intensityPercentage);
         var duration = (int)float.Round(shockerGroup.MaxDurationMilliseconds * durationPercentage);
+
+        Log($"Executing {mode.ToLookup()} for group '{shockerGroup.Name.Value}' at {intensity}% for {MathF.Round(duration / 1000f, 1, MidpointRounding.AwayFromZero)}s");
 
         return ExecuteGroupAsync(groupId, mode, intensity, duration);
     }
@@ -239,9 +278,13 @@ public class PiShockModule : Module, ISpeechHandler
         var tasks = shockerGroup.Shockers.DistinctBy(shockerID => shockerID.Value).Select(shockerID => executeShockerAsync(shockerID.Value, mode, localIntensity, localDuration)).ToList();
         await Task.WhenAll(tasks);
 
-        Log($"Group '{shockerGroup.Name.Value}' has been executed");
+        if (!tasks.All(task => task.Result))
+        {
+            Log($"Group '{shockerGroup.Name.Value}' had some failures");
+            return false;
+        }
 
-        if (!tasks.All(task => task.Result)) return false;
+        Log($"Group '{shockerGroup.Name.Value}' has succeeded");
 
         sendSuccessParameter();
         return true;
@@ -268,7 +311,7 @@ public class PiShockModule : Module, ISpeechHandler
 
     public async Task<bool> ExecuteSharecode(string sharecode, PiShockMode mode, int intensity, int duration)
     {
-        Log($"Sharecode '{sharecode}' has been executed");
+        Log($"Executing {mode.ToLookup()} for sharecode '{sharecode}' at {intensity}% for {MathF.Round(duration / 1000f, 1, MidpointRounding.AwayFromZero)}s");
 
         var result = await piShockProvider.ExecuteAsync([sharecode], mode, intensity, duration);
 
@@ -280,7 +323,10 @@ public class PiShockModule : Module, ISpeechHandler
 
     public async Task<bool> ExecuteSerial(PiShockMode mode, int intensity, int duration, int? shockerId)
     {
-        Log("Serial has been executed");
+        if (mode == PiShockMode.End)
+            Log("Executing end over serial" + (shockerId is not null ? $" on shocker {shockerId}" : string.Empty));
+        else
+            Log($"Executing {mode.ToLookup()} over serial at {intensity}% for {MathF.Round(duration / 1000f, 1, MidpointRounding.AwayFromZero)}s" + (shockerId is not null ? $" on shocker {shockerId}" : string.Empty));
 
         var result = await piShockProvider.ExecuteSerialAsync(mode, intensity, duration, shockerId);
 
@@ -293,9 +339,7 @@ public class PiShockModule : Module, ISpeechHandler
     private async void sendSuccessParameter()
     {
         var wasAcknowledged = await SendParameterAndWait(PiShockParameter.Success, true);
-
-        if (wasAcknowledged)
-            SendParameter(PiShockParameter.Success, false);
+        if (wasAcknowledged) SendParameter(PiShockParameter.Success, false);
     }
 
     private bool getShockerGroupFromIndex(int index, [NotNullWhen(true)] out ShockerGroup? shockerGroup)
@@ -318,10 +362,7 @@ public class PiShockModule : Module, ISpeechHandler
         {
             case PiShockParameter.Group:
                 var groupIndex = parameter.GetValue<int>();
-
-                if (getShockerGroupFromIndex(groupIndex, out var shockerGroup))
-                    globalGroupID = shockerGroup.ID;
-
+                globalGroupID = getShockerGroupFromIndex(groupIndex, out var shockerGroup) ? shockerGroup.ID : null;
                 break;
 
             case PiShockParameter.Duration:
