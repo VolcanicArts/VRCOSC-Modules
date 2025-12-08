@@ -11,6 +11,7 @@ namespace VRCOSC.Modules.Media;
 [Node("Media Info Source")]
 public sealed class MediaInfoSourceNode : ModuleNode<MediaModule>, IActiveUpdateNode
 {
+    public int UpdateOffset => 0;
     public ValueOutput<string> Title = new();
     public ValueOutput<string> Subtitle = new();
     public ValueOutput<string> Genres = new();
@@ -43,12 +44,13 @@ public sealed class MediaInfoSourceNode : ModuleNode<MediaModule>, IActiveUpdate
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    public Task<bool> OnUpdate(PulseContext c) => Task.FromResult(true);
 }
 
 [Node("Media State Source")]
 public sealed class MediaStateSourceNode : ModuleNode<MediaModule>, IActiveUpdateNode
 {
+    public int UpdateOffset => 0;
     public ValueOutput<bool> Playing = new();
     public ValueOutput<bool> Shuffling = new();
     public ValueOutput<MediaPlaybackAutoRepeatMode> RepeatMode = new("Repeat Mode");
@@ -63,7 +65,7 @@ public sealed class MediaStateSourceNode : ModuleNode<MediaModule>, IActiveUpdat
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    public Task<bool> OnUpdate(PulseContext c) => Task.FromResult(true);
 }
 
 [Node("Media Set Playback")]

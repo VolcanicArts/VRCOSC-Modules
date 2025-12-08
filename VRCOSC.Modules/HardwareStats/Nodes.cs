@@ -10,6 +10,7 @@ namespace VRCOSC.Modules.HardwareStats;
 [NodeForceReprocess]
 public sealed class CPUInfoSourceNode : ModuleNode<HardwareStatsModule>, IActiveUpdateNode
 {
+    public int UpdateOffset => 0;
     public ValueOutput<float> Usage = new();
     public ValueOutput<int> Power = new();
     public ValueOutput<int> Temperature = new();
@@ -25,12 +26,13 @@ public sealed class CPUInfoSourceNode : ModuleNode<HardwareStatsModule>, IActive
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    public Task<bool> OnUpdate(PulseContext c) => Task.FromResult(true);
 }
 
 [Node("GPU Info Source")]
 public sealed class GPUInfoSourceNode : ModuleNode<HardwareStatsModule>, IActiveUpdateNode
 {
+    public int UpdateOffset => 0;
     public ValueOutput<float> Usage = new();
     public ValueOutput<int> Power = new();
     public ValueOutput<int> Temperature = new();
@@ -46,12 +48,13 @@ public sealed class GPUInfoSourceNode : ModuleNode<HardwareStatsModule>, IActive
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    public Task<bool> OnUpdate(PulseContext c) => Task.FromResult(true);
 }
 
 [Node("RAM Info Source")]
 public sealed class RAMInfoSourceNode : ModuleNode<HardwareStatsModule>, IActiveUpdateNode
 {
+    public int UpdateOffset => 0;
     public ValueOutput<float> Usage = new();
     public ValueOutput<float> Total = new();
     public ValueOutput<float> Used = new();
@@ -69,12 +72,13 @@ public sealed class RAMInfoSourceNode : ModuleNode<HardwareStatsModule>, IActive
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    public Task<bool> OnUpdate(PulseContext c) => Task.FromResult(true);
 }
 
 [Node("VRAM Info Source")]
 public sealed class VRAMInfoSourceNode : ModuleNode<HardwareStatsModule>, IActiveUpdateNode
 {
+    public int UpdateOffset => 0;
     public ValueOutput<float> Usage = new();
     public ValueOutput<float> Total = new();
     public ValueOutput<float> Used = new();
@@ -92,5 +96,5 @@ public sealed class VRAMInfoSourceNode : ModuleNode<HardwareStatsModule>, IActiv
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    public Task<bool> OnUpdate(PulseContext c) => Task.FromResult(true);
 }

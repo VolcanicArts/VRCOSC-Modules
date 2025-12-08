@@ -10,6 +10,7 @@ namespace VRCOSC.Modules.Pulsoid;
 [NodeForceReprocess]
 public sealed class PulsoidSourceNode : ModuleNode<PulsoidModule>, IActiveUpdateNode
 {
+    public int UpdateOffset => 0;
     public ValueOutput<int> Heartrate = new();
 
     protected override Task Process(PulseContext c)
@@ -18,5 +19,5 @@ public sealed class PulsoidSourceNode : ModuleNode<PulsoidModule>, IActiveUpdate
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    public Task<bool> OnUpdate(PulseContext c) => Task.FromResult(true);
 }

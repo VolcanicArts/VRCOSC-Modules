@@ -9,6 +9,7 @@ namespace VRCOSC.Modules.Hyperate;
 [Node("Hyperate Source")]
 public sealed class HyperateSourceNode : ModuleNode<HypeRateModule>, IActiveUpdateNode
 {
+    public int UpdateOffset => 0;
     public ValueOutput<int> Heartrate = new();
 
     protected override Task Process(PulseContext c)
@@ -17,5 +18,5 @@ public sealed class HyperateSourceNode : ModuleNode<HypeRateModule>, IActiveUpda
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    public Task<bool> OnUpdate(PulseContext c) => Task.FromResult(true);
 }
