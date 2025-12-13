@@ -1,0 +1,17 @@
+<UserControl x:Class="VRCOSC.Modules.Twitch.UI.TwitchAccessTokenView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:core="clr-namespace:VRCOSC.App.UI.Core;assembly=VRCOSC.App"
+             mc:Ignorable="d"
+             d:DesignHeight="200" d:DesignWidth="300">
+    <core:SpacedStackPanel Spacing="10" HorizontalAlignment="Left">
+        <PasswordBox core:PasswordHelper.Attach="True" core:PasswordHelper.Password="{Binding Attribute.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     Background="{StaticResource CBackground3}" Foreground="{StaticResource CForeground1}" FontSize="16"
+                     HorizontalAlignment="Stretch" VerticalContentAlignment="Center" PasswordChar="*" Width="400"/>
+        <core:VRCOSCButton ButtonColour="Blue" CornerRadius="4" Click="ObtainAccessTokenButton_OnClick" Width="400">
+            <TextBlock FontSize="16" FontWeight="Regular" Text="Obtain Access Token" Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </core:VRCOSCButton>
+    </core:SpacedStackPanel>
+</UserControl>
