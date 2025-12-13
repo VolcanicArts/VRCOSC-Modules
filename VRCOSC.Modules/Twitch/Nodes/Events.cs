@@ -8,6 +8,7 @@ using VRCOSC.Modules.Twitch.Data;
 namespace VRCOSC.Modules.Twitch.Nodes;
 
 [Node("On Twitch Channel Chat Message")]
+[NodeNoCancel]
 public sealed class TwitchChannelChatMessageNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
     public FlowContinuation Next = new("On Message");
@@ -29,6 +30,7 @@ public sealed class TwitchChannelChatMessageNode : ModuleNode<TwitchModule>, IMo
 }
 
 [Node("On Twitch Channel Follow")]
+[NodeNoCancel]
 public sealed class TwitchChannelFollowNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
     public FlowContinuation Next = new("On Follow");
@@ -50,6 +52,7 @@ public sealed class TwitchChannelFollowNode : ModuleNode<TwitchModule>, IModuleN
 }
 
 [Node("On Twitch Channel Subscription")]
+[NodeNoCancel]
 public sealed class TwitchChannelSubscriptionNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
     public FlowContinuation Next = new("On Subscription");
@@ -71,6 +74,7 @@ public sealed class TwitchChannelSubscriptionNode : ModuleNode<TwitchModule>, IM
 }
 
 [Node("On Twitch Channel ReSubscription")]
+[NodeNoCancel]
 public sealed class TwitchChannelReSubscriptionNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
     public FlowContinuation Next = new("On ReSubscription");
@@ -92,6 +96,7 @@ public sealed class TwitchChannelReSubscriptionNode : ModuleNode<TwitchModule>, 
 }
 
 [Node("On Twitch Channel Reward Redemption")]
+[NodeNoCancel]
 public sealed class TwitchChannelRewardRedemptionNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
     public FlowContinuation Next = new("On Reward Redemption");
@@ -113,6 +118,7 @@ public sealed class TwitchChannelRewardRedemptionNode : ModuleNode<TwitchModule>
 }
 
 [Node("On Twitch Channel Gift Subscription")]
+[NodeNoCancel]
 public sealed class TwitchChannelGiftSubscriptionNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
     public FlowContinuation Next = new("On Gift Subscription");
@@ -134,6 +140,7 @@ public sealed class TwitchChannelGiftSubscriptionNode : ModuleNode<TwitchModule>
 }
 
 [Node("On Twitch Channel Bits")]
+[NodeNoCancel]
 public sealed class TwitchChannelBitsNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
     public FlowContinuation Next = new("On Bits");
@@ -155,6 +162,7 @@ public sealed class TwitchChannelBitsNode : ModuleNode<TwitchModule>, IModuleNod
 }
 
 [Node("On Twitch Channel Raid")]
+[NodeNoCancel]
 public sealed class TwitchChannelRaidNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
     public FlowContinuation Next = new("On Raid");
@@ -176,6 +184,7 @@ public sealed class TwitchChannelRaidNode : ModuleNode<TwitchModule>, IModuleNod
 }
 
 [Node("On Twitch Channel Goal Begin")]
+[NodeNoCancel]
 public sealed class TwitchChannelGoalBeginNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
     public FlowContinuation Next = new("On Goal Begin");
@@ -197,6 +206,7 @@ public sealed class TwitchChannelGoalBeginNode : ModuleNode<TwitchModule>, IModu
 }
 
 [Node("On Twitch Channel Goal Progress")]
+[NodeNoCancel]
 public sealed class TwitchChannelGoalProgressNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
     public FlowContinuation Next = new("On Goal Progress");
@@ -218,6 +228,7 @@ public sealed class TwitchChannelGoalProgressNode : ModuleNode<TwitchModule>, IM
 }
 
 [Node("On Twitch Channel Goal End")]
+[NodeNoCancel]
 public sealed class TwitchChannelGoalEndNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
     public FlowContinuation Next = new("On Goal End");
@@ -239,6 +250,7 @@ public sealed class TwitchChannelGoalEndNode : ModuleNode<TwitchModule>, IModule
 }
 
 [Node("On Twitch Channel Update")]
+[NodeNoCancel]
 public sealed class TwitchChannelUpdateNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
     public FlowContinuation Next = new("On Update");
@@ -260,6 +272,7 @@ public sealed class TwitchChannelUpdateNode : ModuleNode<TwitchModule>, IModuleN
 }
 
 [Node("On Twitch Channel Ban")]
+[NodeNoCancel]
 public sealed class TwitchChannelBanNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
     public FlowContinuation Next = new("On Ban");
