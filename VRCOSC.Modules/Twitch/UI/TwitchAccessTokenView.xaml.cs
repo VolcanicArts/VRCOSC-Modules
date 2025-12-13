@@ -17,6 +17,16 @@ public partial class TwitchAccessTokenView
         InitializeComponent();
 
         DataContext = moduleSetting;
+
+        Loaded += (_, _) =>
+        {
+            TwitchAccessTokenListener.Start();
+        };
+
+        Unloaded += (_, _) =>
+        {
+            TwitchAccessTokenListener.Stop();
+        };
     }
 
     private void ObtainAccessTokenButton_OnClick(object sender, RoutedEventArgs e)
@@ -26,8 +36,8 @@ public partial class TwitchAccessTokenView
 
     private string getUrl() => "https://id.twitch.tv/oauth2/authorize?"
                                + "response_type=token"
-                               + $"&client_id={module.ClientID}"
-                               + "&redirect_uri=http://localhost:4444"
+                               + $"&client_id={TwitchModule.CLIENT_ID}"
+                               + "&redirect_uri=http://localhost:5555"
                                + "&scope=user:bot channel:bot user:read:chat moderator:read:followers channel:read:subscriptions channel:read:redemptions bits:read channel:read:goals"
                                + $"&state={Guid.NewGuid().ToString().Replace("-", "")}"
                                + "&force_verify=true";

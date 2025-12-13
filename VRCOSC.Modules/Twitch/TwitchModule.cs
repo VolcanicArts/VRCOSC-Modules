@@ -22,7 +22,7 @@ namespace VRCOSC.Modules.Twitch;
 [ModuleType(ModuleType.Integrations)]
 public class TwitchModule : Module
 {
-    public readonly string ClientID = "6y51jdzkdtlwv56akwerab47wwov1w";
+    public const string CLIENT_ID = "6y51jdzkdtlwv56akwerab47wwov1w";
 
     private TwitchAPI? twitchApi;
     private User? twitchUser;
@@ -37,14 +37,20 @@ public class TwitchModule : Module
     {
         var accessToken = GetSettingValue<string>(TwitchSetting.AccessToken);
 
-        twitchApi = new TwitchAPI
+        twitchApi = new TwitchAPI();
+
+        var result = await twitchApi.Auth.ValidateAccessTokenAsync(accessToken);
+
+        if (result is null)
         {
-            Settings =
-            {
-                ClientId = ClientID,
-                AccessToken = accessToken
-            }
-        };
+            Log("Please re-obtain an access token");
+            return false;
+        }
+
+        Log("Successfully logged in");
+
+        twitchApi.Settings.ClientId = CLIENT_ID;
+        twitchApi.Settings.AccessToken = accessToken;
 
         var users = await twitchApi.Helix.Users.GetUsersAsync(accessToken: accessToken);
         twitchUser = users.Users[0];
