@@ -319,3 +319,30 @@ public sealed class TwitchBanUnpackNode : ModuleNode<TwitchModule>
         return Task.CompletedTask;
     }
 }
+
+[Node("Twitch HypeTrain Unpack")]
+public sealed class TwitchHypeTrainUnpackNode : ModuleNode<TwitchModule>
+{
+    public ValueInput<TwitchHypeTrain> HypeTrain = new();
+
+    public ValueOutput<DateTime> StartTimestamp = new("Start Timestamp");
+    public ValueOutput<DateTime> ExpireTimestamp = new("Expire Timestamp");
+    public ValueOutput<TwitchHypeTrainType> Type = new();
+    public ValueOutput<int> Goal = new();
+    public ValueOutput<int> Progress = new();
+    public ValueOutput<int> Total = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        var hypeTrain = HypeTrain.Read(c);
+        if (hypeTrain is null) return Task.CompletedTask;
+
+        StartTimestamp.Write(hypeTrain.StartTimestamp, c);
+        ExpireTimestamp.Write(hypeTrain.ExpireTimestamp, c);
+        Type.Write(hypeTrain.Type, c);
+        Goal.Write(hypeTrain.Goal, c);
+        Progress.Write(hypeTrain.Progress, c);
+        Total.Write(hypeTrain.Total, c);
+        return Task.CompletedTask;
+    }
+}
