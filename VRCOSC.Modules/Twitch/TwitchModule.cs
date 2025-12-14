@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Globalization;
 using TwitchLib.Api;
 using TwitchLib.Api.Core.Enums;
+using TwitchLib.Api.Helix.Models.Channels.SendChatMessage;
 using TwitchLib.Api.Helix.Models.Users.GetUsers;
 using TwitchLib.EventSub.Core.EventArgs.Channel;
 using TwitchLib.EventSub.Websockets;
@@ -123,7 +124,7 @@ public class TwitchModule : Module
         var chatter = new TwitchUser(ev.ChatterUserId, ev.ChatterUserName, TwitchFactory.CreateUserRole(ev.IsBroadcaster, ev.IsModerator, ev.IsStaff, ev.IsSubscriber, ev.IsVip));
         var message = new TwitchMessage(ev.MessageId, TwitchFactory.CreateMessageType(ev.MessageType), chatter, ev.Message.Text);
 
-        await TriggerPulseEvent(typeof(TwitchChannelChatMessageNode), [broadcaster, message]);
+        await TriggerModuleNode(typeof(TwitchChannelChatMessageNode), [broadcaster, message]);
     }
 
     private async Task onChannelFollow(object? sender, ChannelFollowArgs e)
@@ -134,7 +135,7 @@ public class TwitchModule : Module
         var user = new TwitchUser(ev.UserId, ev.UserName, 0);
         var follow = new TwitchFollow(ev.FollowedAt.DateTime, user);
 
-        await TriggerPulseEvent(typeof(TwitchChannelFollowNode), [broadcaster, follow]);
+        await TriggerModuleNode(typeof(TwitchChannelFollowNode), [broadcaster, follow]);
     }
 
     private async Task onChannelSubscribe(object? sender, ChannelSubscribeArgs e)
@@ -145,7 +146,7 @@ public class TwitchModule : Module
         var user = new TwitchUser(ev.UserId, ev.UserName, 0);
         var subscription = new TwitchSubscription(user, TwitchFactory.CreateSubscriptionTier(ev.Tier), ev.IsGift);
 
-        await TriggerPulseEvent(typeof(TwitchChannelSubscriptionNode), [broadcaster, subscription]);
+        await TriggerModuleNode(typeof(TwitchChannelSubscriptionNode), [broadcaster, subscription]);
     }
 
     private async Task onChannelSubscriptionMessage(object? sender, ChannelSubscriptionMessageArgs e)
@@ -156,7 +157,7 @@ public class TwitchModule : Module
         var user = new TwitchUser(ev.UserId, ev.UserName, 0);
         var resubscription = new TwitchReSubscription(user, TwitchFactory.CreateSubscriptionTier(ev.Tier), ev.Message.Text, ev.CumulativeMonths, ev.DurationMonths, ev.StreakMonths);
 
-        await TriggerPulseEvent(typeof(TwitchChannelReSubscriptionNode), [broadcaster, resubscription]);
+        await TriggerModuleNode(typeof(TwitchChannelReSubscriptionNode), [broadcaster, resubscription]);
     }
 
     private async Task onChannelPointsCustomRewardRedemptionAdd(object? sender, ChannelPointsCustomRewardRedemptionArgs e)
@@ -168,7 +169,7 @@ public class TwitchModule : Module
         var reward = new TwitchReward(ev.Reward.Id, ev.Reward.Title, ev.Reward.Prompt, ev.Reward.Cost);
         var rewardRedemption = new TwitchRewardRedemption(reward, ev.RedeemedAt.DateTime, user, TwitchFactory.CreateRewardRedemptionStatus(ev.Status));
 
-        await TriggerPulseEvent(typeof(TwitchChannelRewardRedemptionNode), [broadcaster, rewardRedemption]);
+        await TriggerModuleNode(typeof(TwitchChannelRewardRedemptionNode), [broadcaster, rewardRedemption]);
     }
 
     private async Task onChannelSubscriptionGift(object? sender, ChannelSubscriptionGiftArgs e)
@@ -179,7 +180,7 @@ public class TwitchModule : Module
         var user = ev.IsAnonymous ? new TwitchUser(string.Empty, string.Empty, 0) : new TwitchUser(ev.UserId, ev.UserName, 0);
         var giftSubscription = new TwitchGiftSubscription(user, TwitchFactory.CreateSubscriptionTier(ev.Tier), ev.Total, ev.CumulativeTotal);
 
-        await TriggerPulseEvent(typeof(TwitchChannelGiftSubscriptionNode), [broadcaster, giftSubscription]);
+        await TriggerModuleNode(typeof(TwitchChannelGiftSubscriptionNode), [broadcaster, giftSubscription]);
     }
 
     private async Task onChannelBitsUse(object? sender, ChannelBitsUseArgs e)
@@ -190,7 +191,7 @@ public class TwitchModule : Module
         var user = new TwitchUser(ev.UserId, ev.UserName, 0);
         var bits = new TwitchBits(user, ev.Bits, ev.Message?.Text ?? string.Empty);
 
-        await TriggerPulseEvent(typeof(TwitchChannelBitsNode), [broadcaster, bits]);
+        await TriggerModuleNode(typeof(TwitchChannelBitsNode), [broadcaster, bits]);
     }
 
     private async Task onChannelRaid(object? sender, ChannelRaidArgs e)
@@ -201,7 +202,7 @@ public class TwitchModule : Module
         var raidingBroadcaster = new TwitchUser(ev.FromBroadcasterUserId, ev.FromBroadcasterUserName, 0);
         var raid = new TwitchRaid(raidingBroadcaster, ev.Viewers);
 
-        await TriggerPulseEvent(typeof(TwitchChannelRaidNode), [broadcaster, raid]);
+        await TriggerModuleNode(typeof(TwitchChannelRaidNode), [broadcaster, raid]);
     }
 
     private async Task onChannelGoalBegin(object? sender, ChannelGoalBeginArgs e)
@@ -211,7 +212,7 @@ public class TwitchModule : Module
         var broadcaster = new TwitchUser(ev.BroadcasterUserId, ev.BroadcasterUserName, TwitchUserRole.Broadcaster);
         var goal = new TwitchGoal(ev.Id, TwitchFactory.CreateGoalType(ev.Type), ev.Description, ev.StartedAt.DateTime, ev.TargetAmount, ev.CurrentAmount);
 
-        await TriggerPulseEvent(typeof(TwitchChannelGoalBeginNode), [broadcaster, goal]);
+        await TriggerModuleNode(typeof(TwitchChannelGoalBeginNode), [broadcaster, goal]);
     }
 
     private async Task onChannelGoalProgress(object? sender, ChannelGoalProgressArgs e)
@@ -221,7 +222,7 @@ public class TwitchModule : Module
         var broadcaster = new TwitchUser(ev.BroadcasterUserId, ev.BroadcasterUserName, TwitchUserRole.Broadcaster);
         var goal = new TwitchGoal(ev.Id, TwitchFactory.CreateGoalType(ev.Type), ev.Description, ev.StartedAt.DateTime, ev.TargetAmount, ev.CurrentAmount);
 
-        await TriggerPulseEvent(typeof(TwitchChannelGoalProgressNode), [broadcaster, goal]);
+        await TriggerModuleNode(typeof(TwitchChannelGoalProgressNode), [broadcaster, goal]);
     }
 
     private async Task onChannelGoalEnd(object? sender, ChannelGoalEndArgs e)
@@ -231,7 +232,7 @@ public class TwitchModule : Module
         var broadcaster = new TwitchUser(ev.BroadcasterUserId, ev.BroadcasterUserName, TwitchUserRole.Broadcaster);
         var goal = new TwitchGoal(ev.Id, TwitchFactory.CreateGoalType(ev.Type), ev.Description, ev.StartedAt.DateTime, ev.TargetAmount, ev.CurrentAmount);
 
-        await TriggerPulseEvent(typeof(TwitchChannelGoalEndNode), [broadcaster, goal]);
+        await TriggerModuleNode(typeof(TwitchChannelGoalEndNode), [broadcaster, goal]);
     }
 
     private async Task onChannelUpdate(object? sender, ChannelUpdateArgs e)
@@ -242,7 +243,7 @@ public class TwitchModule : Module
         var category = new TwitchCategory(ev.CategoryId, ev.CategoryName);
         var channel = new TwitchChannel(ev.Title, CultureInfo.GetCultureInfo(ev.Language), category);
 
-        await TriggerPulseEvent(typeof(TwitchChannelUpdateNode), [broadcaster, channel]);
+        await TriggerModuleNode(typeof(TwitchChannelUpdateNode), [broadcaster, channel]);
     }
 
     private async Task onChannelBan(object? sender, ChannelBanArgs e)
@@ -254,7 +255,7 @@ public class TwitchModule : Module
         var user = new TwitchUser(ev.UserId, ev.UserName, 0);
         var ban = new TwitchBan(moderator, user, ev.BannedAt.DateTime, ev.EndsAt?.DateTime ?? DateTime.UnixEpoch, ev.Reason);
 
-        await TriggerPulseEvent(typeof(TwitchChannelBanNode), [broadcaster, ban]);
+        await TriggerModuleNode(typeof(TwitchChannelBanNode), [broadcaster, ban]);
     }
 
     private async Task onHypeTrainBegin(object? sender, ChannelHypeTrainBeginV2Args e)
@@ -264,7 +265,7 @@ public class TwitchModule : Module
         var broadcaster = new TwitchUser(ev.BroadcasterUserId, ev.BroadcasterUserName, TwitchUserRole.Broadcaster);
         var hypeTrain = new TwitchHypeTrain(ev.StartedAt.DateTime, ev.ExpiresAt.DateTime, TwitchFactory.CreateHypeTrainType(ev.Type), ev.Goal, ev.Progress, ev.Total);
 
-        await TriggerPulseEvent(typeof(TwitchChannelHypeTrainBeginNode), [broadcaster, hypeTrain]);
+        await TriggerModuleNode(typeof(TwitchChannelHypeTrainBeginNode), [broadcaster, hypeTrain]);
     }
 
     private async Task onHypeTrainProgress(object? sender, ChannelHypeTrainProgressV2Args e)
@@ -274,7 +275,7 @@ public class TwitchModule : Module
         var broadcaster = new TwitchUser(ev.BroadcasterUserId, ev.BroadcasterUserName, TwitchUserRole.Broadcaster);
         var hypeTrain = new TwitchHypeTrain(ev.StartedAt.DateTime, ev.ExpiresAt.DateTime, TwitchFactory.CreateHypeTrainType(ev.Type), ev.Goal, ev.Progress, ev.Total);
 
-        await TriggerPulseEvent(typeof(TwitchChannelHypeTrainProgressNode), [broadcaster, hypeTrain]);
+        await TriggerModuleNode(typeof(TwitchChannelHypeTrainProgressNode), [broadcaster, hypeTrain]);
     }
 
     private async Task onHypeTrainEnd(object? sender, ChannelHypeTrainEndV2Args e)
@@ -284,7 +285,31 @@ public class TwitchModule : Module
         var broadcaster = new TwitchUser(ev.BroadcasterUserId, ev.BroadcasterUserName, TwitchUserRole.Broadcaster);
         var hypeTrain = new TwitchHypeTrain(ev.StartedAt.DateTime, ev.EndedAt.DateTime, TwitchFactory.CreateHypeTrainType(ev.Type), 0, 0, ev.Total);
 
-        await TriggerPulseEvent(typeof(TwitchChannelHypeTrainEndNode), [broadcaster, hypeTrain]);
+        await TriggerModuleNode(typeof(TwitchChannelHypeTrainEndNode), [broadcaster, hypeTrain]);
+    }
+
+    public async Task<bool> SendChatMessage(string text, TwitchUser? broadcaster = null, TwitchMessage? replyParentMessage = null)
+    {
+        try
+        {
+            if (twitchApi is null || twitchUser is null) return false;
+            if (string.IsNullOrWhiteSpace(text) || text.Length > 500) return false;
+
+            await twitchApi.Helix.Chat.SendChatMessage(new SendChatMessageRequest
+            {
+                BroadcasterId = broadcaster?.Id ?? twitchUser.Id,
+                Message = text,
+                SenderId = twitchUser.Id,
+                ReplyParentMessageId = replyParentMessage?.Id
+            });
+
+            return true;
+        }
+        catch (Exception e)
+        {
+            LogDebug(e.Message);
+            return false;
+        }
     }
 }
 

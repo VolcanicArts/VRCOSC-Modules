@@ -7,7 +7,7 @@ using VRCOSC.Modules.Twitch.Data;
 
 namespace VRCOSC.Modules.Twitch.Nodes;
 
-[Node("On Twitch Channel Chat Message")]
+[Node("On Twitch Channel Chat Message", "Events")]
 [NodeNoCancel]
 public sealed class TwitchChannelChatMessageNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
@@ -29,7 +29,7 @@ public sealed class TwitchChannelChatMessageNode : ModuleNode<TwitchModule>, IMo
     }
 }
 
-[Node("On Twitch Channel Follow")]
+[Node("On Twitch Channel Follow", "Events")]
 [NodeNoCancel]
 public sealed class TwitchChannelFollowNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
@@ -51,7 +51,7 @@ public sealed class TwitchChannelFollowNode : ModuleNode<TwitchModule>, IModuleN
     }
 }
 
-[Node("On Twitch Channel Subscription")]
+[Node("On Twitch Channel Subscription", "Events")]
 [NodeNoCancel]
 public sealed class TwitchChannelSubscriptionNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
@@ -73,7 +73,7 @@ public sealed class TwitchChannelSubscriptionNode : ModuleNode<TwitchModule>, IM
     }
 }
 
-[Node("On Twitch Channel ReSubscription")]
+[Node("On Twitch Channel ReSubscription", "Events")]
 [NodeNoCancel]
 public sealed class TwitchChannelReSubscriptionNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
@@ -95,7 +95,7 @@ public sealed class TwitchChannelReSubscriptionNode : ModuleNode<TwitchModule>, 
     }
 }
 
-[Node("On Twitch Channel Reward Redemption")]
+[Node("On Twitch Channel Reward Redemption", "Events")]
 [NodeNoCancel]
 public sealed class TwitchChannelRewardRedemptionNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
@@ -117,7 +117,7 @@ public sealed class TwitchChannelRewardRedemptionNode : ModuleNode<TwitchModule>
     }
 }
 
-[Node("On Twitch Channel Gift Subscription")]
+[Node("On Twitch Channel Gift Subscription", "Events")]
 [NodeNoCancel]
 public sealed class TwitchChannelGiftSubscriptionNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
@@ -139,7 +139,7 @@ public sealed class TwitchChannelGiftSubscriptionNode : ModuleNode<TwitchModule>
     }
 }
 
-[Node("On Twitch Channel Bits")]
+[Node("On Twitch Channel Bits", "Events")]
 [NodeNoCancel]
 public sealed class TwitchChannelBitsNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
@@ -161,7 +161,7 @@ public sealed class TwitchChannelBitsNode : ModuleNode<TwitchModule>, IModuleNod
     }
 }
 
-[Node("On Twitch Channel Raid")]
+[Node("On Twitch Channel Raid", "Events")]
 [NodeNoCancel]
 public sealed class TwitchChannelRaidNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
@@ -183,7 +183,7 @@ public sealed class TwitchChannelRaidNode : ModuleNode<TwitchModule>, IModuleNod
     }
 }
 
-[Node("On Twitch Channel Goal Begin")]
+[Node("On Twitch Channel Goal Begin", "Events")]
 [NodeNoCancel]
 public sealed class TwitchChannelGoalBeginNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
@@ -205,7 +205,7 @@ public sealed class TwitchChannelGoalBeginNode : ModuleNode<TwitchModule>, IModu
     }
 }
 
-[Node("On Twitch Channel Goal Progress")]
+[Node("On Twitch Channel Goal Progress", "Events")]
 [NodeNoCancel]
 public sealed class TwitchChannelGoalProgressNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
@@ -227,7 +227,7 @@ public sealed class TwitchChannelGoalProgressNode : ModuleNode<TwitchModule>, IM
     }
 }
 
-[Node("On Twitch Channel Goal End")]
+[Node("On Twitch Channel Goal End", "Events")]
 [NodeNoCancel]
 public sealed class TwitchChannelGoalEndNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
@@ -249,7 +249,7 @@ public sealed class TwitchChannelGoalEndNode : ModuleNode<TwitchModule>, IModule
     }
 }
 
-[Node("On Twitch Channel Update")]
+[Node("On Twitch Channel Update", "Events")]
 [NodeNoCancel]
 public sealed class TwitchChannelUpdateNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
@@ -271,7 +271,7 @@ public sealed class TwitchChannelUpdateNode : ModuleNode<TwitchModule>, IModuleN
     }
 }
 
-[Node("On Twitch Channel Ban")]
+[Node("On Twitch Channel Ban", "Events")]
 [NodeNoCancel]
 public sealed class TwitchChannelBanNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
@@ -293,7 +293,7 @@ public sealed class TwitchChannelBanNode : ModuleNode<TwitchModule>, IModuleNode
     }
 }
 
-[Node("On Twitch Channel HypeTrain Begin")]
+[Node("On Twitch Channel HypeTrain Begin", "Events")]
 [NodeNoCancel]
 public sealed class TwitchChannelHypeTrainBeginNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
@@ -315,7 +315,7 @@ public sealed class TwitchChannelHypeTrainBeginNode : ModuleNode<TwitchModule>, 
     }
 }
 
-[Node("On Twitch Channel HypeTrain Progress")]
+[Node("On Twitch Channel HypeTrain Progress", "Events")]
 [NodeNoCancel]
 public sealed class TwitchChannelHypeTrainProgressNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
@@ -337,7 +337,7 @@ public sealed class TwitchChannelHypeTrainProgressNode : ModuleNode<TwitchModule
     }
 }
 
-[Node("On Twitch Channel HypeTrain End")]
+[Node("On Twitch Channel HypeTrain End", "Events")]
 [NodeNoCancel]
 public sealed class TwitchChannelHypeTrainEndNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
 {

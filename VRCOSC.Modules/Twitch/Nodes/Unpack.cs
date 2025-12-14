@@ -8,7 +8,7 @@ using VRCOSC.Modules.Twitch.Data;
 
 namespace VRCOSC.Modules.Twitch.Nodes;
 
-[Node("Twitch Message Unpack")]
+[Node("Twitch Message Unpack", "Structs")]
 public sealed class TwitchMessageUnpackNode : ModuleNode<TwitchModule>
 {
     public ValueInput<TwitchMessage> Message = new();
@@ -31,7 +31,7 @@ public sealed class TwitchMessageUnpackNode : ModuleNode<TwitchModule>
     }
 }
 
-[Node("Twitch User Unpack")]
+[Node("Twitch User Unpack", "Structs")]
 public sealed class TwitchUserUnpackNode : ModuleNode<TwitchModule>
 {
     public ValueInput<TwitchUser> User = new();
@@ -52,7 +52,7 @@ public sealed class TwitchUserUnpackNode : ModuleNode<TwitchModule>
     }
 }
 
-[Node("Twitch Follow Unpack")]
+[Node("Twitch Follow Unpack", "Structs")]
 public sealed class TwitchFollowUnpackNode : ModuleNode<TwitchModule>
 {
     public ValueInput<TwitchFollow> Follow = new();
@@ -71,7 +71,7 @@ public sealed class TwitchFollowUnpackNode : ModuleNode<TwitchModule>
     }
 }
 
-[Node("Twitch Subscription Unpack")]
+[Node("Twitch Subscription Unpack", "Structs")]
 public sealed class TwitchSubscriptionUnpackNode : ModuleNode<TwitchModule>
 {
     public ValueInput<TwitchSubscription> Subscription = new();
@@ -92,7 +92,7 @@ public sealed class TwitchSubscriptionUnpackNode : ModuleNode<TwitchModule>
     }
 }
 
-[Node("Twitch ReSubscription Unpack")]
+[Node("Twitch ReSubscription Unpack", "Structs")]
 public sealed class TwitchReSubscriptionUnpackNode : ModuleNode<TwitchModule>
 {
     public ValueInput<TwitchReSubscription> ReSubscription = new();
@@ -119,7 +119,7 @@ public sealed class TwitchReSubscriptionUnpackNode : ModuleNode<TwitchModule>
     }
 }
 
-[Node("Twitch Reward Unpack")]
+[Node("Twitch Reward Unpack", "Structs")]
 public sealed class TwitchRewardUnpackNode : ModuleNode<TwitchModule>
 {
     public ValueInput<TwitchReward> Reward = new();
@@ -142,7 +142,7 @@ public sealed class TwitchRewardUnpackNode : ModuleNode<TwitchModule>
     }
 }
 
-[Node("Twitch Reward Redemption Unpack")]
+[Node("Twitch Reward Redemption Unpack", "Structs")]
 public sealed class TwitchRewardRedemptionUnpackNode : ModuleNode<TwitchModule>
 {
     public ValueInput<TwitchRewardRedemption> RewardRedemption = new("Reward Redemption");
@@ -165,7 +165,7 @@ public sealed class TwitchRewardRedemptionUnpackNode : ModuleNode<TwitchModule>
     }
 }
 
-[Node("Twitch Gift Subscription Unpack")]
+[Node("Twitch Gift Subscription Unpack", "Structs")]
 public sealed class TwitchGiftSubscriptionUnpackNode : ModuleNode<TwitchModule>
 {
     public ValueInput<TwitchGiftSubscription> GiftSubscription = new("Gift Subscription");
@@ -188,7 +188,7 @@ public sealed class TwitchGiftSubscriptionUnpackNode : ModuleNode<TwitchModule>
     }
 }
 
-[Node("Twitch Bits Unpack")]
+[Node("Twitch Bits Unpack", "Structs")]
 public sealed class TwitchBitsUnpackNode : ModuleNode<TwitchModule>
 {
     public ValueInput<TwitchBits> Bits = new();
@@ -209,7 +209,7 @@ public sealed class TwitchBitsUnpackNode : ModuleNode<TwitchModule>
     }
 }
 
-[Node("Twitch Raid Unpack")]
+[Node("Twitch Raid Unpack", "Structs")]
 public sealed class TwitchRaidUnpackNode : ModuleNode<TwitchModule>
 {
     public ValueInput<TwitchRaid> Raid = new();
@@ -228,7 +228,7 @@ public sealed class TwitchRaidUnpackNode : ModuleNode<TwitchModule>
     }
 }
 
-[Node("Twitch Goal Unpack")]
+[Node("Twitch Goal Unpack", "Structs")]
 public sealed class TwitchGoalUnpackNode : ModuleNode<TwitchModule>
 {
     public ValueInput<TwitchGoal> Goal = new();
@@ -255,7 +255,7 @@ public sealed class TwitchGoalUnpackNode : ModuleNode<TwitchModule>
     }
 }
 
-[Node("Twitch Category Unpack")]
+[Node("Twitch Category Unpack", "Structs")]
 public sealed class TwitchCategoryUnpackNode : ModuleNode<TwitchModule>
 {
     public ValueInput<TwitchCategory> Category = new();
@@ -274,7 +274,7 @@ public sealed class TwitchCategoryUnpackNode : ModuleNode<TwitchModule>
     }
 }
 
-[Node("Twitch Channel Unpack")]
+[Node("Twitch Channel Unpack", "Structs")]
 public sealed class TwitchChannelUnpackNode : ModuleNode<TwitchModule>
 {
     public ValueInput<TwitchChannel> Channel = new();
@@ -295,7 +295,7 @@ public sealed class TwitchChannelUnpackNode : ModuleNode<TwitchModule>
     }
 }
 
-[Node("Twitch Ban Unpack")]
+[Node("Twitch Ban Unpack", "Structs")]
 public sealed class TwitchBanUnpackNode : ModuleNode<TwitchModule>
 {
     public ValueInput<TwitchBan> Ban = new();
@@ -320,7 +320,7 @@ public sealed class TwitchBanUnpackNode : ModuleNode<TwitchModule>
     }
 }
 
-[Node("Twitch HypeTrain Unpack")]
+[Node("Twitch HypeTrain Unpack", "Structs")]
 public sealed class TwitchHypeTrainUnpackNode : ModuleNode<TwitchModule>
 {
     public ValueInput<TwitchHypeTrain> HypeTrain = new();
