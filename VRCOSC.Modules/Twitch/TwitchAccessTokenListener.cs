@@ -23,9 +23,18 @@ public static class TwitchAccessTokenListener
     {
       while (!cancellationTokenSource.IsCancellationRequested)
       {
-        var ctx = await listener.GetContextAsync();
-        handle(ctx);
+        try
+        {
+          var ctx = await listener.GetContextAsync().WaitAsync(cancellationTokenSource.Token);
+          handle(ctx);
+        }
+        catch
+        {
+          continue;
+        }
       }
+
+      listener.Stop();
     });
   }
 
