@@ -292,3 +292,69 @@ public sealed class TwitchChannelBanNode : ModuleNode<TwitchModule>, IModuleNode
         return Task.CompletedTask;
     }
 }
+
+[Node("On Twitch Channel HypeTrain Begin")]
+[NodeNoCancel]
+public sealed class TwitchChannelHypeTrainBeginNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
+{
+    public FlowContinuation Next = new("On HypeTrain Begin");
+
+    public ValueOutput<TwitchUser> Broadcaster = new();
+    public ValueOutput<TwitchHypeTrain> HypeTrain = new();
+
+    protected override async Task Process(PulseContext c)
+    {
+        await Next.Execute(c);
+    }
+
+    public Task Write(object[] args, PulseContext c)
+    {
+        Broadcaster.Write((TwitchUser)args[0], c);
+        HypeTrain.Write((TwitchHypeTrain)args[1], c);
+        return Task.CompletedTask;
+    }
+}
+
+[Node("On Twitch Channel HypeTrain Progress")]
+[NodeNoCancel]
+public sealed class TwitchChannelHypeTrainProgressNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
+{
+    public FlowContinuation Next = new("On HypeTrain Progress");
+
+    public ValueOutput<TwitchUser> Broadcaster = new();
+    public ValueOutput<TwitchHypeTrain> HypeTrain = new();
+
+    protected override async Task Process(PulseContext c)
+    {
+        await Next.Execute(c);
+    }
+
+    public Task Write(object[] args, PulseContext c)
+    {
+        Broadcaster.Write((TwitchUser)args[0], c);
+        HypeTrain.Write((TwitchHypeTrain)args[1], c);
+        return Task.CompletedTask;
+    }
+}
+
+[Node("On Twitch Channel HypeTrain End")]
+[NodeNoCancel]
+public sealed class TwitchChannelHypeTrainEndNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
+{
+    public FlowContinuation Next = new("On HypeTrain End");
+
+    public ValueOutput<TwitchUser> Broadcaster = new();
+    public ValueOutput<TwitchHypeTrain> HypeTrain = new();
+
+    protected override async Task Process(PulseContext c)
+    {
+        await Next.Execute(c);
+    }
+
+    public Task Write(object[] args, PulseContext c)
+    {
+        Broadcaster.Write((TwitchUser)args[0], c);
+        HypeTrain.Write((TwitchHypeTrain)args[1], c);
+        return Task.CompletedTask;
+    }
+}

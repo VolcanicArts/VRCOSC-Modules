@@ -70,6 +70,9 @@ public class TwitchModule : Module
         websocket.ChannelGoalEnd += onChannelGoalEnd;
         websocket.ChannelUpdate += onChannelUpdate;
         websocket.ChannelBan += onChannelBan;
+        websocket.ChannelHypeTrainBeginV2 += onHypeTrainBegin;
+        websocket.ChannelHypeTrainProgressV2 += onHypeTrainProgress;
+        websocket.ChannelHypeTrainEndV2 += onHypeTrainEnd;
 
         await websocket.ConnectAsync();
         return true;
@@ -106,6 +109,9 @@ public class TwitchModule : Module
         await twitchApi.Helix.EventSub.CreateEventSubSubscriptionAsync("channel.goal.progress", "1", new Dictionary<string, string> { { "broadcaster_user_id", twitchUser.Id } }, EventSubTransportMethod.Websocket, websocket.SessionId);
         await twitchApi.Helix.EventSub.CreateEventSubSubscriptionAsync("channel.goal.end", "1", new Dictionary<string, string> { { "broadcaster_user_id", twitchUser.Id } }, EventSubTransportMethod.Websocket, websocket.SessionId);
         await twitchApi.Helix.EventSub.CreateEventSubSubscriptionAsync("channel.update", "2", new Dictionary<string, string> { { "broadcaster_user_id", twitchUser.Id } }, EventSubTransportMethod.Websocket, websocket.SessionId);
+        await twitchApi.Helix.EventSub.CreateEventSubSubscriptionAsync("channel.hype_train.begin", "2", new Dictionary<string, string> { { "broadcaster_user_id", twitchUser.Id } }, EventSubTransportMethod.Websocket, websocket.SessionId);
+        await twitchApi.Helix.EventSub.CreateEventSubSubscriptionAsync("channel.hype_train.progress", "2", new Dictionary<string, string> { { "broadcaster_user_id", twitchUser.Id } }, EventSubTransportMethod.Websocket, websocket.SessionId);
+        await twitchApi.Helix.EventSub.CreateEventSubSubscriptionAsync("channel.hype_train.end", "2", new Dictionary<string, string> { { "broadcaster_user_id", twitchUser.Id } }, EventSubTransportMethod.Websocket, websocket.SessionId);
         LogDebug("Finished creating events");
     }
 
@@ -249,6 +255,36 @@ public class TwitchModule : Module
         var ban = new TwitchBan(moderator, user, ev.BannedAt.DateTime, ev.EndsAt?.DateTime ?? DateTime.UnixEpoch, ev.Reason);
 
         await TriggerPulseEvent(typeof(TwitchChannelBanNode), [broadcaster, ban]);
+    }
+
+    private async Task onHypeTrainBegin(object? sender, ChannelHypeTrainBeginV2Args e)
+    {
+        var ev = e.Payload.Event;
+
+        var broadcaster = new TwitchUser(ev.BroadcasterUserId, ev.BroadcasterUserName, TwitchUserRole.Broadcaster);
+        var hypeTrain = new TwitchHypeTrain(ev.StartedAt.DateTime, ev.ExpiresAt.DateTime, TwitchFactory.CreateHypeTrainType(ev.Type), ev.Goal, ev.Progress, ev.Total);
+
+        await TriggerPulseEvent(typeof(TwitchChannelHypeTrainBeginNode), [broadcaster, hypeTrain]);
+    }
+
+    private async Task onHypeTrainProgress(object? sender, ChannelHypeTrainProgressV2Args e)
+    {
+        var ev = e.Payload.Event;
+
+        var broadcaster = new TwitchUser(ev.BroadcasterUserId, ev.BroadcasterUserName, TwitchUserRole.Broadcaster);
+        var hypeTrain = new TwitchHypeTrain(ev.StartedAt.DateTime, ev.ExpiresAt.DateTime, TwitchFactory.CreateHypeTrainType(ev.Type), ev.Goal, ev.Progress, ev.Total);
+
+        await TriggerPulseEvent(typeof(TwitchChannelHypeTrainProgressNode), [broadcaster, hypeTrain]);
+    }
+
+    private async Task onHypeTrainEnd(object? sender, ChannelHypeTrainEndV2Args e)
+    {
+        var ev = e.Payload.Event;
+
+        var broadcaster = new TwitchUser(ev.BroadcasterUserId, ev.BroadcasterUserName, TwitchUserRole.Broadcaster);
+        var hypeTrain = new TwitchHypeTrain(ev.StartedAt.DateTime, ev.EndedAt.DateTime, TwitchFactory.CreateHypeTrainType(ev.Type), 0, 0, ev.Total);
+
+        await TriggerPulseEvent(typeof(TwitchChannelHypeTrainEndNode), [broadcaster, hypeTrain]);
     }
 }
 

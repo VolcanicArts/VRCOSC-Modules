@@ -38,7 +38,7 @@ public partial class TwitchAccessTokenView
                                + "response_type=token"
                                + $"&client_id={TwitchModule.CLIENT_ID}"
                                + "&redirect_uri=http://localhost:5555"
-                               + "&scope=user:bot channel:bot user:read:chat moderator:read:followers channel:read:subscriptions channel:read:redemptions bits:read channel:read:goals"
+                               + "&scope=user:bot channel:bot user:read:chat moderator:read:followers channel:read:subscriptions channel:read:redemptions bits:read channel:read:goals channel:read:hype_train"
                                + $"&state={Guid.NewGuid().ToString().Replace("-", "")}"
                                + "&force_verify=true";
 }

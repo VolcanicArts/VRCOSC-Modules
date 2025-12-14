@@ -46,6 +46,13 @@ public enum TwitchGoalType
     Subscriptions
 }
 
+public enum TwitchHypeTrainType
+{
+    Regular,
+    Treasure,
+    GoldenKappa,
+}
+
 public static class TwitchFactory
 {
     public static TwitchUserRole CreateUserRole(bool isBroadcaster, bool isModerator, bool isStaff, bool isSubscriber, bool isVip)
@@ -91,6 +98,14 @@ public static class TwitchFactory
     {
         "followers" => TwitchGoalType.Followers,
         "subscriptions" => TwitchGoalType.Subscriptions,
+        _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+    };
+
+    public static TwitchHypeTrainType CreateHypeTrainType(string type) => type switch
+    {
+        "regular" => TwitchHypeTrainType.Regular,
+        "treasure" => TwitchHypeTrainType.Treasure,
+        "golden_kappa" => TwitchHypeTrainType.GoldenKappa,
         _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
     };
 }
@@ -342,5 +357,25 @@ public record TwitchBan
         StartTimestamp = startTimestamp;
         EndTimestamp = endTimestamp;
         Reason = reason;
+    }
+}
+
+public record TwitchHypeTrain
+{
+    public readonly DateTime StartTimestamp;
+    public readonly DateTime ExpireTimestamp;
+    public readonly TwitchHypeTrainType Type;
+    public readonly int Goal;
+    public readonly int Progress;
+    public readonly int Total;
+
+    public TwitchHypeTrain(DateTime startTimestamp, DateTime expireTimestamp, TwitchHypeTrainType type, int goal, int progress, int total)
+    {
+        StartTimestamp = startTimestamp;
+        ExpireTimestamp = expireTimestamp;
+        Type = type;
+        Goal = goal;
+        Progress = progress;
+        Total = total;
     }
 }
