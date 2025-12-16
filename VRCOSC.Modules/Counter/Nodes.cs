@@ -33,6 +33,8 @@ public sealed class ReadCounterNode : ModuleNode<CounterModule>, IFlowInput
 [NodeForceReprocess]
 public sealed class CounterSourceNode : ModuleNode<CounterModule>, IHasTextProperty, IActiveUpdateNode
 {
+    public int UpdateOffset => 0;
+
     [NodeProperty("text")]
     public string Text { get; set; } = string.Empty;
 
@@ -50,7 +52,7 @@ public sealed class CounterSourceNode : ModuleNode<CounterModule>, IHasTextPrope
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    public Task<bool> OnUpdate(PulseContext c) => Task.FromResult(true);
 }
 
 [Node("Direct Write Counter")]

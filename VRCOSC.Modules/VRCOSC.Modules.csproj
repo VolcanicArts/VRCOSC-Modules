@@ -26,6 +26,11 @@
           <XamlRuntime>Wpf</XamlRuntime>
           <SubType>Designer</SubType>
         </Page>
+        <Page Update="Twitch\UI\TwitchAccessTokenView.xaml">
+          <Generator>MSBuild:Compile</Generator>
+          <XamlRuntime>Wpf</XamlRuntime>
+          <SubType>Designer</SubType>
+        </Page>
     </ItemGroup>
 
     <ItemGroup>
@@ -35,7 +40,16 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="VolcanicArts.VRCOSC.SDK" Version="2025.1120.0" />
+      <PackageReference Include="TwitchLib.Api" Version="3.11.0-preview.215.86600fa" />
+      <PackageReference Include="TwitchLib.Api.Core" Version="3.11.0-preview.215.86600fa" />
+      <PackageReference Include="TwitchLib.Api.Core.Enums" Version="3.11.0-preview.215.86600fa" />
+      <PackageReference Include="TwitchLib.Api.Core.Interfaces" Version="3.11.0-preview.215.86600fa" />
+      <PackageReference Include="TwitchLib.Api.Core.Models" Version="3.11.0-preview.215.86600fa" />
+      <PackageReference Include="TwitchLib.Api.Helix" Version="3.11.0-preview.215.86600fa" />
+      <PackageReference Include="TwitchLib.Api.Helix.Models" Version="3.11.0-preview.215.86600fa" />
+      <PackageReference Include="TwitchLib.EventSub.Core" Version="3.1.0-preview.76.456b9d7" />
+      <PackageReference Include="TwitchLib.EventSub.Websockets" Version="0.8.0" />
+      <PackageReference Include="VolcanicArts.VRCOSC.SDK" Version="2025.1216.0" />
     </ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
