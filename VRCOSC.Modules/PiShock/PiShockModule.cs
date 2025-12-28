@@ -275,10 +275,10 @@ public class PiShockModule : Module, ISpeechHandler
         var localIntensity = Math.Min(intensity, shockerGroup.MaxIntensity.Value);
         var localDuration = Math.Min(duration, shockerGroup.MaxDurationMilliseconds);
 
-        var tasks = shockerGroup.Shockers.DistinctBy(shockerID => shockerID.Value).Select(shockerID => executeShockerAsync(shockerID.Value, mode, localIntensity, localDuration)).ToList();
-        await Task.WhenAll(tasks);
+        var shockerIds = shockerGroup.Shockers.DistinctBy(shockerID => shockerID.Value).Select(shockerId => shockerId.Value);
+        var result = await executeShockersAsync(shockerIds, mode, localIntensity, localDuration);
 
-        if (!tasks.All(task => task.Result))
+        if (!result)
         {
             Log($"Group '{shockerGroup.Name.Value}' had some failures");
             return false;
@@ -290,21 +290,15 @@ public class PiShockModule : Module, ISpeechHandler
         return true;
     }
 
-    private async Task<bool> executeShockerAsync(string shockerId, PiShockMode mode, int intensity, int duration)
+    private async Task<bool> executeShockersAsync(IEnumerable<string> shockerIds, PiShockMode mode, int intensity, int duration)
     {
-        var shockerInstance = GetSettingValue<List<Shocker>>(PiShockSetting.Shockers).SingleOrDefault(shocker => shocker.ID == shockerId);
-        if (shockerInstance is null) return false;
+        var shockersSetting = GetSettingValue<List<Shocker>>(PiShockSetting.Shockers);
+        var instances = shockerIds.Select(shockerId => shockersSetting.SingleOrDefault(shocker => shocker.ID == shockerId)).Where(shocker => shocker is not null).Cast<Shocker>().ToList();
 
-        var shockerName = shockerInstance.Name.Value;
+        Log($"Executing shockers: {string.Join(", ", instances.Select(shocker => $"'{shocker.Name.Value}'"))}");
 
-        Log($"Executing shocker '{shockerName}'");
-
-        var sharecode = shockerInstance.Sharecode.Value;
-
-        var result = await piShockProvider.ExecuteAsync([sharecode], mode, intensity, duration);
-
-        if (!result.Success)
-            Log(result.Message);
+        var result = await piShockProvider.ExecuteAsync(instances.Select(shocker => shocker.Sharecode.Value), mode, intensity, duration);
+        if (!result.Success) Log(result.Message);
 
         return result.Success;
     }
