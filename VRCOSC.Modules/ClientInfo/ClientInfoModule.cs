@@ -26,13 +26,15 @@ public class ClientInfoModule : Module, IVRCClientEventHandler
         RegisterParameter<bool>(ClientInfoParameter.Event_UserJoined,      "VRCOSC/ClientInfo/Event/UserJoined", ParameterMode.Write, "User Joined", "Sends true when a user has joined your instance");
 
         RegisterParameter<int>(ClientInfoParameter.Info_InstanceUserCount, "VRCOSC/ClientInfo/Info/InstanceUserCount", ParameterMode.Write, "Instance User Count", "The current user count of the instance you're in");
+        RegisterParameter<int>(ClientInfoParameter.Info_FPS,               "VRCOSC/ClientInfo/Info/FPS", ParameterMode.Write, "FPS", "The current FPS of VRChat");
     }
 
     protected override void OnPostLoad()
     {
         var instanceCountVariable = CreateVariable<int>(ClientInfoVariable.InstanceCount, "Instance Count")!;
+        var fpsVariable = CreateVariable<int>(ClientInfoVariable.FPS, "FPS")!;
 
-        CreateState(ClientInfoState.Default, "Default", "{0}", [instanceCountVariable]);
+        CreateState(ClientInfoState.Default, "Default", "FPS: {0}", [fpsVariable]);
     }
 
     protected override Task<bool> OnModuleStart()
@@ -40,6 +42,14 @@ public class ClientInfoModule : Module, IVRCClientEventHandler
         ChangeState(ClientInfoState.Default);
         moduleStartTime = DateTime.Now;
         return Task.FromResult(true);
+    }
+
+    [ModuleUpdate(ModuleUpdateMode.Custom)]
+    private void fastUpdate()
+    {
+        var fps = (int)double.Round(GetClient().FPS, MidpointRounding.AwayFromZero);
+        SendParameter(ClientInfoParameter.Info_FPS, fps);
+        SetVariableValue(ClientInfoVariable.FPS, fps);
     }
 
     private async void sendAndReset(ClientInfoParameter parameter, object value, object resetValue)
@@ -71,12 +81,14 @@ public class ClientInfoModule : Module, IVRCClientEventHandler
     {
         instanceUserCount++;
         SendParameter(ClientInfoParameter.Info_InstanceUserCount, instanceUserCount);
+        SetVariableValue(ClientInfoVariable.InstanceCount, instanceUserCount);
     }
 
     public void OnUserLeft(VRChatClientEventUserLeft eventArgs)
     {
         instanceUserCount--;
         SendParameter(ClientInfoParameter.Info_InstanceUserCount, instanceUserCount);
+        SetVariableValue(ClientInfoVariable.InstanceCount, instanceUserCount);
     }
 
     public void OnAvatarPreChange(VRChatClientEventAvatarPreChange eventArgs)
@@ -90,7 +102,8 @@ public class ClientInfoModule : Module, IVRCClientEventHandler
 
     public enum ClientInfoVariable
     {
-        InstanceCount
+        InstanceCount,
+        FPS
     }
 
     public enum ClientInfoParameter
@@ -99,6 +112,7 @@ public class ClientInfoModule : Module, IVRCClientEventHandler
         Event_InstanceJoined,
         Event_UserLeft,
         Event_UserJoined,
-        Info_InstanceUserCount
+        Info_InstanceUserCount,
+        Info_FPS
     }
 }
