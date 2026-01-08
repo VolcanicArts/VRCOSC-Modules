@@ -11,6 +11,8 @@ public partial class CounterInstanceEditWindow : IManagedWindow
 {
     private readonly Counter instance;
 
+    public CounterValueTodayMode[] ValueTodayModeItemsSource => Enum.GetValues<CounterValueTodayMode>();
+
     public CounterInstanceEditWindow(Counter instance)
     {
         InitializeComponent();

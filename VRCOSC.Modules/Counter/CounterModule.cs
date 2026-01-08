@@ -59,7 +59,7 @@ public class CounterModule : Module
         CreateVariable<int>($"{counter.ID}_milestonenext", string.Empty);
         CreateVariable<float>($"{counter.ID}_milestoneprogress", string.Empty, typeof(ProgressClipVariable));
 
-        CreateEvent($"{counter.ID}_countchanged", string.Empty, $"{counter.Name.Value} - {{0}} ({{1}})", new[] { valueVariable, valueTodayVariable });
+        CreateEvent($"{counter.ID}_countchanged", string.Empty, $"{counter.Name.Value} - {{0}} ({{1}})", [valueVariable, valueTodayVariable]);
         CreateEvent($"{counter.ID}_milestoneachieved", string.Empty);
 
         counter.Name.Subscribe(newName =>
@@ -100,6 +100,29 @@ public class CounterModule : Module
     protected override Task OnModuleStop()
     {
         countersCollectionChangedDisposable?.Dispose();
+
+        var counterInstances = GetSettingValue<List<Counter>>(CounterSetting.CountInstances)!;
+
+        foreach (var counterInstance in counterInstances)
+        {
+            var count = Counts[counterInstance.ID];
+
+            switch (counterInstance.ValueTodayMode.Value)
+            {
+                case CounterValueTodayMode.Modules:
+                    count.ValueToday = 0;
+                    break;
+
+                case CounterValueTodayMode.Day:
+                    if (DateTime.Today > count.LastWrite.Date)
+                        count.ValueToday = 0;
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
         return Task.CompletedTask;
     }
 
@@ -232,8 +255,14 @@ public class CounterModule : Module
 
     private void updateCounter(Counter counter)
     {
-        Counts[counter.ID].Value++;
-        Counts[counter.ID].ValueToday++;
+        var count = Counts[counter.ID];
+
+        if (DateTime.Today > count.LastWrite.Date && counter.ValueTodayMode.Value == CounterValueTodayMode.Day)
+            count.ValueToday = 0;
+
+        count.Value++;
+        count.ValueToday++;
+        count.LastWrite = DateTime.Now;
 
         HandleChatBox(counter);
     }
@@ -265,10 +294,20 @@ public class CountTracker
     [JsonProperty("value")]
     public int Value { get; set; }
 
+    [JsonProperty("value_today")]
     public int ValueToday { get; set; }
+
+    [JsonProperty("last_write")]
+    public DateTime LastWrite { get; set; }
 
     [JsonConstructor]
     public CountTracker()
     {
     }
+}
+
+public enum CounterValueTodayMode
+{
+    Modules = 0,
+    Day = 1
 }

@@ -28,6 +28,9 @@ public class Counter : IEquatable<Counter>
     [JsonProperty("name")]
     public Observable<string> Name { get; set; } = new("New Counter");
 
+    [JsonProperty("value_today_mode")]
+    public Observable<CounterValueTodayMode> ValueTodayMode { get; set; } = new();
+
     [JsonProperty("int_threshold")]
     public Observable<int> IntThreshold { get; set; } = new(1);
 
@@ -53,6 +56,12 @@ public class Counter : IEquatable<Counter>
         if (ReferenceEquals(null, other)) return false;
         if (ReferenceEquals(this, other)) return true;
 
-        return Name.Equals(other.Name) && FloatThreshold.Equals(other.FloatThreshold) && ParameterNames.SequenceEqual(other.ParameterNames) && MilestoneParameter.Equals(other.MilestoneParameter) && Milestones.SequenceEqual(other.Milestones);
+        return Name.Equals(other.Name)
+               && ValueTodayMode.Equals(other.ValueTodayMode)
+               && IntThreshold.Equals(other.IntThreshold)
+               && FloatThreshold.Equals(other.FloatThreshold)
+               && ParameterNames.SequenceEqual(other.ParameterNames)
+               && MilestoneParameter.Equals(other.MilestoneParameter)
+               && Milestones.SequenceEqual(other.Milestones);
     }
 }
