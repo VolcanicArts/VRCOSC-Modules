@@ -93,6 +93,18 @@ public class PiShockModule : Module, ISpeechHandler
         var username = GetSettingValue<string>(PiShockSetting.Username);
         var apiKey = GetSettingValue<string>(PiShockSetting.APIKey);
 
+        if (string.IsNullOrWhiteSpace(username))
+        {
+            Log("Please enter a username into the module settings");
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(apiKey))
+        {
+            Log("Please enter an API key into the module settings");
+            return false;
+        }
+
         piShockProvider = new PiShockProvider(username, apiKey);
 
         Log("Initialising provider...");
