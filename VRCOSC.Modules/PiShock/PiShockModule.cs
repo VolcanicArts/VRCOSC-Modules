@@ -215,8 +215,8 @@ public class PiShockModule : Module, ISpeechHandler
         {
             if (shock.Value.Item1 + delay <= DateTimeOffset.Now && !shockExecuted)
             {
-                await HandleAction(shock.Value.Item2, PiShockMode.Shock);
                 shockExecuted = true;
+                await HandleAction(shock.Value.Item2, PiShockMode.Shock);
             }
         }
         else
@@ -228,8 +228,8 @@ public class PiShockModule : Module, ISpeechHandler
         {
             if (vibrate.Value.Item1 + delay <= DateTimeOffset.Now && !vibrateExecuted)
             {
-                await HandleAction(vibrate.Value.Item2, PiShockMode.Vibrate);
                 vibrateExecuted = true;
+                await HandleAction(vibrate.Value.Item2, PiShockMode.Vibrate);
             }
         }
         else
@@ -241,8 +241,8 @@ public class PiShockModule : Module, ISpeechHandler
         {
             if (beep.Value.Item1 + delay <= DateTimeOffset.Now && !beepExecuted)
             {
-                await HandleAction(beep.Value.Item2, PiShockMode.Beep);
                 beepExecuted = true;
+                await HandleAction(beep.Value.Item2, PiShockMode.Beep);
             }
         }
         else
