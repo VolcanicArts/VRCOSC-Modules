@@ -9,7 +9,7 @@ namespace VRCOSC.Modules.PiShock.UI;
 
 public partial class PiShockAPIKeyView
 {
-    private static readonly Uri pishock_account_url = new("https://pishock.com/#/account");
+    private static readonly Uri pishock_account_url = new("https://login.pishock.com/account");
 
     public PiShockAPIKeyView(PiShockModule _, StringModuleSetting moduleSetting)
     {
