@@ -15,11 +15,11 @@ public class KATModule : Module
 {
     private const string param_char_sync_name = "KAT_CharSync";
     private const char invalid_char = '?';
-    private const int text_length = 128;
     private const int sync_params_max = 16;
     private const int pointer_clear = 255;
     private const int sync_params_test_char = 97;
 
+    private int textLength;
     private int pointerCount;
     private int pointerIndexReSync;
     private int invalidCharValue;
@@ -30,7 +30,6 @@ public class KATModule : Module
     private TimeSpan updateDelay;
     private DateTime lastUpdate;
 
-    private int syncParamCountPrev;
     private int syncParamCount;
 
     private readonly Dictionary<char, int> charToCode = [];
@@ -40,38 +39,38 @@ public class KATModule : Module
 
     protected override void OnPreLoad()
     {
-        CreateTextBox(KATSetting.SyncParams, "Sync Params", "The number of sync parameters", 4);
+        CreateTextBox(KATSetting.SyncParams, "Sync Parameter Count", "The default number of sync parameters. KAT will automatically determine the count if possible", 4);
         CreateTextBox(KATSetting.LineLength, "Line Length", "The line length", 32);
         CreateTextBox(KATSetting.LineCount, "Line Count", "The line count", 4);
         CreateTextBox(KATSetting.UpdateDelay, "Update Delay", "The update delay in milliseconds", 250);
 
+        CreateGroup("Settings", string.Empty, KATSetting.SyncParams, KATSetting.LineLength, KATSetting.LineCount, KATSetting.UpdateDelay);
+
         RegisterParameter<bool>(KATParameter.Visible, "KAT_Visible", ParameterMode.ReadWrite, "Visible", "Whether KAT is visible");
-        RegisterParameter<int>(KATParameter.Pointer, "KAT_Pointer", ParameterMode.ReadWrite, "Pointer", "The pointer for writing/reading. Do not change");
-        RegisterParameter<int>(KATParameter.CharSync, $"{param_char_sync_name}*", ParameterMode.ReadWrite, "CharSync", "The sync parameters with wildcard. Do not change");
+        RegisterParameter<int>(KATParameter.Pointer, "KAT_Pointer", ParameterMode.ReadWrite, "Pointer", "The pointer for writing/reading");
+        RegisterParameter<float>(KATParameter.CharSync, $"{param_char_sync_name}*", ParameterMode.ReadWrite, "CharSync", "The sync parameters with wildcard");
     }
 
     protected override Task<bool> OnModuleStart()
     {
-        syncParamCountPrev = 4;
-        syncParamCount = GetSettingValue<int>(KATSetting.SyncParams);
         updateDelay = TimeSpan.FromMilliseconds(GetSettingValue<int>(KATSetting.UpdateDelay));
+        textLength = GetSettingValue<int>(KATSetting.LineLength) * GetSettingValue<int>(KATSetting.LineCount);
 
         buildKeyTables(charToCode, codeToChar);
         invalidCharValue = charToCode.GetValueOrDefault(invalid_char, 0);
 
-        pointerCount = syncParamCount <= 0 ? 0 : text_length / syncParamCount;
-
         SendParameter(KATParameter.Visible, true);
         SendParameter(KATParameter.Pointer, pointer_clear);
 
-        for (var i = 0; i < syncParamCount; i++)
-            SendParameter($"{param_char_sync_name}{i}", 0f);
+        moduleTestStep = 1;
 
         return Task.FromResult(true);
     }
 
     protected override Task OnModuleStop()
     {
+        TargetText = null;
+        runTextUpdate();
         SendParameter(KATParameter.Visible, false);
         return Task.CompletedTask;
     }
@@ -81,8 +80,8 @@ public class KATModule : Module
         switch (parameter.Lookup)
         {
             case KATParameter.CharSync:
-                if (moduleTestStep <= 0) break;
-                if (!parameter.IsValueType<int>()) break;
+                if (moduleTestStep == 0) break;
+                if (!parameter.IsValueType<float>()) break;
                 if (!parameter.IsWildcardType<int>(0)) break;
 
                 syncParamCount = Math.Max(syncParamCount, parameter.GetWildcard<int>(0) + 1);
@@ -97,11 +96,22 @@ public class KATModule : Module
 
     public void SetVisiblity(bool visible) => SendParameter(KATParameter.Visible, visible);
 
+    private void sendToAllSyncParams(float value)
+    {
+        for (var i = 0; i < sync_params_max; i++)
+            SendParameter($"{param_char_sync_name}{i}", value);
+    }
+
     [ModuleUpdate(ModuleUpdateMode.Custom)]
-    private void update()
+    private void autoUpdate()
     {
         if (lastUpdate + updateDelay > DateTime.Now) return;
 
+        runTextUpdate();
+    }
+
+    private void runTextUpdate()
+    {
         lastUpdate = DateTime.Now;
 
         var localText = TargetText ?? string.Empty;
@@ -114,46 +124,42 @@ public class KATModule : Module
             {
                 case 1:
                 {
+                    Log("Attempting to find sync parameter count");
                     syncParamCount = 0;
-
-                    for (var i = 0; i < sync_params_max; i++)
-                        SendParameter($"{param_char_sync_name}{i}", 0f);
-
+                    sendToAllSyncParams(0f);
                     moduleTestStep = 2;
                     return;
                 }
 
                 case 2:
                 {
-                    var testFloat = codeToFloat(sync_params_test_char);
-
-                    for (var i = 0; i < sync_params_max; i++)
-                        SendParameter($"{param_char_sync_name}{i}", testFloat);
-
+                    sendToAllSyncParams(codeToFloat(sync_params_test_char));
                     moduleTestStep = 3;
                     return;
                 }
 
                 case 3:
                 {
-                    for (var i = 0; i < sync_params_max; i++)
-                        SendParameter($"{param_char_sync_name}{i}", 0f);
-
+                    sendToAllSyncParams(0f);
                     moduleTestStep = 4;
                     return;
                 }
 
                 case 4:
                 {
-                    if (syncParamCount == 0)
-                        syncParamCount = syncParamCountPrev;
+                    if (syncParamCount != 0)
+                    {
+                        Log($"Sync parameter count detected as {syncParamCount}");
+                    }
                     else
-                        syncParamCountPrev = syncParamCount;
+                    {
+                        syncParamCount = int.Clamp(GetSettingValue<int>(KATSetting.SyncParams), 0, sync_params_max);
+                        Log($"Unable to determine sync parameter count. Defaulting to {syncParamCount}");
+                    }
 
                     moduleTestStep = 0;
-                    pointerCount = text_length / syncParamCount;
-
-                    currentText = new string(' ', text_length);
+                    pointerCount = syncParamCount == 0 ? 0 : textLength / syncParamCount;
+                    currentText = string.Empty;
                     break;
                 }
             }
@@ -161,25 +167,17 @@ public class KATModule : Module
 
         if (syncParamCount == 0) return;
 
-        if (string.IsNullOrWhiteSpace(localText) || moduleTestStep == -1)
+        if (string.IsNullOrWhiteSpace(localText))
         {
-            if (moduleTestStep == -1)
-            {
-                for (var i = 0; i < sync_params_max; i++)
-                    SendParameter($"{param_char_sync_name}{i}", 0f);
-
-                moduleTestStep = 0;
-            }
-
             SendParameter(KATParameter.Pointer, pointer_clear);
-            currentText = new string(' ', text_length);
+            currentText = string.Empty;
             return;
         }
 
         SendParameter(KATParameter.Visible, true);
 
         localText = formatText(localText);
-        var oscText = (currentText ?? string.Empty).PadRight(text_length);
+        var oscText = currentText.PadRight(textLength);
 
         if (!string.Equals(localText, currentText, StringComparison.Ordinal))
         {
@@ -216,7 +214,7 @@ public class KATModule : Module
     {
         SendParameter(KATParameter.Pointer, pointer + 1);
 
-        var oscChars = (currentText ?? string.Empty).PadRight(text_length).ToCharArray();
+        var oscChars = (currentText ?? string.Empty).PadRight(textLength).ToCharArray();
         var baseIndex = pointer * syncParamCount;
 
         for (var charIndex = 0; charIndex < syncParamCount; charIndex++)
@@ -251,7 +249,7 @@ public class KATModule : Module
             return length >= paddedLen ? s : s.PadRight(paddedLen);
         }));
 
-        return combined.Length >= text_length ? combined[..text_length] : combined.PadRight(text_length);
+        return combined.Length >= textLength ? combined[..textLength] : combined.PadRight(textLength);
     }
 
     private static void buildKeyTables(Dictionary<char, int> charToCode, char[] codeToChar)

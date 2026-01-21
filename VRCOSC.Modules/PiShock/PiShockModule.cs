@@ -110,6 +110,9 @@ public class PiShockModule : Module, ISpeechHandler
         Log("Initialising provider...");
         var result = await piShockProvider.Initialise();
 
+        if (!result)
+            Log("Provider was unable to initialise");
+
         return result;
     }
 
