@@ -27,7 +27,7 @@ public sealed class MediaInfoSourceNode : ModuleNode<MediaModule>, IActiveUpdate
 
     protected override Task Process(PulseContext c)
     {
-        var s = Module.MediaProvider.CurrentState;
+        var s = Module.MediaProvider.GetCurrentState();
 
         Title.Write(s.Title, c);
         Subtitle.Write(s.Subtitle, c);
@@ -57,7 +57,7 @@ public sealed class MediaStateSourceNode : ModuleNode<MediaModule>, IActiveUpdat
 
     protected override Task Process(PulseContext c)
     {
-        var s = Module.MediaProvider.CurrentState;
+        var s = Module.MediaProvider.GetCurrentState();
 
         Playing.Write(s.Status == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing, c);
         Shuffling.Write(s.IsShuffle, c);

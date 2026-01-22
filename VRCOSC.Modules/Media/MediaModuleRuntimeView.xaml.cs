@@ -1,48 +1,31 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Collections.ObjectModel;
 using System.Windows.Controls;
-using System.Windows.Input;
-using VRCOSC.App.Utils;
 
 namespace VRCOSC.Modules.Media;
 
-public partial class MediaModuleRuntimeView : IDisposable
+public partial class MediaModuleRuntimeView
 {
     public MediaModule Module { get; }
-    public ObservableCollection<SourceSelectionItem> Sessions { get; } = new();
-
-    private readonly IDisposable sessionsChangedDisposable;
 
     public MediaModuleRuntimeView(MediaModule module)
     {
         Module = module;
         InitializeComponent();
-
         DataContext = this;
 
-        Sessions.Add(new SourceSelectionItem("Auto-Switch", null));
-
-        sessionsChangedDisposable = Module.MediaProvider.Sessions.OnCollectionChanged((newItems, oldItems) => Dispatcher.Invoke(() =>
-        {
-            foreach (string newSession in newItems)
-            {
-                Sessions.Add(new SourceSelectionItem(newSession, newSession));
-            }
-
-            foreach (string oldSession in oldItems)
-            {
-                Sessions.RemoveIf(session => session.Value == oldSession);
-            }
-        }), true);
-
-        SourceComboBox.SelectedValue = module.SourceSelection;
+        Module.MediaProvider.OnSessionsChanged += updateSessionComboBox;
+        updateSessionComboBox();
     }
 
-    private void SourceSelection_OnLostMouseCapture(object sender, MouseEventArgs e)
+    private void updateSessionComboBox() => Dispatcher.Invoke(() =>
     {
-    }
+        var sessions = new List<SourceSelectionItem> { new("Auto-Switch", string.Empty) };
+        sessions.AddRange(Module.MediaProvider.SessionStates.Select(pair => new SourceSelectionItem(pair.Key, pair.Key)));
+        SourceComboBox.ItemsSource = sessions;
+        SourceComboBox.SelectedValue = Module.SourceSelection ?? string.Empty;
+    });
 
     private void SourceSelection_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
@@ -51,11 +34,6 @@ public partial class MediaModuleRuntimeView : IDisposable
 
         Module.SourceSelection = selectedValue;
         Module.MediaProvider.SetFocusedSession(selectedValue);
-    }
-
-    public void Dispose()
-    {
-        sessionsChangedDisposable.Dispose();
     }
 }
 
