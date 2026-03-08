@@ -4,8 +4,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       mc:Ignorable="d">
-    <ComboBox Name="SourceComboBox"
-              ItemsSource="{Binding Sessions}" LostMouseCapture="SourceSelection_OnLostMouseCapture" SelectionChanged="SourceSelection_OnSelectionChanged"
+    <ComboBox Name="SourceComboBox" SelectionChanged="SourceSelection_OnSelectionChanged"
               Background="{StaticResource CBackground3}" FontSize="16" VerticalAlignment="Top" Margin="0 5"
               DisplayMemberPath="Name" SelectedValuePath="Value"/>
 </UserControl>

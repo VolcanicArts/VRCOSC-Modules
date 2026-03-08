@@ -17,8 +17,7 @@ namespace VRCOSC.Modules.Media;
 [ModulePrefab("Official Prefabs", "https://vrcosc.com/docs/downloads#prefabs")]
 public class MediaModule : Module, IVRCClientEventHandler
 {
-    private WindowsMediaProvider? mediaProviderInstance;
-    public WindowsMediaProvider MediaProvider => mediaProviderInstance ??= new WindowsMediaProvider();
+    public WindowsMediaProvider MediaProvider => field ??= new WindowsMediaProvider();
     public float CurrentVolume;
 
     private bool currentlySeeking;
@@ -87,7 +86,10 @@ public class MediaModule : Module, IVRCClientEventHandler
             return false;
         }
 
-        setState();
+        MediaProvider.SetFocusedSession(SourceSelection);
+
+        var currentState = MediaProvider.GetCurrentState();
+        setState(currentState);
 
         moduleStartTime = DateTime.Now;
 
@@ -98,21 +100,24 @@ public class MediaModule : Module, IVRCClientEventHandler
     {
         MediaProvider.OnPlaybackStateChanged -= onPlaybackStateChanged;
         MediaProvider.OnTrackChanged -= onTrackChanged;
-
         MediaProvider.Terminate();
         return Task.CompletedTask;
     }
 
     protected override void OnAvatarChange(AvatarConfig? avatarConfig)
     {
+        var currentState = MediaProvider.GetCurrentState();
+
         sendUpdatableParameters();
-        sendMediaParameters();
+        sendMediaParameters(currentState);
     }
 
     [ModuleUpdate(ModuleUpdateMode.Custom, true, 100)]
     private void fixedUpdate()
     {
-        if (MediaProvider.CurrentState.IsPlaying)
+        var currentState = MediaProvider.GetCurrentState();
+
+        if (currentState.IsPlaying)
         {
             // Hack to allow browsers to have time info
             MediaProvider.Update(TimeSpan.FromMilliseconds(100));
@@ -120,29 +125,31 @@ public class MediaModule : Module, IVRCClientEventHandler
 
         if (!currentlySeeking)
         {
-            SendParameter(MediaParameter.Position, MediaProvider.CurrentState.Timeline.Progress);
+            SendParameter(MediaParameter.Position, currentState.Timeline.Progress);
         }
     }
 
     [ModuleUpdate(ModuleUpdateMode.ChatBox)]
     private void updateVariables()
     {
+        var currentState = MediaProvider.GetCurrentState();
+
         CurrentVolume = MediaProvider.TryGetVolume();
 
-        SetVariableValue(MediaVariable.Title, MediaProvider.CurrentState.Title);
-        SetVariableValue(MediaVariable.Subtitle, MediaProvider.CurrentState.Subtitle);
-        SetVariableValue(MediaVariable.Genres, MediaProvider.CurrentState.Genres.Count != 0 ? string.Join(", ", MediaProvider.CurrentState.Genres) : string.Empty);
-        SetVariableValue(MediaVariable.Artist, MediaProvider.CurrentState.Artist);
-        SetVariableValue(MediaVariable.ArtistTitle, $"{MediaProvider.CurrentState.Artist} - {MediaProvider.CurrentState.Title}");
-        SetVariableValue(MediaVariable.TrackNumber, MediaProvider.CurrentState.TrackNumber);
-        SetVariableValue(MediaVariable.AlbumTitle, MediaProvider.CurrentState.AlbumTitle);
-        SetVariableValue(MediaVariable.AlbumArtist, MediaProvider.CurrentState.AlbumArtist);
-        SetVariableValue(MediaVariable.AlbumTrackCount, MediaProvider.CurrentState.AlbumTrackCount);
+        SetVariableValue(MediaVariable.Title, currentState.Title);
+        SetVariableValue(MediaVariable.Subtitle, currentState.Subtitle);
+        SetVariableValue(MediaVariable.Genres, currentState.Genres.Count != 0 ? string.Join(", ", currentState.Genres) : string.Empty);
+        SetVariableValue(MediaVariable.Artist, currentState.Artist);
+        SetVariableValue(MediaVariable.ArtistTitle, $"{currentState.Artist} - {currentState.Title}");
+        SetVariableValue(MediaVariable.TrackNumber, currentState.TrackNumber);
+        SetVariableValue(MediaVariable.AlbumTitle, currentState.AlbumTitle);
+        SetVariableValue(MediaVariable.AlbumArtist, currentState.AlbumArtist);
+        SetVariableValue(MediaVariable.AlbumTrackCount, currentState.AlbumTrackCount);
         SetVariableValue(MediaVariable.Volume, (int)MathF.Round(CurrentVolume * 100));
-        SetVariableValue(MediaVariable.ProgressVisual, MediaProvider.CurrentState.Timeline.Progress);
-        SetVariableValue(MediaVariable.Time, MediaProvider.CurrentState.Timeline.Position);
-        SetVariableValue(MediaVariable.TimeRemaining, MediaProvider.CurrentState.Timeline.End >= MediaProvider.CurrentState.Timeline.Position ? MediaProvider.CurrentState.Timeline.End - MediaProvider.CurrentState.Timeline.Position : TimeSpan.Zero);
-        SetVariableValue(MediaVariable.Duration, MediaProvider.CurrentState.Timeline.End);
+        SetVariableValue(MediaVariable.ProgressVisual, currentState.Timeline.Progress);
+        SetVariableValue(MediaVariable.Time, currentState.Timeline.Position);
+        SetVariableValue(MediaVariable.TimeRemaining, currentState.Timeline.End >= currentState.Timeline.Position ? currentState.Timeline.End - currentState.Timeline.Position : TimeSpan.Zero);
+        SetVariableValue(MediaVariable.Duration, currentState.Timeline.End);
     }
 
     [ModuleUpdate(ModuleUpdateMode.Custom, true, 1000)]
@@ -153,25 +160,27 @@ public class MediaModule : Module, IVRCClientEventHandler
 
     private void onPlaybackStateChanged()
     {
-        sendMediaParameters();
-        setState();
+        var currentState = MediaProvider.GetCurrentState();
+
+        sendMediaParameters(currentState);
+        setState(currentState);
     }
 
-    private void setState()
+    private void setState(VRCOSC.App.SDK.Providers.Media.MediaState currentState)
     {
-        if (MediaProvider.CurrentState.IsPaused)
+        if (currentState.IsPaused)
         {
             ChangeState(MediaState.Paused);
             TriggerEvent(MediaEvent.OnPause);
         }
 
-        if (MediaProvider.CurrentState.IsPlaying)
+        if (currentState.IsPlaying)
         {
             ChangeState(MediaState.Playing);
             TriggerEvent(MediaEvent.OnPlay);
         }
 
-        if (MediaProvider.CurrentState.IsStopped)
+        if (currentState.IsStopped)
         {
             ChangeState(MediaState.Stopped);
         }
@@ -182,17 +191,19 @@ public class MediaModule : Module, IVRCClientEventHandler
         TriggerEvent(MediaEvent.OnTrackChange);
     }
 
-    private async void sendMediaParameters()
+    private async void sendMediaParameters(VRCOSC.App.SDK.Providers.Media.MediaState currentState)
     {
         await Task.WhenAll(
-            SendParameterAndWait(MediaParameter.Play, MediaProvider.CurrentState.IsPlaying, true),
-            SendParameterAndWait(MediaParameter.Shuffle, MediaProvider.CurrentState.IsShuffle, true),
-            SendParameterAndWait(MediaParameter.Repeat, (int)MediaProvider.CurrentState.RepeatMode, true)
+            SendParameterAndWait(MediaParameter.Play, currentState.IsPlaying, true),
+            SendParameterAndWait(MediaParameter.Shuffle, currentState.IsShuffle, true),
+            SendParameterAndWait(MediaParameter.Repeat, (int)currentState.RepeatMode, true)
         );
     }
 
     protected override void OnRegisteredParameterReceived(RegisteredParameter parameter)
     {
+        var currentState = MediaProvider.GetCurrentState();
+
         switch (parameter.Lookup)
         {
             case MediaParameter.Volume:
@@ -202,7 +213,7 @@ public class MediaModule : Module, IVRCClientEventHandler
             case MediaParameter.Position:
                 if (!currentlySeeking) return;
 
-                var position = MediaProvider.CurrentState.Timeline;
+                var position = currentState.Timeline;
                 targetPosition = (position.End - position.Start) * parameter.GetValue<float>();
                 break;
 
@@ -250,7 +261,9 @@ public class MediaModule : Module, IVRCClientEventHandler
         if (eventArgs.DateTime < moduleStartTime) return;
         if (!GetSettingValue<bool>(MediaSetting.PlayOnInstanceTransfer)) return;
 
-        if (MediaProvider.CurrentState.IsPaused)
+        var currentState = MediaProvider.GetCurrentState();
+
+        if (currentState.IsPaused)
         {
             MediaProvider.Play();
             instanceTransferPlay = true;
