@@ -89,7 +89,7 @@ public class KATModule : Module
         }
     }
 
-    protected override void OnAvatarChange(AvatarConfig? avatarConfig)
+    protected override void OnAvatarChange(Avatar? avatar)
     {
         moduleTestStep = 1;
     }

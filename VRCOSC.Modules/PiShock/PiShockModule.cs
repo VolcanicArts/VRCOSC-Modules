@@ -122,7 +122,7 @@ public class PiShockModule : Module, ISpeechHandler
         shockerSettingsDisposable?.Dispose();
     }
 
-    protected override async void OnAvatarChange(AvatarConfig? avatarConfig)
+    protected override async void OnAvatarChange(Avatar? avatar)
     {
         await reset();
     }

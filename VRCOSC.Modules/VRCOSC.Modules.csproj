@@ -49,7 +49,7 @@
       <PackageReference Include="TwitchLib.Api.Helix.Models" Version="3.11.0-preview.217.ebcd12b" />
       <PackageReference Include="TwitchLib.EventSub.Core" Version="3.1.0-preview.78.61821c3" />
       <PackageReference Include="TwitchLib.EventSub.Websockets" Version="0.8.0" />
-      <PackageReference Include="VolcanicArts.VRCOSC.SDK" Version="2026.418.0" />
+      <PackageReference Include="VolcanicArts.VRCOSC.SDK" Version="2026.501.0" />
     </ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">

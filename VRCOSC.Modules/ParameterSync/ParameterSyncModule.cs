@@ -5,6 +5,8 @@ using VRCOSC.App.SDK.Handlers;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.VRChat;
+using VRCOSC.App.SDK.VRChat.Logs;
+using VRCOSC.App.SDK.VRChat.Logs.Handlers;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.Modules.ParameterSync;
@@ -16,7 +18,7 @@ public class ParameterSyncModule : Module, IVRCClientEventHandler
 {
     private bool ignoreParameters;
     private readonly List<IDisposable> disposables = new();
-    private AvatarConfig? currentAvatar;
+    private Avatar? currentAvatar;
 
     [ModulePersistent("parameter_cache")]
     public Dictionary<Guid, Dictionary<string, object>> Cache { get; set; } = [];
@@ -30,7 +32,7 @@ public class ParameterSyncModule : Module, IVRCClientEventHandler
         CreateGroup("Configuration", string.Empty, ParameterSyncSetting.Delay);
     }
 
-    protected override async Task<bool> OnModuleStart()
+    protected override Task<bool> OnModuleStart()
     {
         foreach (var instance in Cache)
         {
@@ -46,13 +48,13 @@ public class ParameterSyncModule : Module, IVRCClientEventHandler
 
         ignoreParameters = true;
         disposables.Clear();
-        currentAvatar = await FindCurrentAvatar();
+        currentAvatar = GetClient().Avatar;
 
         var moduleSetting = GetSetting<ParameterSyncListModuleSetting>(ParameterSyncSetting.Instances);
         disposables.Add(moduleSetting.Attribute.OnCollectionChanged(instancesCollectionChanged, true));
 
         handleAvatarChange(currentAvatar);
-        return true;
+        return Task.FromResult(true);
     }
 
     protected override Task OnModuleStop()
@@ -99,12 +101,12 @@ public class ParameterSyncModule : Module, IVRCClientEventHandler
         updateCacheLayout();
     }
 
-    protected override void OnAvatarChange(AvatarConfig? avatarConfig)
+    protected override void OnAvatarChange(Avatar? avatarConfig)
     {
         handleAvatarChange(avatarConfig);
     }
 
-    private async void handleAvatarChange(AvatarConfig? newAvatar)
+    private async void handleAvatarChange(Avatar? newAvatar)
     {
         if (newAvatar is null)
         {
@@ -155,7 +157,7 @@ public class ParameterSyncModule : Module, IVRCClientEventHandler
         store[parameter.Name] = parameter.Value;
     }
 
-    private async Task sendSyncedParameters(AvatarConfig? previousAvatar, AvatarConfig? newAvatar)
+    private async Task sendSyncedParameters(Avatar? previousAvatar, Avatar? newAvatar)
     {
         if (newAvatar is null) return;
 
@@ -215,26 +217,15 @@ public class ParameterSyncModule : Module, IVRCClientEventHandler
         }
     }
 
-    public void OnInstanceJoined(VRChatClientEventInstanceJoined eventArgs)
+    public void HandleClientEvent(IVRChatClientEvent @event)
     {
-    }
-
-    public void OnInstanceLeft(VRChatClientEventInstanceLeft eventArgs)
-    {
-    }
-
-    public void OnUserJoined(VRChatClientEventUserJoined eventArgs)
-    {
-    }
-
-    public void OnUserLeft(VRChatClientEventUserLeft eventArgs)
-    {
-    }
-
-    public void OnAvatarPreChange(VRChatClientEventAvatarPreChange eventArgs)
-    {
-        ignoreParameters = true;
-        LogDebug("Avatar pre-change occured. Ignoring parameters");
+        switch (@event)
+        {
+            case AvatarPreChangeClientEvent:
+                ignoreParameters = true;
+                LogDebug("Avatar pre-change occured. Ignoring parameters");
+                break;
+        }
     }
 
     private enum ParameterSyncSetting

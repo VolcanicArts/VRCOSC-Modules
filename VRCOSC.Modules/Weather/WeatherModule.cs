@@ -51,7 +51,7 @@ public class WeatherModule : Module
         return Task.FromResult(true);
     }
 
-    protected override void OnAvatarChange(AvatarConfig? avatarConfig)
+    protected override void OnAvatarChange(Avatar? avatar)
     {
         updateParameters();
     }

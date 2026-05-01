@@ -4,7 +4,8 @@
 using VRCOSC.App.SDK.Handlers;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Parameters;
-using VRCOSC.App.SDK.VRChat;
+using VRCOSC.App.SDK.VRChat.Logs;
+using VRCOSC.App.SDK.VRChat.Logs.Handlers;
 
 // ReSharper disable MultipleSpaces
 
@@ -58,41 +59,50 @@ public class ClientInfoModule : Module, IVRCClientEventHandler
         SendParameter(parameter, resetValue);
     }
 
-    public async void OnInstanceJoined(VRChatClientEventInstanceJoined eventArgs)
+    public async void HandleClientEvent(IVRChatClientEvent @event)
     {
-        instanceUserCount = 0;
+        switch (@event)
+        {
+            case InstanceJoinedClientEvent instanceJoinedClientEvent:
+            {
+                instanceUserCount = 0;
 
-        if (eventArgs.DateTime < moduleStartTime) return;
+                if (instanceJoinedClientEvent.Timestamp < moduleStartTime) return;
 
-        // delay to make sure avatar is loaded in
-        await Task.Delay(500);
+                // delay to make sure avatar is loaded in
+                await Task.Delay(500);
 
-        sendAndReset(ClientInfoParameter.Event_InstanceJoined, true, false);
-    }
+                sendAndReset(ClientInfoParameter.Event_InstanceJoined, true, false);
+                break;
+            }
 
-    public void OnInstanceLeft(VRChatClientEventInstanceLeft eventArgs)
-    {
-        if (eventArgs.DateTime < moduleStartTime) return;
+            case InstanceLeftClientEvent instanceLeftClientEvent:
+            {
+                if (instanceLeftClientEvent.Timestamp < moduleStartTime) return;
 
-        sendAndReset(ClientInfoParameter.Event_InstanceLeft, true, false);
-    }
+                sendAndReset(ClientInfoParameter.Event_InstanceLeft, true, false);
+                break;
+            }
 
-    public void OnUserJoined(VRChatClientEventUserJoined eventArgs)
-    {
-        instanceUserCount++;
-        SendParameter(ClientInfoParameter.Info_InstanceUserCount, instanceUserCount);
-        SetVariableValue(ClientInfoVariable.InstanceCount, instanceUserCount);
-    }
+            case UserLeftClientEvent:
+            {
+                instanceUserCount++;
+                SendParameter(ClientInfoParameter.Info_InstanceUserCount, instanceUserCount);
+                SetVariableValue(ClientInfoVariable.InstanceCount, instanceUserCount);
+                break;
+            }
 
-    public void OnUserLeft(VRChatClientEventUserLeft eventArgs)
-    {
-        instanceUserCount--;
-        SendParameter(ClientInfoParameter.Info_InstanceUserCount, instanceUserCount);
-        SetVariableValue(ClientInfoVariable.InstanceCount, instanceUserCount);
-    }
+            case UserJoinedClientEvent:
+            {
+                instanceUserCount--;
+                SendParameter(ClientInfoParameter.Info_InstanceUserCount, instanceUserCount);
+                SetVariableValue(ClientInfoVariable.InstanceCount, instanceUserCount);
+                break;
+            }
 
-    public void OnAvatarPreChange(VRChatClientEventAvatarPreChange eventArgs)
-    {
+            default:
+                throw new ArgumentOutOfRangeException(nameof(@event));
+        }
     }
 
     public enum ClientInfoState
