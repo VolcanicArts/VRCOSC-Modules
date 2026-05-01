@@ -278,9 +278,6 @@ public class MediaModule : Module, IVRCClientEventHandler
 
                 break;
             }
-
-            default:
-                throw new ArgumentOutOfRangeException(nameof(@event));
         }
     }
 

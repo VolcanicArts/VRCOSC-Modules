@@ -99,9 +99,6 @@ public class ClientInfoModule : Module, IVRCClientEventHandler
                 SetVariableValue(ClientInfoVariable.InstanceCount, instanceUserCount);
                 break;
             }
-
-            default:
-                throw new ArgumentOutOfRangeException(nameof(@event));
         }
     }
 
