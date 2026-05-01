@@ -126,7 +126,7 @@ public class CounterModule : Module
         return Task.CompletedTask;
     }
 
-    protected override void OnAvatarChange(AvatarConfig? avatarConfig)
+    protected override void OnAvatarChange(Avatar? avatar)
     {
         parameterValues.Clear();
     }

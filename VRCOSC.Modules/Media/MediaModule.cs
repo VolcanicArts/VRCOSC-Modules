@@ -8,6 +8,8 @@ using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.Providers.Media;
 using VRCOSC.App.SDK.VRChat;
+using VRCOSC.App.SDK.VRChat.Logs;
+using VRCOSC.App.SDK.VRChat.Logs.Handlers;
 
 namespace VRCOSC.Modules.Media;
 
@@ -104,7 +106,7 @@ public class MediaModule : Module, IVRCClientEventHandler
         return Task.CompletedTask;
     }
 
-    protected override void OnAvatarChange(AvatarConfig? avatarConfig)
+    protected override void OnAvatarChange(Avatar? avatar)
     {
         var currentState = MediaProvider.GetCurrentState();
 
@@ -247,39 +249,39 @@ public class MediaModule : Module, IVRCClientEventHandler
         }
     }
 
-    public void OnInstanceJoined(VRChatClientEventInstanceJoined eventArgs)
+    public void HandleClientEvent(IVRChatClientEvent @event)
     {
-        if (eventArgs.DateTime < moduleStartTime) return;
-        if (!instanceTransferPlay) return;
-
-        MediaProvider.Pause();
-        instanceTransferPlay = false;
-    }
-
-    public void OnInstanceLeft(VRChatClientEventInstanceLeft eventArgs)
-    {
-        if (eventArgs.DateTime < moduleStartTime) return;
-        if (!GetSettingValue<bool>(MediaSetting.PlayOnInstanceTransfer)) return;
-
-        var currentState = MediaProvider.GetCurrentState();
-
-        if (currentState.IsPaused)
+        switch (@event)
         {
-            MediaProvider.Play();
-            instanceTransferPlay = true;
+            case InstanceJoinedClientEvent instanceJoinedClientEvent:
+            {
+                if (instanceJoinedClientEvent.Timestamp < moduleStartTime) return;
+                if (!instanceTransferPlay) return;
+
+                MediaProvider.Pause();
+                instanceTransferPlay = false;
+                break;
+            }
+
+            case InstanceLeftClientEvent instanceLeftClientEvent:
+            {
+                if (instanceLeftClientEvent.Timestamp < moduleStartTime) return;
+                if (!GetSettingValue<bool>(MediaSetting.PlayOnInstanceTransfer)) return;
+
+                var currentState = MediaProvider.GetCurrentState();
+
+                if (currentState.IsPaused)
+                {
+                    MediaProvider.Play();
+                    instanceTransferPlay = true;
+                }
+
+                break;
+            }
+
+            default:
+                throw new ArgumentOutOfRangeException(nameof(@event));
         }
-    }
-
-    public void OnUserJoined(VRChatClientEventUserJoined eventArgs)
-    {
-    }
-
-    public void OnUserLeft(VRChatClientEventUserLeft eventArgs)
-    {
-    }
-
-    public void OnAvatarPreChange(VRChatClientEventAvatarPreChange eventArgs)
-    {
     }
 
     private enum MediaSetting
