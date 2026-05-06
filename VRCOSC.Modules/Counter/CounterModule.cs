@@ -188,7 +188,8 @@ public class CounterModule : Module
 
     protected override void OnAnyParameterReceived(VRChatParameter parameter)
     {
-        var countInstances = GetSettingValue<List<Counter>>(CounterSetting.CountInstances).Where(countInstance => countInstance.ParameterNames.Select(instance => instance.Value).Contains(parameter.Name));
+        var countInstances = GetSettingValue<List<Counter>>(CounterSetting.CountInstances)
+            .Where(countInstance => countInstance.ParameterNames.Select(instance => TemplatedVRChatParameter.TemplateAsRegex(instance.Value)).Any(p => p.IsMatch(parameter.Name)));
 
         foreach (var countInstance in countInstances)
         {
