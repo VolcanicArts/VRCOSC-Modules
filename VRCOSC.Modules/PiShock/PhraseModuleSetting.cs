@@ -55,6 +55,4 @@ public class Phrase : IEquatable<Phrase>
 
         return Name.Equals(other.Name) && Text.Equals(other.Text) && Mode.Equals(other.Mode) && ShockerGroups.SequenceEqual(other.ShockerGroups) && Duration.Equals(other.Duration) && Intensity.Equals(other.Intensity);
     }
-
-    public override bool Equals(object? obj) => obj is Phrase phrase && Equals(phrase);
 }

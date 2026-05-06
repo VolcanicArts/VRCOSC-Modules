@@ -35,7 +35,7 @@ public class SpeechToTextModule : Module, ISpeechHandler
         listening = true;
         reset();
         SendParameter(SpeechToTextParameter.Listen, listening);
-        playerMuted = GetPlayer().IsMuted;
+        playerMuted = GetClient().Player.IsMuted;
 
         ChangeState(SpeechToTextState.Default);
 
@@ -44,7 +44,7 @@ public class SpeechToTextModule : Module, ISpeechHandler
 
     protected override void OnPlayerUpdate()
     {
-        var isPlayerMuted = GetPlayer().IsMuted;
+        var isPlayerMuted = GetClient().Player.IsMuted;
         if (playerMuted == isPlayerMuted) return;
 
         playerMuted = isPlayerMuted;

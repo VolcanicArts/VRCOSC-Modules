@@ -114,7 +114,7 @@ public class AFKDetectionModule : Module
         vrchatProcesses[0].SetWindowVisibility(showWindow);
     }
 
-    private bool isVRChatAFK() => GetPlayer().AFK;
+    private bool isVRChatAFK() => GetClient().Player.AFK;
     private bool isSteamVRAFK() => !GetOpenVRManager().IsUserPresent;
 
     private enum AFKDetectionSetting
