@@ -4,6 +4,7 @@
 using VRCOSC.App.SDK.Handlers;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Parameters;
+using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.SDK.VRChat.Logs;
 using VRCOSC.App.SDK.VRChat.Logs.Handlers;
 
@@ -17,7 +18,6 @@ namespace VRCOSC.Modules.ClientInfo;
 public class ClientInfoModule : Module, IVRCClientEventHandler
 {
     private DateTime moduleStartTime;
-    private int instanceUserCount;
 
     protected override void OnPreLoad()
     {
@@ -32,7 +32,7 @@ public class ClientInfoModule : Module, IVRCClientEventHandler
 
     protected override void OnPostLoad()
     {
-        var instanceCountVariable = CreateVariable<int>(ClientInfoVariable.InstanceCount, "Instance Count")!;
+        CreateVariable<int>(ClientInfoVariable.InstanceCount, "Instance Count");
         var fpsVariable = CreateVariable<int>(ClientInfoVariable.FPS, "FPS")!;
 
         CreateState(ClientInfoState.Default, "Default", "FPS: {0}", [fpsVariable]);
@@ -53,7 +53,7 @@ public class ClientInfoModule : Module, IVRCClientEventHandler
         SetVariableValue(ClientInfoVariable.FPS, fps);
     }
 
-    private async void sendAndReset(ClientInfoParameter parameter, object value, object resetValue)
+    private async void sendAndReset<T>(ClientInfoParameter parameter, T value, T resetValue)
     {
         await SendParameterAndWait(parameter, value);
         SendParameter(parameter, resetValue);
@@ -65,8 +65,6 @@ public class ClientInfoModule : Module, IVRCClientEventHandler
         {
             case InstanceJoinedClientEvent instanceJoinedClientEvent:
             {
-                instanceUserCount = 0;
-
                 if (instanceJoinedClientEvent.Timestamp < moduleStartTime) return;
 
                 // delay to make sure avatar is loaded in
@@ -80,26 +78,33 @@ public class ClientInfoModule : Module, IVRCClientEventHandler
             {
                 if (instanceLeftClientEvent.Timestamp < moduleStartTime) return;
 
+                SendParameter(ClientInfoParameter.Info_InstanceUserCount, 0);
                 sendAndReset(ClientInfoParameter.Event_InstanceLeft, true, false);
                 break;
             }
 
             case UserLeftClientEvent:
             {
-                instanceUserCount++;
-                SendParameter(ClientInfoParameter.Info_InstanceUserCount, instanceUserCount);
-                SetVariableValue(ClientInfoVariable.InstanceCount, instanceUserCount);
+                var userCount = GetClient().Instance.Users.Count;
+                SendParameter(ClientInfoParameter.Info_InstanceUserCount, userCount);
+                SetVariableValue(ClientInfoVariable.InstanceCount, userCount);
                 break;
             }
 
             case UserJoinedClientEvent:
             {
-                instanceUserCount--;
-                SendParameter(ClientInfoParameter.Info_InstanceUserCount, instanceUserCount);
-                SetVariableValue(ClientInfoVariable.InstanceCount, instanceUserCount);
+                var userCount = GetClient().Instance!.Users.Count;
+                SendParameter(ClientInfoParameter.Info_InstanceUserCount, userCount);
+                SetVariableValue(ClientInfoVariable.InstanceCount, userCount);
                 break;
             }
         }
+    }
+
+    protected override void OnAvatarChange(Avatar? avatar)
+    {
+        var userCount = GetClient().Instance!.Users.Count;
+        SendParameter(ClientInfoParameter.Info_InstanceUserCount, userCount);
     }
 
     public enum ClientInfoState
