@@ -2,20 +2,23 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.App.Nodes;
+using VRCOSC.App.Nodes.Types;
 using VRCOSC.App.SDK.Nodes;
 
 namespace VRCOSC.Modules.Weather;
 
 [Node("Weather Source")]
-public sealed class WeatherSourceNode : ModuleNode<WeatherModule>
+public sealed class WeatherSourceNode : Node, IModuleNode<WeatherModule>
 {
+    public WeatherModule Module { get; set; } = null!;
+
     public ValueOutput<int> Code = new();
     public ValueOutput<float> TempC = new();
     public ValueOutput<float> TempF = new();
     public ValueOutput<int> Humidity = new();
     public ValueOutput<string> Condition = new();
 
-    protected override Task Process(PulseContext c)
+    protected override Task Process(IPulseContext c)
     {
         var currentWeather = Module.CurrentWeather;
         if (currentWeather is null) return Task.CompletedTask;

@@ -2,34 +2,23 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.App.Nodes;
+using VRCOSC.App.Nodes.Types;
 using VRCOSC.App.SDK.Nodes;
 
 namespace VRCOSC.Modules.KAT;
 
 [Node("Set KAT Text")]
-public sealed class SetTextKATNode : ModuleNode<KATModule>, IFlowInput
+public sealed class SetTextKATNode() : ActionValueConsumeNode<string>("Text"), IModuleNode<KATModule>
 {
-    public FlowContinuation Next = new("Next");
+    public KATModule Module { get; set; } = null!;
 
-    public ValueInput<string> Text = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Module.TargetText = Text.Read(c);
-        return Next.Execute(c);
-    }
+    protected override void ConsumeValue(string text, IPulseContext c) => Module.TargetText = text;
 }
 
 [Node("Set KAT Visibility")]
-public sealed class SetVisibilityKATNode : ModuleNode<KATModule>, IFlowInput
+public sealed class SetVisibilityKATNode() : ActionValueConsumeNode<bool>("Visible"), IModuleNode<KATModule>
 {
-    public FlowContinuation Next = new("Next");
+    public KATModule Module { get; set; } = null!;
 
-    public ValueInput<bool> Visible = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Module.SetVisiblity(Visible.Read(c));
-        return Next.Execute(c);
-    }
+    protected override void ConsumeValue(bool visible, IPulseContext c) => Module.SetVisiblity(visible);
 }

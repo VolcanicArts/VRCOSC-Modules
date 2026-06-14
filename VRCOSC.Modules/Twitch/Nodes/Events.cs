@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.App.Nodes;
+using VRCOSC.App.Nodes.Types;
 using VRCOSC.App.SDK.Nodes;
 using VRCOSC.Modules.Twitch.Data;
 
@@ -9,19 +10,18 @@ namespace VRCOSC.Modules.Twitch.Nodes;
 
 [Node("On Twitch Channel Chat Message", "Events")]
 [NodeNoCancel]
-public sealed class TwitchChannelChatMessageNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
+public sealed class TwitchChannelChatMessageNode : Node, IModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
-    public FlowContinuation Next = new("On Message");
+    public TwitchModule Module { get; set; } = null!;
+
+    public FlowOutput Next = new();
 
     public ValueOutput<TwitchUser> Broadcaster = new();
     public ValueOutput<TwitchMessage> Message = new();
 
-    protected override async Task Process(PulseContext c)
-    {
-        await Next.Execute(c);
-    }
+    protected override Task Process(IPulseContext c) => Next.Execute(c);
 
-    public Task Write(object[] args, PulseContext c)
+    public Task Write(object[] args, IPulseContext c)
     {
         Broadcaster.Write((TwitchUser)args[0], c);
         Message.Write((TwitchMessage)args[1], c);
@@ -31,19 +31,18 @@ public sealed class TwitchChannelChatMessageNode : ModuleNode<TwitchModule>, IMo
 
 [Node("On Twitch Channel Follow", "Events")]
 [NodeNoCancel]
-public sealed class TwitchChannelFollowNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
+public sealed class TwitchChannelFollowNode : Node, IModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
-    public FlowContinuation Next = new("On Follow");
+    public TwitchModule Module { get; set; } = null!;
+
+    public FlowOutput Next = new();
 
     public ValueOutput<TwitchUser> Broadcaster = new();
     public ValueOutput<TwitchFollow> Follow = new();
 
-    protected override async Task Process(PulseContext c)
-    {
-        await Next.Execute(c);
-    }
+    protected override Task Process(IPulseContext c) => Next.Execute(c);
 
-    public Task Write(object[] args, PulseContext c)
+    public Task Write(object[] args, IPulseContext c)
     {
         Broadcaster.Write((TwitchUser)args[0], c);
         Follow.Write((TwitchFollow)args[1], c);
@@ -53,19 +52,18 @@ public sealed class TwitchChannelFollowNode : ModuleNode<TwitchModule>, IModuleN
 
 [Node("On Twitch Channel Subscription", "Events")]
 [NodeNoCancel]
-public sealed class TwitchChannelSubscriptionNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
+public sealed class TwitchChannelSubscriptionNode : Node, IModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
-    public FlowContinuation Next = new("On Subscription");
+    public TwitchModule Module { get; set; } = null!;
+
+    public FlowOutput Next = new();
 
     public ValueOutput<TwitchUser> Broadcaster = new();
     public ValueOutput<TwitchSubscription> Subscription = new();
 
-    protected override async Task Process(PulseContext c)
-    {
-        await Next.Execute(c);
-    }
+    protected override Task Process(IPulseContext c) => Next.Execute(c);
 
-    public Task Write(object[] args, PulseContext c)
+    public Task Write(object[] args, IPulseContext c)
     {
         Broadcaster.Write((TwitchUser)args[0], c);
         Subscription.Write((TwitchSubscription)args[1], c);
@@ -75,19 +73,18 @@ public sealed class TwitchChannelSubscriptionNode : ModuleNode<TwitchModule>, IM
 
 [Node("On Twitch Channel ReSubscription", "Events")]
 [NodeNoCancel]
-public sealed class TwitchChannelReSubscriptionNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
+public sealed class TwitchChannelReSubscriptionNode : Node, IModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
-    public FlowContinuation Next = new("On ReSubscription");
+    public TwitchModule Module { get; set; } = null!;
+
+    public FlowOutput Next = new();
 
     public ValueOutput<TwitchUser> Broadcaster = new();
     public ValueOutput<TwitchReSubscription> ReSubscription = new();
 
-    protected override async Task Process(PulseContext c)
-    {
-        await Next.Execute(c);
-    }
+    protected override Task Process(IPulseContext c) => Next.Execute(c);
 
-    public Task Write(object[] args, PulseContext c)
+    public Task Write(object[] args, IPulseContext c)
     {
         Broadcaster.Write((TwitchUser)args[0], c);
         ReSubscription.Write((TwitchReSubscription)args[1], c);
@@ -97,19 +94,18 @@ public sealed class TwitchChannelReSubscriptionNode : ModuleNode<TwitchModule>, 
 
 [Node("On Twitch Channel Reward Redemption", "Events")]
 [NodeNoCancel]
-public sealed class TwitchChannelRewardRedemptionNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
+public sealed class TwitchChannelRewardRedemptionNode : Node, IModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
-    public FlowContinuation Next = new("On Reward Redemption");
+    public TwitchModule Module { get; set; } = null!;
+
+    public FlowOutput Next = new();
 
     public ValueOutput<TwitchUser> Broadcaster = new();
-    public ValueOutput<TwitchRewardRedemption> RewardRedemption = new("Reward Redemption");
+    public ValueOutput<TwitchRewardRedemption> RewardRedemption = new();
 
-    protected override async Task Process(PulseContext c)
-    {
-        await Next.Execute(c);
-    }
+    protected override Task Process(IPulseContext c) => Next.Execute(c);
 
-    public Task Write(object[] args, PulseContext c)
+    public Task Write(object[] args, IPulseContext c)
     {
         Broadcaster.Write((TwitchUser)args[0], c);
         RewardRedemption.Write((TwitchRewardRedemption)args[1], c);
@@ -119,19 +115,18 @@ public sealed class TwitchChannelRewardRedemptionNode : ModuleNode<TwitchModule>
 
 [Node("On Twitch Channel Gift Subscription", "Events")]
 [NodeNoCancel]
-public sealed class TwitchChannelGiftSubscriptionNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
+public sealed class TwitchChannelGiftSubscriptionNode : Node, IModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
-    public FlowContinuation Next = new("On Gift Subscription");
+    public TwitchModule Module { get; set; } = null!;
+
+    public FlowOutput Next = new();
 
     public ValueOutput<TwitchUser> Broadcaster = new();
-    public ValueOutput<TwitchGiftSubscription> GiftSubscription = new("Gift Subscription");
+    public ValueOutput<TwitchGiftSubscription> GiftSubscription = new();
 
-    protected override async Task Process(PulseContext c)
-    {
-        await Next.Execute(c);
-    }
+    protected override Task Process(IPulseContext c) => Next.Execute(c);
 
-    public Task Write(object[] args, PulseContext c)
+    public Task Write(object[] args, IPulseContext c)
     {
         Broadcaster.Write((TwitchUser)args[0], c);
         GiftSubscription.Write((TwitchGiftSubscription)args[1], c);
@@ -141,19 +136,18 @@ public sealed class TwitchChannelGiftSubscriptionNode : ModuleNode<TwitchModule>
 
 [Node("On Twitch Channel Bits", "Events")]
 [NodeNoCancel]
-public sealed class TwitchChannelBitsNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
+public sealed class TwitchChannelBitsNode : Node, IModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
-    public FlowContinuation Next = new("On Bits");
+    public TwitchModule Module { get; set; } = null!;
+
+    public FlowOutput Next = new();
 
     public ValueOutput<TwitchUser> Broadcaster = new();
     public ValueOutput<TwitchBits> Bits = new();
 
-    protected override async Task Process(PulseContext c)
-    {
-        await Next.Execute(c);
-    }
+    protected override Task Process(IPulseContext c) => Next.Execute(c);
 
-    public Task Write(object[] args, PulseContext c)
+    public Task Write(object[] args, IPulseContext c)
     {
         Broadcaster.Write((TwitchUser)args[0], c);
         Bits.Write((TwitchBits)args[1], c);
@@ -163,19 +157,18 @@ public sealed class TwitchChannelBitsNode : ModuleNode<TwitchModule>, IModuleNod
 
 [Node("On Twitch Channel Raid", "Events")]
 [NodeNoCancel]
-public sealed class TwitchChannelRaidNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
+public sealed class TwitchChannelRaidNode : Node, IModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
-    public FlowContinuation Next = new("On Raid");
+    public TwitchModule Module { get; set; } = null!;
+
+    public FlowOutput Next = new();
 
     public ValueOutput<TwitchUser> Broadcaster = new();
     public ValueOutput<TwitchRaid> Raid = new();
 
-    protected override async Task Process(PulseContext c)
-    {
-        await Next.Execute(c);
-    }
+    protected override Task Process(IPulseContext c) => Next.Execute(c);
 
-    public Task Write(object[] args, PulseContext c)
+    public Task Write(object[] args, IPulseContext c)
     {
         Broadcaster.Write((TwitchUser)args[0], c);
         Raid.Write((TwitchRaid)args[1], c);
@@ -185,19 +178,18 @@ public sealed class TwitchChannelRaidNode : ModuleNode<TwitchModule>, IModuleNod
 
 [Node("On Twitch Channel Goal Begin", "Events")]
 [NodeNoCancel]
-public sealed class TwitchChannelGoalBeginNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
+public sealed class TwitchChannelGoalBeginNode : Node, IModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
-    public FlowContinuation Next = new("On Goal Begin");
+    public TwitchModule Module { get; set; } = null!;
+
+    public FlowOutput Next = new();
 
     public ValueOutput<TwitchUser> Broadcaster = new();
     public ValueOutput<TwitchGoal> Goal = new();
 
-    protected override async Task Process(PulseContext c)
-    {
-        await Next.Execute(c);
-    }
+    protected override Task Process(IPulseContext c) => Next.Execute(c);
 
-    public Task Write(object[] args, PulseContext c)
+    public Task Write(object[] args, IPulseContext c)
     {
         Broadcaster.Write((TwitchUser)args[0], c);
         Goal.Write((TwitchGoal)args[1], c);
@@ -207,19 +199,18 @@ public sealed class TwitchChannelGoalBeginNode : ModuleNode<TwitchModule>, IModu
 
 [Node("On Twitch Channel Goal Progress", "Events")]
 [NodeNoCancel]
-public sealed class TwitchChannelGoalProgressNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
+public sealed class TwitchChannelGoalProgressNode : Node, IModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
-    public FlowContinuation Next = new("On Goal Progress");
+    public TwitchModule Module { get; set; } = null!;
+
+    public FlowOutput Next = new();
 
     public ValueOutput<TwitchUser> Broadcaster = new();
     public ValueOutput<TwitchGoal> Goal = new();
 
-    protected override async Task Process(PulseContext c)
-    {
-        await Next.Execute(c);
-    }
+    protected override Task Process(IPulseContext c) => Next.Execute(c);
 
-    public Task Write(object[] args, PulseContext c)
+    public Task Write(object[] args, IPulseContext c)
     {
         Broadcaster.Write((TwitchUser)args[0], c);
         Goal.Write((TwitchGoal)args[1], c);
@@ -229,19 +220,18 @@ public sealed class TwitchChannelGoalProgressNode : ModuleNode<TwitchModule>, IM
 
 [Node("On Twitch Channel Goal End", "Events")]
 [NodeNoCancel]
-public sealed class TwitchChannelGoalEndNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
+public sealed class TwitchChannelGoalEndNode : Node, IModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
-    public FlowContinuation Next = new("On Goal End");
+    public TwitchModule Module { get; set; } = null!;
+
+    public FlowOutput Next = new();
 
     public ValueOutput<TwitchUser> Broadcaster = new();
     public ValueOutput<TwitchGoal> Goal = new();
 
-    protected override async Task Process(PulseContext c)
-    {
-        await Next.Execute(c);
-    }
+    protected override Task Process(IPulseContext c) => Next.Execute(c);
 
-    public Task Write(object[] args, PulseContext c)
+    public Task Write(object[] args, IPulseContext c)
     {
         Broadcaster.Write((TwitchUser)args[0], c);
         Goal.Write((TwitchGoal)args[1], c);
@@ -251,19 +241,18 @@ public sealed class TwitchChannelGoalEndNode : ModuleNode<TwitchModule>, IModule
 
 [Node("On Twitch Channel Update", "Events")]
 [NodeNoCancel]
-public sealed class TwitchChannelUpdateNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
+public sealed class TwitchChannelUpdateNode : Node, IModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
-    public FlowContinuation Next = new("On Update");
+    public TwitchModule Module { get; set; } = null!;
+
+    public FlowOutput Next = new();
 
     public ValueOutput<TwitchUser> Broadcaster = new();
     public ValueOutput<TwitchChannel> Channel = new();
 
-    protected override async Task Process(PulseContext c)
-    {
-        await Next.Execute(c);
-    }
+    protected override Task Process(IPulseContext c) => Next.Execute(c);
 
-    public Task Write(object[] args, PulseContext c)
+    public Task Write(object[] args, IPulseContext c)
     {
         Broadcaster.Write((TwitchUser)args[0], c);
         Channel.Write((TwitchChannel)args[1], c);
@@ -273,19 +262,18 @@ public sealed class TwitchChannelUpdateNode : ModuleNode<TwitchModule>, IModuleN
 
 [Node("On Twitch Channel Ban", "Events")]
 [NodeNoCancel]
-public sealed class TwitchChannelBanNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
+public sealed class TwitchChannelBanNode : Node, IModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
-    public FlowContinuation Next = new("On Ban");
+    public TwitchModule Module { get; set; } = null!;
+
+    public FlowOutput Next = new();
 
     public ValueOutput<TwitchUser> Broadcaster = new();
     public ValueOutput<TwitchBan> Ban = new();
 
-    protected override async Task Process(PulseContext c)
-    {
-        await Next.Execute(c);
-    }
+    protected override Task Process(IPulseContext c) => Next.Execute(c);
 
-    public Task Write(object[] args, PulseContext c)
+    public Task Write(object[] args, IPulseContext c)
     {
         Broadcaster.Write((TwitchUser)args[0], c);
         Ban.Write((TwitchBan)args[1], c);
@@ -295,19 +283,18 @@ public sealed class TwitchChannelBanNode : ModuleNode<TwitchModule>, IModuleNode
 
 [Node("On Twitch Channel HypeTrain Begin", "Events")]
 [NodeNoCancel]
-public sealed class TwitchChannelHypeTrainBeginNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
+public sealed class TwitchChannelHypeTrainBeginNode : Node, IModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
-    public FlowContinuation Next = new("On HypeTrain Begin");
+    public TwitchModule Module { get; set; } = null!;
+
+    public FlowOutput Next = new();
 
     public ValueOutput<TwitchUser> Broadcaster = new();
     public ValueOutput<TwitchHypeTrain> HypeTrain = new();
 
-    protected override async Task Process(PulseContext c)
-    {
-        await Next.Execute(c);
-    }
+    protected override Task Process(IPulseContext c) => Next.Execute(c);
 
-    public Task Write(object[] args, PulseContext c)
+    public Task Write(object[] args, IPulseContext c)
     {
         Broadcaster.Write((TwitchUser)args[0], c);
         HypeTrain.Write((TwitchHypeTrain)args[1], c);
@@ -317,19 +304,18 @@ public sealed class TwitchChannelHypeTrainBeginNode : ModuleNode<TwitchModule>, 
 
 [Node("On Twitch Channel HypeTrain Progress", "Events")]
 [NodeNoCancel]
-public sealed class TwitchChannelHypeTrainProgressNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
+public sealed class TwitchChannelHypeTrainProgressNode : Node, IModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
-    public FlowContinuation Next = new("On HypeTrain Progress");
+    public TwitchModule Module { get; set; } = null!;
+
+    public FlowOutput Next = new();
 
     public ValueOutput<TwitchUser> Broadcaster = new();
     public ValueOutput<TwitchHypeTrain> HypeTrain = new();
 
-    protected override async Task Process(PulseContext c)
-    {
-        await Next.Execute(c);
-    }
+    protected override Task Process(IPulseContext c) => Next.Execute(c);
 
-    public Task Write(object[] args, PulseContext c)
+    public Task Write(object[] args, IPulseContext c)
     {
         Broadcaster.Write((TwitchUser)args[0], c);
         HypeTrain.Write((TwitchHypeTrain)args[1], c);
@@ -339,19 +325,18 @@ public sealed class TwitchChannelHypeTrainProgressNode : ModuleNode<TwitchModule
 
 [Node("On Twitch Channel HypeTrain End", "Events")]
 [NodeNoCancel]
-public sealed class TwitchChannelHypeTrainEndNode : ModuleNode<TwitchModule>, IModuleNodeEventHandler
+public sealed class TwitchChannelHypeTrainEndNode : Node, IModuleNode<TwitchModule>, IModuleNodeEventHandler
 {
-    public FlowContinuation Next = new("On HypeTrain End");
+    public TwitchModule Module { get; set; } = null!;
+
+    public FlowOutput Next = new();
 
     public ValueOutput<TwitchUser> Broadcaster = new();
     public ValueOutput<TwitchHypeTrain> HypeTrain = new();
 
-    protected override async Task Process(PulseContext c)
-    {
-        await Next.Execute(c);
-    }
+    protected override Task Process(IPulseContext c) => Next.Execute(c);
 
-    public Task Write(object[] args, PulseContext c)
+    public Task Write(object[] args, IPulseContext c)
     {
         Broadcaster.Write((TwitchUser)args[0], c);
         HypeTrain.Write((TwitchHypeTrain)args[1], c);

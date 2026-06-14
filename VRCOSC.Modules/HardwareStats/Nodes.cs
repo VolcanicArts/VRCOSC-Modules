@@ -2,20 +2,22 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.App.Nodes;
+using VRCOSC.App.Nodes.Types;
 using VRCOSC.App.SDK.Nodes;
 
 namespace VRCOSC.Modules.HardwareStats;
 
 [Node("CPU Info Source")]
-[NodeForceReprocess]
-public sealed class CPUInfoSourceNode : ModuleNode<HardwareStatsModule>, IActiveUpdateNode
+public sealed class CPUInfoSourceNode : Node, IModuleNode<HardwareStatsModule>, IContinuousNode
 {
     public int UpdateOffset => 0;
+    public HardwareStatsModule Module { get; set; } = null!;
+
     public ValueOutput<float> Usage = new();
     public ValueOutput<int> Power = new();
     public ValueOutput<int> Temperature = new();
 
-    protected override Task Process(PulseContext c)
+    protected override Task Process(IPulseContext c)
     {
         var cpu = Module.GetCPU();
         if (cpu is null) return Task.CompletedTask;
@@ -25,19 +27,19 @@ public sealed class CPUInfoSourceNode : ModuleNode<HardwareStatsModule>, IActive
         Temperature.Write(cpu.Temperature, c);
         return Task.CompletedTask;
     }
-
-    public Task<bool> OnUpdate(PulseContext c) => Task.FromResult(true);
 }
 
 [Node("GPU Info Source")]
-public sealed class GPUInfoSourceNode : ModuleNode<HardwareStatsModule>, IActiveUpdateNode
+public sealed class GPUInfoSourceNode : Node, IModuleNode<HardwareStatsModule>, IContinuousNode
 {
     public int UpdateOffset => 0;
+    public HardwareStatsModule Module { get; set; } = null!;
+
     public ValueOutput<float> Usage = new();
     public ValueOutput<int> Power = new();
     public ValueOutput<int> Temperature = new();
 
-    protected override Task Process(PulseContext c)
+    protected override Task Process(IPulseContext c)
     {
         var gpu = Module.GetGPU();
         if (gpu is null) return Task.CompletedTask;
@@ -47,20 +49,20 @@ public sealed class GPUInfoSourceNode : ModuleNode<HardwareStatsModule>, IActive
         Temperature.Write(gpu.Temperature, c);
         return Task.CompletedTask;
     }
-
-    public Task<bool> OnUpdate(PulseContext c) => Task.FromResult(true);
 }
 
 [Node("RAM Info Source")]
-public sealed class RAMInfoSourceNode : ModuleNode<HardwareStatsModule>, IActiveUpdateNode
+public sealed class RAMInfoSourceNode : Node, IModuleNode<HardwareStatsModule>, IContinuousNode
 {
     public int UpdateOffset => 0;
+    public HardwareStatsModule Module { get; set; } = null!;
+
     public ValueOutput<float> Usage = new();
     public ValueOutput<float> Total = new();
     public ValueOutput<float> Used = new();
     public ValueOutput<float> Free = new();
 
-    protected override Task Process(PulseContext c)
+    protected override Task Process(IPulseContext c)
     {
         var ram = Module.GetRAM();
         if (ram is null) return Task.CompletedTask;
@@ -71,20 +73,20 @@ public sealed class RAMInfoSourceNode : ModuleNode<HardwareStatsModule>, IActive
         Free.Write(ram.Available, c);
         return Task.CompletedTask;
     }
-
-    public Task<bool> OnUpdate(PulseContext c) => Task.FromResult(true);
 }
 
 [Node("VRAM Info Source")]
-public sealed class VRAMInfoSourceNode : ModuleNode<HardwareStatsModule>, IActiveUpdateNode
+public sealed class VRAMInfoSourceNode : Node, IModuleNode<HardwareStatsModule>, IContinuousNode
 {
     public int UpdateOffset => 0;
+    public HardwareStatsModule Module { get; set; } = null!;
+
     public ValueOutput<float> Usage = new();
     public ValueOutput<float> Total = new();
     public ValueOutput<float> Used = new();
     public ValueOutput<float> Free = new();
 
-    protected override Task Process(PulseContext c)
+    protected override Task Process(IPulseContext c)
     {
         var gpu = Module.GetGPU();
         if (gpu is null) return Task.CompletedTask;
@@ -95,6 +97,4 @@ public sealed class VRAMInfoSourceNode : ModuleNode<HardwareStatsModule>, IActiv
         Free.Write(gpu.MemoryFree / 1000f, c);
         return Task.CompletedTask;
     }
-
-    public Task<bool> OnUpdate(PulseContext c) => Task.FromResult(true);
 }

@@ -179,7 +179,7 @@ public record TwitchSubscription
         IsGift = isGift;
     }
 
-    public virtual bool Equals(TwitchSubscription? other) => User.Id == other?.User.Id && Tier == other.Tier && IsGift == other.IsGift;
+    public virtual bool Equals(TwitchSubscription? other) => User.Id == other?.User.Id && Tier == other.Tier;
 
     public override int GetHashCode() => HashCode.Combine(User, (int)Tier, IsGift);
 }

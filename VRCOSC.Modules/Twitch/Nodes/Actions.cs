@@ -2,32 +2,27 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.App.Nodes;
+using VRCOSC.App.Nodes.Types;
 using VRCOSC.App.SDK.Nodes;
 using VRCOSC.Modules.Twitch.Data;
 
 namespace VRCOSC.Modules.Twitch.Nodes;
 
 [Node("Twitch Send Chat Message", "Actions")]
-public sealed class TwitchSendChatMessageNode : ModuleNode<TwitchModule>, IFlowInput
+public sealed class TwitchSendChatMessageNode : TryActionAsyncNode, IModuleNode<TwitchModule>
 {
-    public FlowContinuation OnSuccess = new("On Success");
-    public FlowContinuation OnFail = new("On Fail");
+    public TwitchModule Module { get; set; } = null!;
 
     public ValueInput<string> Text = new();
-    public ValueInput<TwitchUser> Broadcaster = new();
-    public ValueInput<TwitchMessage> ReplyParentMessage = new("Reply Parent Message");
+    public ValueInput<TwitchUser?> Broadcaster = new();
+    public ValueInput<TwitchMessage?> ReplyParentMessage = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override Task<bool> TryActionAsync(IPulseContext c)
     {
         var text = Text.Read(c);
         var broadcaster = Broadcaster.Read(c);
         var replyParentMessage = ReplyParentMessage.Read(c);
 
-        var result = await Module.SendChatMessage(text, broadcaster, replyParentMessage);
-
-        if (result)
-            await OnSuccess.Execute(c);
-        else
-            await OnFail.Execute(c);
+        return Module.SendChatMessage(text, broadcaster, replyParentMessage);
     }
 }

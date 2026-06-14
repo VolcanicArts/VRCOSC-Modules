@@ -2,116 +2,84 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.App.Nodes;
+using VRCOSC.App.Nodes.Types;
 using VRCOSC.App.SDK.Nodes;
 using VRCOSC.App.SDK.Providers.PiShock;
 
 namespace VRCOSC.Modules.PiShock;
 
-[Node("PiShock Execute Group")]
-public sealed class PiShockExecuteGroupNode : ModuleNode<PiShockModule>, IFlowInput
+[Node("Execute Group")]
+public sealed class PiShockExecuteGroupNode : TryActionAsyncNode, IModuleNode<PiShockModule>
 {
-    public FlowContinuation OnSuccess = new("On Success");
-    public FlowContinuation OnFail = new("On Fail");
+    public PiShockModule Module { get; set; } = null!;
 
     public ValueInput<int> Group = new();
     public ValueInput<PiShockMode> Mode = new();
     public ValueInput<float> Intensity = new();
     public ValueInput<float> Duration = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override async Task<bool> TryActionAsync(IPulseContext c)
     {
         var groupIndex = Group.Read(c);
 
         if (groupIndex < 0 || groupIndex >= Module.GroupsSetting.Attribute.Count)
-        {
-            await OnFail.Execute(c);
-            return;
-        }
+            return false;
 
         var group = Module.GroupsSetting.Attribute[groupIndex];
 
         if (group is null)
-        {
-            await OnFail.Execute(c);
-            return;
-        }
+            return false;
 
         var mode = Mode.Read(c);
         var intensity = float.Clamp(Intensity.Read(c), 0f, 1f);
         var duration = float.Clamp(Duration.Read(c), 0f, 1f);
 
-        var result = await Module.ExecuteGroupAsync(group.ID, mode, intensity, duration);
-
-        if (!result)
-        {
-            await OnFail.Execute(c);
-            return;
-        }
-
-        await OnSuccess.Execute(c);
+        return await Module.ExecuteGroupAsync(group.ID, mode, intensity, duration);
     }
 }
 
-[Node("PiShock Execute Sharecode")]
-public sealed class PiShockExecuteSharecodeNode : ModuleNode<PiShockModule>, IFlowInput
+[Node("Execute Sharecode")]
+public sealed class PiShockExecuteSharecodeNode : TryActionAsyncNode, IModuleNode<PiShockModule>
 {
-    public FlowContinuation OnSuccess = new("On Success");
-    public FlowContinuation OnFail = new("On Fail");
+    public PiShockModule Module { get; set; } = null!;
 
-    public ValueInput<string> Sharecode = new("Sharecode");
+    public ValueInput<string> Sharecode = new();
     public ValueInput<PiShockMode> Mode = new();
     public ValueInput<int> Intensity = new();
-    public ValueInput<int> Duration = new("Duration Milli");
+    public ValueInput<int> Duration = new("Duration (ms)");
 
-    protected override async Task Process(PulseContext c)
+    protected override async Task<bool> TryActionAsync(IPulseContext c)
     {
         var sharecode = Sharecode.Read(c);
 
         if (sharecode is null)
-        {
-            await OnFail.Execute(c);
-            return;
-        }
+            return false;
 
         var mode = Mode.Read(c);
         var intensity = int.Clamp(Intensity.Read(c), 0, 100);
         var duration = int.Max(Duration.Read(c), 0);
 
-        var result = await Module.ExecuteSharecode(sharecode, mode, intensity, duration);
-
-        if (!result)
-        {
-            await OnFail.Execute(c);
-            return;
-        }
-
-        await OnSuccess.Execute(c);
+        return await Module.ExecuteSharecode(sharecode, mode, intensity, duration);
     }
 }
 
-[Node("PiShock Execute Serial")]
-public sealed class PiShockExecuteSerialNode : ModuleNode<PiShockModule>, IFlowInput
+[Node("Execute Serial")]
+public sealed class PiShockExecuteSerialNode : TryActionAsyncNode, IModuleNode<PiShockModule>
 {
-    public FlowContinuation OnSuccess = new("On Success");
-    public FlowContinuation OnFail = new("On Fail");
+    public PiShockModule Module { get; set; } = null!;
 
     public ValueInput<PiShockMode> Mode = new();
     public ValueInput<int> Intensity = new();
-    public ValueInput<int> Duration = new("Duration Milli");
-    public ValueInput<int?> ShockerId = new("Shocker Id");
+    public ValueInput<int> Duration = new("Duration (ms)");
+    public ValueInput<int> ShockerId = new(defaultValue: -1);
 
-    protected override async Task Process(PulseContext c)
+    protected override Task<bool> TryActionAsync(IPulseContext c)
     {
         var mode = Mode.Read(c);
         var intensity = int.Clamp(Intensity.Read(c), 0, 100);
         var duration = int.Max(Duration.Read(c), 0);
         var shockerId = ShockerId.Read(c);
 
-        var success = await Module.ExecuteSerial(mode, intensity, duration, shockerId);
-
-        if (success)
-            await OnSuccess.Execute(c);
-        else
-            await OnFail.Execute(c);
+        return Module.ExecuteSerial(mode, intensity, duration, shockerId == -1 ? null : shockerId);
     }
 }
