@@ -81,7 +81,9 @@ public class TwitchModule : Module
 
     protected override async Task OnModuleStop()
     {
-        await websocket!.DisconnectAsync();
+        if (websocket is null) return;
+
+        await websocket.DisconnectAsync();
     }
 
     private async Task onWebsocketConnected(object? sender, WebsocketConnectedArgs e)
