@@ -147,7 +147,7 @@ public class PiShockModule : Module, ISpeechHandler
         try
         {
             var globalGroupParameter = await FindParameter("VRCOSC/PiShock/Group");
-            globalGroupID = getShockerGroupFromIndex(globalGroupParameter?.GetValue<int>() ?? -1, out var group) ? group.ID : null;
+            globalGroupID = getShockerGroupFromIndex(globalGroupParameter?.GetValue<int>() ?? 0, out var group) ? group.ID : null;
 
             var globalDurationParameter = await FindParameter("VRCOSC/PiShock/Duration");
             globalDuration = globalDurationParameter?.GetValue<float>() ?? 0f;
