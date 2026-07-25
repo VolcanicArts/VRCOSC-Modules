@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Collections.ObjectModel;
 using System.Windows.Controls;
 
 namespace VRCOSC.Modules.Media;
@@ -8,6 +9,8 @@ namespace VRCOSC.Modules.Media;
 public partial class MediaModuleRuntimeView
 {
     public MediaModule Module { get; }
+
+    public ObservableCollection<SourceSelectionItem> Sessions { get; } = [new("Auto-Switch", string.Empty)];
 
     public MediaModuleRuntimeView(MediaModule module)
     {
@@ -21,9 +24,16 @@ public partial class MediaModuleRuntimeView
 
     private void updateSessionComboBox() => Dispatcher.Invoke(() =>
     {
-        var sessions = new List<SourceSelectionItem> { new("Auto-Switch", string.Empty) };
-        sessions.AddRange(Module.MediaProvider.SessionStates.Select(pair => new SourceSelectionItem(pair.Key, pair.Key)));
-        SourceComboBox.ItemsSource = sessions;
+        var activeSessions = Module.MediaProvider.SessionStates.Select(pair => new SourceSelectionItem(pair.Key, pair.Key));
+
+        if (!string.IsNullOrWhiteSpace(Module.SourceSelection) && Sessions.All(existingItem => existingItem.Value != Module.SourceSelection))
+            Sessions.Add(new SourceSelectionItem(Module.SourceSelection, Module.SourceSelection));
+
+        foreach (var item in activeSessions)
+        {
+            if (Sessions.All(existingItem => existingItem.Value != item.Value)) Sessions.Add(item);
+        }
+
         SourceComboBox.SelectedValue = Module.SourceSelection ?? string.Empty;
     });
 
