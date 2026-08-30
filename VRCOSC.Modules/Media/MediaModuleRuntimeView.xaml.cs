@@ -10,7 +10,7 @@ public partial class MediaModuleRuntimeView
 {
     public MediaModule Module { get; }
 
-    public ObservableCollection<SourceSelectionItem> Sessions { get; } = [new("Auto-Switch", string.Empty)];
+    public ObservableCollection<SourceSelectionItem> Sessions { get; } = [new("Auto-Switch", null)];
 
     public MediaModuleRuntimeView(MediaModule module)
     {
