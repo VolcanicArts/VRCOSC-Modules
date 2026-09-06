@@ -1,8 +1,10 @@
 // Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using VRCOSC.App.ChatBox.Clips.Variables.Instances;
+using VRCOSC.App.OSC;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.VRChat;
@@ -189,7 +191,7 @@ public class CounterModule : Module
     protected override void OnAnyParameterReceived(VRChatParameter parameter)
     {
         var countInstances = GetSettingValue<List<Counter>>(CounterSetting.CountInstances)
-            .Where(countInstance => countInstance.ParameterNames.Select(instance => TemplatedVRChatParameter.TemplateAsRegex(instance.Value)).Any(p => p.IsMatch(parameter.Name)));
+            .Where(countInstance => countInstance.ParameterNames.Select(instance => new Regex(OSCPatterns.ToReceivePattern(instance.Value))).Any(p => p.IsMatch(parameter.Name)));
 
         foreach (var countInstance in countInstances)
         {
