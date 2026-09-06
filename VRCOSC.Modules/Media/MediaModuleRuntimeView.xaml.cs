@@ -34,7 +34,7 @@ public partial class MediaModuleRuntimeView
             if (Sessions.All(existingItem => existingItem.Value != item.Value)) Sessions.Add(item);
         }
 
-        SourceComboBox.SelectedValue = Module.SourceSelection ?? string.Empty;
+        SourceComboBox.SelectedValue = Module.SourceSelection;
     });
 
     private void SourceSelection_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
