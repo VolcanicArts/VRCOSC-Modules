@@ -189,11 +189,40 @@ public class TwitchModule : Module
     {
         var ev = e.Payload.Event;
 
+        var type = ev.Type;
         var broadcaster = new TwitchUser(ev.BroadcasterUserId, ev.BroadcasterUserName, TwitchUserRole.Broadcaster);
         var user = new TwitchUser(ev.UserId, ev.UserName, 0);
-        var bits = new TwitchBits(user, ev.Bits, ev.Message?.Text ?? string.Empty);
+        var amount = ev.Bits;
+        var message = ev.Message?.Text;
 
-        await TriggerModuleNode(typeof(TwitchChannelBitsNode), [broadcaster, bits]);
+        if (type == "cheer")
+        {
+            var bits = new TwitchBits(user, amount, message);
+
+            await TriggerModuleNode(typeof(TwitchChannelBitsNode), [broadcaster, bits]);
+            return;
+        }
+
+        if (type == "power_up")
+        {
+            Debug.Assert(ev.PowerUp is not null);
+            var powerUpType = TwitchFactory.CreatePowerUpType(ev.PowerUp.Type);
+            var messageEffectId = ev.PowerUp.MessageEffectId;
+            var emote = ev.PowerUp.Emote is not null ? new TwitchEmote(ev.PowerUp.Emote) : null;
+            var powerUp = new TwitchPowerUp(user, amount, message, powerUpType, messageEffectId, emote);
+
+            await TriggerModuleNode(typeof(TwitchChannelPowerUpNode), [broadcaster, powerUp]);
+            return;
+        }
+
+        if (type == "custom_power_up")
+        {
+            Debug.Assert(ev.CustomPowerUp is not null);
+            var customPowerUp = new TwitchCustomPowerUp(user, amount, message, ev.CustomPowerUp.RewardId, ev.CustomPowerUp.Title);
+
+            await TriggerModuleNode(typeof(TwitchChannelCustomPowerUpNode), [broadcaster, customPowerUp]);
+            return;
+        }
     }
 
     private async Task onChannelRaid(object? sender, ChannelRaidArgs e)

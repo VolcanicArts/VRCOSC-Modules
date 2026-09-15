@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Globalization;
+using TwitchLib.EventSub.Core.Models.Bits;
 
 namespace VRCOSC.Modules.Twitch.Data;
 
@@ -51,6 +52,13 @@ public enum TwitchHypeTrainType
     Regular,
     Treasure,
     GoldenKappa,
+}
+
+public enum TwitchPowerUpType
+{
+    MessageEffect,
+    Celebration,
+    GigantifyAnEmote
 }
 
 public static class TwitchFactory
@@ -106,6 +114,14 @@ public static class TwitchFactory
         "regular" => TwitchHypeTrainType.Regular,
         "treasure" => TwitchHypeTrainType.Treasure,
         "golden_kappa" => TwitchHypeTrainType.GoldenKappa,
+        _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+    };
+
+    public static TwitchPowerUpType CreatePowerUpType(string type) => type switch
+    {
+        "message_effect" => TwitchPowerUpType.MessageEffect,
+        "celebration" => TwitchPowerUpType.Celebration,
+        "gigantify_an_emote" => TwitchPowerUpType.GigantifyAnEmote,
         _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
     };
 }
@@ -264,13 +280,59 @@ public record TwitchBits
 {
     public readonly TwitchUser User;
     public readonly int Amount;
-    public readonly string Message;
+    public readonly string? Message;
 
-    public TwitchBits(TwitchUser user, int amount, string message)
+    public TwitchBits(TwitchUser user, int amount, string? message)
     {
         User = user;
         Amount = amount;
         Message = message;
+    }
+}
+
+public record TwitchPowerUp : TwitchBits
+{
+    public readonly TwitchPowerUpType Type;
+    public readonly string? MessageEffectId;
+    public readonly TwitchEmote? Emote;
+
+    public TwitchPowerUp(TwitchUser user, int amount, string? message, TwitchPowerUpType type, string? messageEffectId, TwitchEmote? emote)
+        : base(user, amount, message)
+    {
+        Type = type;
+        MessageEffectId = messageEffectId;
+        Emote = emote;
+    }
+}
+
+public record TwitchCustomPowerUp : TwitchBits
+{
+    public readonly string RewardId;
+    public readonly string Title;
+
+    public TwitchCustomPowerUp(TwitchUser user, int amount, string? message, string rewardId, string title)
+        : base(user, amount, message)
+    {
+        RewardId = rewardId;
+        Title = title;
+    }
+}
+
+public record TwitchEmote
+{
+    public readonly string Id;
+    public readonly string Name;
+
+    public TwitchEmote(string id, string name)
+    {
+        Id = id;
+        Name = name;
+    }
+
+    internal TwitchEmote(PowerUpEmote emote)
+    {
+        Id = emote.Id;
+        Name = emote.Name;
     }
 }
 

@@ -155,6 +155,48 @@ public sealed class TwitchChannelBitsNode : Node, IModuleNode<TwitchModule>, IMo
     }
 }
 
+[Node("On Twitch Channel Power Up", "Events")]
+[NodeNoCancel]
+public sealed class TwitchChannelPowerUpNode : Node, IModuleNode<TwitchModule>, IModuleNodeEventHandler
+{
+    public TwitchModule Module { get; set; } = null!;
+
+    public FlowOutput Next = new();
+
+    public ValueOutput<TwitchUser> Broadcaster = new();
+    public ValueOutput<TwitchPowerUp> PowerUp = new();
+
+    protected override Task Process(IPulseContext c) => Next.Execute(c);
+
+    public Task Write(object[] args, IPulseContext c)
+    {
+        Broadcaster.Write((TwitchUser)args[0], c);
+        PowerUp.Write((TwitchPowerUp)args[1], c);
+        return Task.CompletedTask;
+    }
+}
+
+[Node("On Twitch Channel Custom Power Up", "Events")]
+[NodeNoCancel]
+public sealed class TwitchChannelCustomPowerUpNode : Node, IModuleNode<TwitchModule>, IModuleNodeEventHandler
+{
+    public TwitchModule Module { get; set; } = null!;
+
+    public FlowOutput Next = new();
+
+    public ValueOutput<TwitchUser> Broadcaster = new();
+    public ValueOutput<TwitchCustomPowerUp> PowerUp = new();
+
+    protected override Task Process(IPulseContext c) => Next.Execute(c);
+
+    public Task Write(object[] args, IPulseContext c)
+    {
+        Broadcaster.Write((TwitchUser)args[0], c);
+        PowerUp.Write((TwitchCustomPowerUp)args[1], c);
+        return Task.CompletedTask;
+    }
+}
+
 [Node("On Twitch Channel Raid", "Events")]
 [NodeNoCancel]
 public sealed class TwitchChannelRaidNode : Node, IModuleNode<TwitchModule>, IModuleNodeEventHandler

@@ -180,7 +180,7 @@ public sealed class TwitchBitsUnpackNode() : ValueConsumeNode<TwitchBits?>("Bits
 
     public ValueOutput<TwitchUser> User = new();
     public ValueOutput<int> Amount = new();
-    public ValueOutput<string> Message = new();
+    public ValueOutput<string?> Message = new();
 
     protected override void ConsumeValue(TwitchBits? bits, IPulseContext c)
     {
@@ -189,6 +189,71 @@ public sealed class TwitchBitsUnpackNode() : ValueConsumeNode<TwitchBits?>("Bits
         User.Write(bits.User, c);
         Amount.Write(bits.Amount, c);
         Message.Write(bits.Message, c);
+    }
+}
+
+[Node("Twitch Power Up Unpack", "Structs")]
+public sealed class TwitchPowerUpUnpackNode() : ValueConsumeNode<TwitchPowerUp?>("Power Up"), IModuleNode<TwitchModule>
+{
+    public TwitchModule Module { get; set; } = null!;
+
+    public ValueOutput<TwitchUser> User = new();
+    public ValueOutput<int> Amount = new();
+    public ValueOutput<string?> Message = new();
+    public ValueOutput<TwitchPowerUpType> Type = new();
+    public ValueOutput<string?> MessageEffectId = new();
+    public ValueOutput<TwitchEmote?> Emote = new();
+
+    protected override void ConsumeValue(TwitchPowerUp? powerUp, IPulseContext c)
+    {
+        if (powerUp is null) return;
+
+        User.Write(powerUp.User, c);
+        Amount.Write(powerUp.Amount, c);
+        Message.Write(powerUp.Message, c);
+        Type.Write(powerUp.Type, c);
+        MessageEffectId.Write(powerUp.MessageEffectId, c);
+        Emote.Write(powerUp.Emote, c);
+    }
+}
+
+[Node("Twitch Custom Power Up Unpack", "Structs")]
+public sealed class TwitchCustomPowerUpUnpackNode() : ValueConsumeNode<TwitchCustomPowerUp?>("Power Up"), IModuleNode<TwitchModule>
+{
+    public TwitchModule Module { get; set; } = null!;
+
+    public ValueOutput<TwitchUser> User = new();
+    public ValueOutput<int> Amount = new();
+    public ValueOutput<string?> Message = new();
+    public ValueOutput<string> RewardId = new();
+    public ValueOutput<string> Title = new();
+
+    protected override void ConsumeValue(TwitchCustomPowerUp? powerUp, IPulseContext c)
+    {
+        if (powerUp is null) return;
+
+        User.Write(powerUp.User, c);
+        Amount.Write(powerUp.Amount, c);
+        Message.Write(powerUp.Message, c);
+        RewardId.Write(powerUp.RewardId, c);
+        Title.Write(powerUp.Title, c);
+    }
+}
+
+[Node("Twitch Emote Unpack", "Structs")]
+public sealed class TwitchEmoteUnpackNode() : ValueConsumeNode<TwitchEmote?>("Emote"), IModuleNode<TwitchModule>
+{
+    public TwitchModule Module { get; set; } = null!;
+
+    public ValueOutput<string> EmoteId = new("Id");
+    public ValueOutput<string> Name = new();
+
+    protected override void ConsumeValue(TwitchEmote? emote, IPulseContext c)
+    {
+        if (emote is null) return;
+
+        EmoteId.Write(emote.Id, c);
+        Name.Write(emote.Name, c);
     }
 }
 
