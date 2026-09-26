@@ -32,6 +32,12 @@ public class WeatherModule : Module
         var tempFReference = CreateVariable<float>(WeatherVariable.TempF, "Temp F")!;
         CreateVariable<int>(WeatherVariable.Humidity, "Humidity");
         var conditionReference = CreateVariable<string>(WeatherVariable.Condition, "Condition")!;
+        CreateVariable<float>(WeatherVariable.FeelsLikeC, "Feels Like C");
+        CreateVariable<float>(WeatherVariable.FeelsLikeF, "Feels Like F");
+        CreateVariable<float>(WeatherVariable.WindKph, "Wind KPH");
+        CreateVariable<float>(WeatherVariable.WindMph, "Wind MPH");
+        CreateVariable<string>(WeatherVariable.WindDir, "Wind Direction");
+        CreateVariable<string>(WeatherVariable.Emoji, "Emoji");
 
         CreateState(WeatherState.Default, "Default", "Local Weather\n{0}\n{1}C - {2}F", new[] { conditionReference, tempCReference, tempFReference });
     }
@@ -76,6 +82,34 @@ public class WeatherModule : Module
         SetVariableValue(WeatherVariable.TempF, CurrentWeather.TempF);
         SetVariableValue(WeatherVariable.Humidity, CurrentWeather.Humidity);
         SetVariableValue(WeatherVariable.Condition, CurrentWeather.ConditionString);
+        SetVariableValue(WeatherVariable.FeelsLikeC, CurrentWeather.FeelsLikeC);
+        SetVariableValue(WeatherVariable.FeelsLikeF, CurrentWeather.FeelsLikeF);
+        SetVariableValue(WeatherVariable.WindKph, CurrentWeather.WindKph);
+        SetVariableValue(WeatherVariable.WindMph, CurrentWeather.WindMph);
+        SetVariableValue(WeatherVariable.WindDir, CurrentWeather.WindDir);
+        SetVariableValue(WeatherVariable.Emoji, getWeatherEmoji(CurrentWeather));
+    }
+
+    private static string getWeatherEmoji(CurrentWeather currentWeather)
+    {
+        var isDay = currentWeather.IsDay == 1;
+
+        return currentWeather.Condition.Code switch
+        {
+            1000 => isDay ? "\u2600\uFE0F" : "\U0001F319",
+            1003 => isDay ? "\u26C5" : "\U0001F319\u2601\uFE0F",
+            1006 => "\u2601\uFE0F",
+            1009 => "\u2601\uFE0F",
+            1030 or 1135 or 1147 => "\U0001F32B\uFE0F",
+            1063 or 1150 or 1153 or 1180 or 1183 or 1240 => isDay ? "\U0001F326\uFE0F" : "\U0001F327\uFE0F",
+            1186 or 1189 or 1192 or 1195 or 1243 or 1246 => "\U0001F327\uFE0F",
+            1072 or 1168 or 1171 or 1198 or 1201 => "\U0001F327\uFE0F\u2744\uFE0F",
+            1069 or 1204 or 1207 or 1237 or 1249 or 1252 or 1261 or 1264 => "\U0001F328\uFE0F",
+            1066 or 1114 or 1117 or 1210 or 1213 or 1216 or 1219 or 1222 or 1225 or 1255 or 1258 => "\u2744\uFE0F",
+            1087 or 1273 or 1276 => "\u26C8\uFE0F",
+            1279 or 1282 => "\u26C8\uFE0F\u2744\uFE0F",
+            _ => "\u2753"
+        };
     }
 
     private static int getConvertedWeatherCode(CurrentWeather currentWeather) => currentWeather.Condition.Code switch
@@ -151,6 +185,12 @@ public class WeatherModule : Module
         TempC,
         TempF,
         Humidity,
-        Condition
+        Condition,
+        FeelsLikeC,
+        FeelsLikeF,
+        WindKph,
+        WindMph,
+        WindDir,
+        Emoji
     }
 }
