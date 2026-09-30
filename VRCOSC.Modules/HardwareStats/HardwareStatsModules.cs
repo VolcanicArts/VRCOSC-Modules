@@ -141,14 +141,14 @@ public sealed class HardwareStatsModule : Module
         SendParameter(HardwareStatsParameter.GPUTemp, gpu.Temperature);
 
         SendParameter(HardwareStatsParameter.RAMUsage, ram.Usage / 100f);
-        SendParameter(HardwareStatsParameter.RAMTotal, ram.Total);
-        SendParameter(HardwareStatsParameter.RAMUsed, ram.Used);
-        SendParameter(HardwareStatsParameter.RAMFree, ram.Available);
+        SendParameter(HardwareStatsParameter.RAMTotal, ram.Total / 1_000_000_000f);
+        SendParameter(HardwareStatsParameter.RAMUsed, ram.Used / 1_000_000_000f);
+        SendParameter(HardwareStatsParameter.RAMFree, ram.Available / 1_000_000_000f);
 
         SendParameter(HardwareStatsParameter.VRAMUsage, gpu.MemoryUsage);
-        SendParameter(HardwareStatsParameter.VRAMTotal, gpu.MemoryTotal / 1000f);
-        SendParameter(HardwareStatsParameter.VRAMUsed, gpu.MemoryUsed / 1000f);
-        SendParameter(HardwareStatsParameter.VRAMFree, gpu.MemoryFree / 1000f);
+        SendParameter(HardwareStatsParameter.VRAMTotal, gpu.MemoryTotal / 1_000_000_000f);
+        SendParameter(HardwareStatsParameter.VRAMUsed, gpu.MemoryUsed / 1_000_000_000f);
+        SendParameter(HardwareStatsParameter.VRAMFree, gpu.MemoryFree / 1_000_000_000f);
 
         SetVariableValue(HardwareStatsVariable.CPUName, cpu.Name);
         SetVariableValue(HardwareStatsVariable.CPUUsage, (int)cpu.Usage);
@@ -161,14 +161,14 @@ public sealed class HardwareStatsModule : Module
         SetVariableValue(HardwareStatsVariable.GPUTemp, gpu.Temperature);
 
         SetVariableValue(HardwareStatsVariable.RAMUsage, ram.Usage);
-        SetVariableValue(HardwareStatsVariable.RAMTotal, ram.Total);
-        SetVariableValue(HardwareStatsVariable.RAMUsed, ram.Used);
-        SetVariableValue(HardwareStatsVariable.RAMFree, ram.Available);
+        SetVariableValue(HardwareStatsVariable.RAMTotal, ram.Total / 1_000_000_000f);
+        SetVariableValue(HardwareStatsVariable.RAMUsed, ram.Used / 1_000_000_000f);
+        SetVariableValue(HardwareStatsVariable.RAMFree, ram.Available / 1_000_000_000f);
 
         SetVariableValue(HardwareStatsVariable.VRAMUsage, gpu.MemoryUsage * 100f);
-        SetVariableValue(HardwareStatsVariable.VRAMTotal, gpu.MemoryTotal / 1000f);
-        SetVariableValue(HardwareStatsVariable.VRAMUsed, gpu.MemoryUsed / 1000f);
-        SetVariableValue(HardwareStatsVariable.VRAMFree, gpu.MemoryFree / 1000f);
+        SetVariableValue(HardwareStatsVariable.VRAMTotal, gpu.MemoryTotal / 1_000_000_000f);
+        SetVariableValue(HardwareStatsVariable.VRAMUsed, gpu.MemoryUsed / 1_000_000_000f);
+        SetVariableValue(HardwareStatsVariable.VRAMFree, gpu.MemoryFree / 1_000_000_000f);
     }
 
     protected override Task OnModuleStop()
