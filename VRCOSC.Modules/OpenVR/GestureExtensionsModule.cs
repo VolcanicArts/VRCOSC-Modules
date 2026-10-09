@@ -10,7 +10,7 @@ namespace VRCOSC.Modules.OpenVR;
 [ModuleTitle("Index Gesture Extensions")]
 [ModuleDescription("Detect a range of custom gestures from Index controllers")]
 [ModuleType(ModuleType.SteamVR)]
-[ModuleInfo("https://vrcosc.com/docs/V2/Modules/gesture-extensions")]
+[ModuleInfo("https://vrcosc.com/docs/v2/modules/gesture-extensions")]
 public class GestureExtensionsModule : Module
 {
     protected override void OnPreLoad()
@@ -24,42 +24,43 @@ public class GestureExtensionsModule : Module
     [ModuleUpdate(ModuleUpdateMode.Custom)]
     private void sendParameters()
     {
-        var lc = GetOpenVRManager().GetLeftController();
-        var rc = GetOpenVRManager().GetRightController();
+        var openvrManager = GetOpenVRManager();
+        var threshold = GetSettingValue<float>(GestureExtensionsSetting.Threshold);
 
-        if (lc is not null) SendParameter(GestureExtensionsParameter.GestureLeft, (int)getControllerGesture(lc.Input));
-        if (rc is not null) SendParameter(GestureExtensionsParameter.GestureRight, (int)getControllerGesture(rc.Input));
+        var lc = openvrManager.GetLeftController();
+        var rc = openvrManager.GetRightController();
+
+        if (lc is not null) SendParameter(GestureExtensionsParameter.GestureLeft, (int)getControllerGesture(lc.Input, threshold));
+        if (rc is not null) SendParameter(GestureExtensionsParameter.GestureRight, (int)getControllerGesture(rc.Input, threshold));
     }
 
-    private GestureNames getControllerGesture(InputState input)
+    private static GestureNames getControllerGesture(InputState input, float threshold)
     {
-        if (isGestureDoubleGun(input)) return GestureNames.DoubleGun;
-        if (isGestureMiddleFinger(input)) return GestureNames.MiddleFinger;
-        if (isGesturePinkyFinger(input)) return GestureNames.PinkyFinger;
+        if (isGestureDoubleGun(input, threshold)) return GestureNames.DoubleGun;
+        if (isGestureMiddleFinger(input, threshold)) return GestureNames.MiddleFinger;
+        if (isGesturePinkyFinger(input, threshold)) return GestureNames.PinkyFinger;
 
         return GestureNames.None;
     }
 
-    private float getThreshold() => GetSettingValue<float>(GestureExtensionsSetting.Threshold);
-
-    private bool isGestureDoubleGun(InputState input) =>
-        input.Skeleton.Index <= getThreshold()
-        && input.Skeleton.Middle <= getThreshold()
-        && input.Skeleton.Ring > getThreshold()
-        && input.Skeleton.Pinky > getThreshold()
+    private static bool isGestureDoubleGun(InputState input, float threshold) =>
+        input.Skeleton.Index <= threshold
+        && input.Skeleton.Middle <= threshold
+        && input.Skeleton.Ring > threshold
+        && input.Skeleton.Pinky > threshold
         && !input.Primary.Touch && !input.Secondary.Touch && !input.Stick.Touch && !input.Pad.Touch;
 
-    private bool isGestureMiddleFinger(InputState input) =>
-        input.Skeleton.Index > getThreshold()
-        && input.Skeleton.Middle <= getThreshold()
-        && input.Skeleton.Ring > getThreshold()
-        && input.Skeleton.Pinky > getThreshold();
+    private static bool isGestureMiddleFinger(InputState input, float threshold) =>
+        input.Skeleton.Index > threshold
+        && input.Skeleton.Middle <= threshold
+        && input.Skeleton.Ring > threshold
+        && input.Skeleton.Pinky > threshold;
 
-    private bool isGesturePinkyFinger(InputState input) =>
-        input.Skeleton.Index > getThreshold()
-        && input.Skeleton.Middle > getThreshold()
-        && input.Skeleton.Ring > getThreshold()
-        && input.Skeleton.Pinky <= getThreshold();
+    private static bool isGesturePinkyFinger(InputState input, float threshold) =>
+        input.Skeleton.Index > threshold
+        && input.Skeleton.Middle > threshold
+        && input.Skeleton.Ring > threshold
+        && input.Skeleton.Pinky <= threshold;
 
     private enum GestureExtensionsSetting
     {
@@ -74,9 +75,9 @@ public class GestureExtensionsModule : Module
 
     private enum GestureNames
     {
-        None,
-        DoubleGun,
-        MiddleFinger,
-        PinkyFinger
+        None = 0,
+        DoubleGun = 1,
+        MiddleFinger = 2,
+        PinkyFinger = 3
     }
 }

@@ -18,12 +18,7 @@ public sealed class DateTimeModule : Module
     {
         var zones = TimeZoneInfo.GetSystemTimeZones();
         var timezoneList = new List<Timezone>(zones.Count + 1) { new("Local", "") };
-
-        for (int i = 0; i < zones.Count; i++)
-        {
-            var z = zones[i];
-            timezoneList.Add(new Timezone(z.DisplayName, z.Id));
-        }
+        timezoneList.AddRange(zones.Select(z => new Timezone(z.DisplayName, z.Id)));
 
         CreateToggle(DateTimeSetting.SmoothSecond, "Smooth Second", string.Empty, true);
         CreateToggle(DateTimeSetting.SmoothMinute, "Smooth Minute", string.Empty, true);

@@ -14,6 +14,10 @@ namespace VRCOSC.Modules.HardwareStats;
 [ModuleType(ModuleType.Generic)]
 public sealed class HardwareStatsModule : Module
 {
+    public const float BYTES_PER_KB = 1024f;
+    public const float BYTES_PER_MB = 1024f * BYTES_PER_KB;
+    public const float BYTES_PER_GB = 1024f * BYTES_PER_MB;
+
     private HardwareStatsProvider? hardwareStatsProvider;
 
     public static bool IsAdministrator => new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
@@ -85,19 +89,22 @@ public sealed class HardwareStatsModule : Module
 
         await hardwareStatsProvider.Update();
 
-        if (!hardwareStatsProvider.CPUs.ContainsKey(GetSettingValue<int>(HardwareStatsSetting.SelectedCPU)))
+        var selectedCpu = GetSettingValue<int>(HardwareStatsSetting.SelectedCPU);
+        var selectedGpu = GetSettingValue<int>(HardwareStatsSetting.SelectedGPU);
+
+        if (!hardwareStatsProvider.CPUs.ContainsKey(selectedCpu))
         {
-            Log($"CPU of id {GetSettingValue<int>(HardwareStatsSetting.SelectedCPU)} isn't available. If you have multiple, try changing the index");
+            Log($"CPU of id {selectedCpu} isn't available. If you have multiple, try changing the index");
             Log("Available CPU indexes:");
-            hardwareStatsProvider.CPUs.ForEach(pair => Log("Index: " + pair.Key));
+            hardwareStatsProvider.CPUs.ForEach(pair => Log($"Index: {pair.Key}"));
             return false;
         }
 
-        if (!hardwareStatsProvider.GPUs.ContainsKey(GetSettingValue<int>(HardwareStatsSetting.SelectedGPU)))
+        if (!hardwareStatsProvider.GPUs.ContainsKey(selectedGpu))
         {
-            Log($"GPU of id {GetSettingValue<int>(HardwareStatsSetting.SelectedGPU)} isn't available. If you have multiple, try changing the index");
+            Log($"GPU of id {selectedGpu} isn't available. If you have multiple, try changing the index");
             Log("Available GPU indexes:");
-            hardwareStatsProvider.CPUs.ForEach(pair => Log("Index: " + pair.Key));
+            hardwareStatsProvider.CPUs.ForEach(pair => Log($"Index: {pair.Key}"));
             return false;
         }
 
@@ -116,64 +123,70 @@ public sealed class HardwareStatsModule : Module
 
     public CPU? GetCPU() => hardwareStatsProvider?.CPUs.GetValueOrDefault(GetSettingValue<int>(HardwareStatsSetting.SelectedCPU));
     public GPU? GetGPU() => hardwareStatsProvider?.GPUs.GetValueOrDefault(GetSettingValue<int>(HardwareStatsSetting.SelectedGPU));
-    public RAM? GetRAM() => hardwareStatsProvider?.RAM!;
+    public RAM? GetRAM() => hardwareStatsProvider?.RAM;
 
     [ModuleUpdate(ModuleUpdateMode.Custom, true, 500)]
     private async void updateParameters()
     {
-        if (!hardwareStatsProvider!.CanAcceptQueries) return;
+        if (hardwareStatsProvider is not { CanAcceptQueries: true }) return;
 
         await hardwareStatsProvider.Update();
 
-        if (!hardwareStatsProvider!.CanAcceptQueries) return;
+        var cpu = GetCPU();
+        var gpu = GetGPU();
+        var ram = GetRAM();
 
-        if (!hardwareStatsProvider.CPUs.TryGetValue(GetSettingValue<int>(HardwareStatsSetting.SelectedCPU), out var cpu)) return;
-        if (!hardwareStatsProvider.GPUs.TryGetValue(GetSettingValue<int>(HardwareStatsSetting.SelectedGPU), out var gpu)) return;
+        if (cpu is not null)
+        {
+            SendParameter(HardwareStatsParameter.CPUUsage, cpu.Usage / 100f);
+            SendParameter(HardwareStatsParameter.CPUPower, cpu.Power);
+            SendParameter(HardwareStatsParameter.CPUTemp, cpu.Temperature);
 
-        var ram = hardwareStatsProvider.RAM!;
+            SetVariableValue(HardwareStatsVariable.CPUName, cpu.Name);
+            SetVariableValue(HardwareStatsVariable.CPUUsage, (int)cpu.Usage);
+            SetVariableValue(HardwareStatsVariable.CPUPower, cpu.Power);
+            SetVariableValue(HardwareStatsVariable.CPUTemp, cpu.Temperature);
+        }
 
-        SendParameter(HardwareStatsParameter.CPUUsage, cpu.Usage / 100f);
-        SendParameter(HardwareStatsParameter.CPUPower, cpu.Power);
-        SendParameter(HardwareStatsParameter.CPUTemp, cpu.Temperature);
+        if (gpu is not null)
+        {
+            SendParameter(HardwareStatsParameter.GPUUsage, gpu.Usage / 100f);
+            SendParameter(HardwareStatsParameter.GPUPower, gpu.Power);
+            SendParameter(HardwareStatsParameter.GPUTemp, gpu.Temperature);
 
-        SendParameter(HardwareStatsParameter.GPUUsage, gpu.Usage / 100f);
-        SendParameter(HardwareStatsParameter.GPUPower, gpu.Power);
-        SendParameter(HardwareStatsParameter.GPUTemp, gpu.Temperature);
+            SendParameter(HardwareStatsParameter.VRAMUsage, gpu.MemoryUsage);
+            SendParameter(HardwareStatsParameter.VRAMTotal, gpu.MemoryTotal / BYTES_PER_GB);
+            SendParameter(HardwareStatsParameter.VRAMUsed, gpu.MemoryUsed / BYTES_PER_GB);
+            SendParameter(HardwareStatsParameter.VRAMFree, gpu.MemoryFree / BYTES_PER_GB);
 
-        SendParameter(HardwareStatsParameter.RAMUsage, ram.Usage / 100f);
-        SendParameter(HardwareStatsParameter.RAMTotal, ram.Total / 1_000_000_000f);
-        SendParameter(HardwareStatsParameter.RAMUsed, ram.Used / 1_000_000_000f);
-        SendParameter(HardwareStatsParameter.RAMFree, ram.Available / 1_000_000_000f);
+            SetVariableValue(HardwareStatsVariable.GPUName, gpu.Name);
+            SetVariableValue(HardwareStatsVariable.GPUUsage, (int)gpu.Usage);
+            SetVariableValue(HardwareStatsVariable.GPUPower, gpu.Power);
+            SetVariableValue(HardwareStatsVariable.GPUTemp, gpu.Temperature);
 
-        SendParameter(HardwareStatsParameter.VRAMUsage, gpu.MemoryUsage);
-        SendParameter(HardwareStatsParameter.VRAMTotal, gpu.MemoryTotal / 1_000_000_000f);
-        SendParameter(HardwareStatsParameter.VRAMUsed, gpu.MemoryUsed / 1_000_000_000f);
-        SendParameter(HardwareStatsParameter.VRAMFree, gpu.MemoryFree / 1_000_000_000f);
+            SetVariableValue(HardwareStatsVariable.VRAMUsage, gpu.MemoryUsage * 100f);
+            SetVariableValue(HardwareStatsVariable.VRAMTotal, gpu.MemoryTotal / BYTES_PER_GB);
+            SetVariableValue(HardwareStatsVariable.VRAMUsed, gpu.MemoryUsed / BYTES_PER_GB);
+            SetVariableValue(HardwareStatsVariable.VRAMFree, gpu.MemoryFree / BYTES_PER_GB);
+        }
 
-        SetVariableValue(HardwareStatsVariable.CPUName, cpu.Name);
-        SetVariableValue(HardwareStatsVariable.CPUUsage, (int)cpu.Usage);
-        SetVariableValue(HardwareStatsVariable.CPUPower, cpu.Power);
-        SetVariableValue(HardwareStatsVariable.CPUTemp, cpu.Temperature);
+        if (ram is not null)
+        {
+            SendParameter(HardwareStatsParameter.RAMUsage, ram.Usage / 100f);
+            SendParameter(HardwareStatsParameter.RAMTotal, ram.Total / BYTES_PER_GB);
+            SendParameter(HardwareStatsParameter.RAMUsed, ram.Used / BYTES_PER_GB);
+            SendParameter(HardwareStatsParameter.RAMFree, ram.Available / BYTES_PER_GB);
 
-        SetVariableValue(HardwareStatsVariable.GPUName, gpu.Name);
-        SetVariableValue(HardwareStatsVariable.GPUUsage, (int)gpu.Usage);
-        SetVariableValue(HardwareStatsVariable.GPUPower, gpu.Power);
-        SetVariableValue(HardwareStatsVariable.GPUTemp, gpu.Temperature);
-
-        SetVariableValue(HardwareStatsVariable.RAMUsage, ram.Usage);
-        SetVariableValue(HardwareStatsVariable.RAMTotal, ram.Total / 1_000_000_000f);
-        SetVariableValue(HardwareStatsVariable.RAMUsed, ram.Used / 1_000_000_000f);
-        SetVariableValue(HardwareStatsVariable.RAMFree, ram.Available / 1_000_000_000f);
-
-        SetVariableValue(HardwareStatsVariable.VRAMUsage, gpu.MemoryUsage * 100f);
-        SetVariableValue(HardwareStatsVariable.VRAMTotal, gpu.MemoryTotal / 1_000_000_000f);
-        SetVariableValue(HardwareStatsVariable.VRAMUsed, gpu.MemoryUsed / 1_000_000_000f);
-        SetVariableValue(HardwareStatsVariable.VRAMFree, gpu.MemoryFree / 1_000_000_000f);
+            SetVariableValue(HardwareStatsVariable.RAMUsage, ram.Usage);
+            SetVariableValue(HardwareStatsVariable.RAMTotal, ram.Total / BYTES_PER_GB);
+            SetVariableValue(HardwareStatsVariable.RAMUsed, ram.Used / BYTES_PER_GB);
+            SetVariableValue(HardwareStatsVariable.RAMFree, ram.Available / BYTES_PER_GB);
+        }
     }
 
     protected override Task OnModuleStop()
     {
-        hardwareStatsProvider!.Shutdown();
+        hardwareStatsProvider?.Shutdown();
         return Task.CompletedTask;
     }
 

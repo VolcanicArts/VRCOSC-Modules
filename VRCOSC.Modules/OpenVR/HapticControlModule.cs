@@ -3,6 +3,7 @@
 
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Parameters;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.Modules.OpenVR;
 
@@ -17,8 +18,6 @@ public class HapticControlModule : Module
 
     protected override void OnPreLoad()
     {
-        // TODO: Add settings for each device for triggering, default duration, frequency, and amplitude, and whether false -> true should trigger once or repeat
-
         RegisterParameter<float>(HapticControlParameter.Duration, "VRCOSC/VR/Haptics/Duration", ParameterMode.Read, "Duration", "The duration of the haptic trigger in seconds");
         RegisterParameter<float>(HapticControlParameter.Frequency, "VRCOSC/VR/Haptics/Frequency", ParameterMode.Read, "Frequency", "The frequency of the haptic trigger");
         RegisterParameter<float>(HapticControlParameter.Amplitude, "VRCOSC/VR/Haptics/Amplitude", ParameterMode.Read, "Amplitude", "The amplitude of the haptic trigger");
@@ -34,9 +33,9 @@ public class HapticControlModule : Module
 
     protected override Task<bool> OnModuleStart()
     {
-        duration = 0;
-        frequency = 0;
-        amplitude = 0;
+        duration = 0f;
+        frequency = 0f;
+        amplitude = 0f;
 
         return Task.FromResult(true);
     }
@@ -58,27 +57,27 @@ public class HapticControlModule : Module
                 break;
 
             case HapticControlParameter.TriggerLeft when parameter.GetValue<bool>():
-                triggerHaptic(true, false);
+                triggerHaptic(true, false).FireAndForget();
                 break;
 
             case HapticControlParameter.TriggerRight when parameter.GetValue<bool>():
-                triggerHaptic(false, true);
+                triggerHaptic(false, true).FireAndForget();
                 break;
 
             case HapticControlParameter.TriggerLeftDirect when parameter.GetValue<bool>():
-                triggerHaptic(true, false, parameter.GetWildcard<float>(0), convertFrequency(parameter.GetWildcard<float>(1)), convertAmplitude(parameter.GetWildcard<float>(2)));
+                triggerHaptic(true, false, parameter.GetWildcard<float>(0), convertFrequency(parameter.GetWildcard<float>(1)), convertAmplitude(parameter.GetWildcard<float>(2))).FireAndForget();
                 break;
 
             case HapticControlParameter.TriggerRightDirect when parameter.GetValue<bool>():
-                triggerHaptic(false, true, parameter.GetWildcard<float>(0), convertFrequency(parameter.GetWildcard<float>(1)), convertAmplitude(parameter.GetWildcard<float>(2)));
+                triggerHaptic(false, true, parameter.GetWildcard<float>(0), convertFrequency(parameter.GetWildcard<float>(1)), convertAmplitude(parameter.GetWildcard<float>(2))).FireAndForget();
                 break;
         }
     }
 
-    private float convertFrequency(float frequency) => Math.Clamp(frequency, 0, 1) * 100f;
-    private float convertAmplitude(float amplitude) => Math.Clamp(amplitude, 0, 1);
+    private static float convertFrequency(float frequency) => float.Clamp(frequency, 0f, 1f) * 100f;
+    private static float convertAmplitude(float amplitude) => float.Clamp(amplitude, 0f, 1f);
 
-    private async void triggerHaptic(bool left, bool right, float? localDuration = null, float? localFrequency = null, float? localAmplitude = null)
+    private async Task triggerHaptic(bool left, bool right, float? localDuration = null, float? localFrequency = null, float? localAmplitude = null)
     {
         var ovrManager = GetOpenVRManager();
 

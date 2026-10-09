@@ -94,7 +94,7 @@ public class KATModule : Module
         moduleTestStep = 1;
     }
 
-    public void SetVisiblity(bool visible) => SendParameter(KATParameter.Visible, visible);
+    public void SetVisibility(bool visible) => SendParameter(KATParameter.Visible, visible);
 
     private void sendToAllSyncParams(float value)
     {

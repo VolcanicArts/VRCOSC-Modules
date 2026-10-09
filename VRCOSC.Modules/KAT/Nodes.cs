@@ -20,5 +20,5 @@ public sealed class SetVisibilityKATNode() : ActionValueConsumeNode<bool>("Visib
 {
     public KATModule Module { get; set; } = null!;
 
-    protected override void ConsumeValue(bool visible, IPulseContext c) => Module.SetVisiblity(visible);
+    protected override void ConsumeValue(bool visible, IPulseContext c) => Module.SetVisibility(visible);
 }
