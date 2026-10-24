@@ -10,7 +10,7 @@ public sealed class PulsoidProvider : WebSocketHeartrateProvider
 {
     private readonly string accessToken;
 
-    protected override Uri WebsocketUri => new($"wss://dev.pulsoid.net/api/v1/data/real_time?access_token={accessToken}");
+    protected override Uri WebsocketUri => new($"wss://dev.pulsoid.net/api/v2/data/real_time?access_token={accessToken}&types=heart_rate,battery_level");
 
     public PulsoidProvider(string accessToken)
     {
@@ -34,7 +34,22 @@ public sealed class PulsoidProvider : WebSocketHeartrateProvider
             var data = JsonConvert.DeserializeObject<PulsoidResponse>(message);
             if (data is null) return;
 
-            OnHeartrateUpdate?.Invoke(data.Data.HeartRate);
+            switch (data.Type)
+            {
+                case "heart_rate":
+                {
+                    var heartrateData = JsonConvert.DeserializeObject<PulsoidHeartrateResponse>(message)!;
+                    OnHeartrateUpdate?.Invoke(heartrateData.Data.HeartRate);
+                    break;
+                }
+
+                case "battery_level":
+                {
+                    var batteryData = JsonConvert.DeserializeObject<PulsoidBatteryResponse>(message)!;
+                    OnBatteryUpdate?.Invoke(batteryData.Data.BatteryPercentage / 100f);
+                    break;
+                }
+            }
         }
         catch (Exception)
         {
@@ -43,17 +58,35 @@ public sealed class PulsoidProvider : WebSocketHeartrateProvider
     }
 }
 
-public sealed class PulsoidResponse
+public class PulsoidResponse
 {
-    [JsonProperty("measured_at")]
-    public long MeasuredAt;
+    [JsonProperty("type")]
+    public string Type = null!;
 
-    [JsonProperty("data")]
-    public PulsoidData Data = null!;
+    [JsonProperty("timestamp")]
+    public DateTime Timestamp;
 }
 
-public sealed class PulsoidData
+public sealed class PulsoidHeartrateResponse : PulsoidResponse
 {
-    [JsonProperty("heart_rate")]
+    [JsonProperty("heartRate")]
+    public PulsoidHeartrateResponseData Data = null!;
+}
+
+public sealed class PulsoidHeartrateResponseData
+{
+    [JsonProperty("bpm")]
     public int HeartRate;
+}
+
+public sealed class PulsoidBatteryResponse : PulsoidResponse
+{
+    [JsonProperty("batteryLevel")]
+    public PulsoidBatteryResponseData Data = null!;
+}
+
+public sealed class PulsoidBatteryResponseData
+{
+    [JsonProperty("percent")]
+    public int BatteryPercentage;
 }

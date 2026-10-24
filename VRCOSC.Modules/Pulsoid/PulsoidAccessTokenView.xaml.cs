@@ -9,7 +9,7 @@ namespace VRCOSC.Modules.Pulsoid;
 
 public partial class PulsoidAccessTokenView
 {
-    private static readonly Uri pulsoid_access_token_url = new("https://pulsoid.net/oauth2/authorize?response_type=token&client_id=a31caa68-b6ac-4680-976a-9761b915a1e3&redirect_uri=&scope=data:heart_rate:read&state=a52beaeb-c491-4cd3-b915-16fed71e17a8&response_mode=web_page");
+    private static readonly Uri pulsoid_access_token_url = new("https://pulsoid.net/oauth2/authorize?response_type=token&client_id=a31caa68-b6ac-4680-976a-9761b915a1e3&redirect_uri=&scope=data:heart_rate:read,data:battery_level:read&state=&response_mode=web_page");
 
     public PulsoidAccessTokenView(PulsoidModule _, StringModuleSetting moduleSetting)
     {
