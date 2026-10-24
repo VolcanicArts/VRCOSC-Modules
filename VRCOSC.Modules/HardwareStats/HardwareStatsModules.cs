@@ -2,10 +2,9 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Security.Principal;
+using UnitsNet;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Parameters;
-using VRCOSC.App.SDK.Providers.Hardware;
-using VRCOSC.App.Utils;
 
 namespace VRCOSC.Modules.HardwareStats;
 
@@ -18,29 +17,122 @@ public sealed class HardwareStatsModule : Module
     public const float BYTES_PER_MB = 1024f * BYTES_PER_KB;
     public const float BYTES_PER_GB = 1024f * BYTES_PER_MB;
 
-    private HardwareStatsProvider? hardwareStatsProvider;
-
     public static bool IsAdministrator => new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
+
+    private HardwareProvider? provider;
+    public Dictionary<string, ComponentData> ComponentData { get; set; } = [];
+
+    private readonly List<SettingsComponent> selectedCpuComponents = [];
+    private readonly List<SettingsComponent> selectedGpuComponents = [];
+    private readonly List<SettingsComponent> selectedMemoryComponents = [];
+
+    private ComponentData createComponentData(Component component)
+    {
+        var data = new ComponentData(component)
+        {
+            Mappings = component.Sensors.Select(pair =>
+            {
+                var sensors = pair.Value;
+                var mappings = new List<ComponentDataMapping>();
+
+                for (var i = 0; i < sensors.Length; i++)
+                {
+                    var sensor = sensors[i];
+                    var map = Mappings.GetSensorMap(component.Type, sensor);
+
+                    mappings.Add(new ComponentDataMapping(sensor.Type, map.Unit, i, map.Name));
+                }
+
+                return mappings;
+            }).SelectMany(mappings => mappings).ToList()
+        };
+
+        return data;
+    }
+
+    public Component? GetDefaultComponent(ComponentType type)
+    {
+        if (provider is null) return null;
+
+        var componentId = ComponentData.SingleOrDefault(pair => pair.Value.Type == type && pair.Value.IsDefault).Key;
+        return !string.IsNullOrWhiteSpace(componentId) ? provider.Components[componentId] : null;
+    }
+
+    public Component? GetComponentFromId(string id)
+    {
+        if (provider is null) return null;
+        if (string.IsNullOrWhiteSpace(id)) return null;
+
+        return provider.Components[id];
+    }
+
+    public IQuantity? GetSensorValue(Component component, SensorType type, string name)
+    {
+        var mapping = ComponentData[component.Id].Mappings.FirstOrDefault(mapping => mapping.Type == type && mapping.Name == name);
+        if (mapping is null) return null;
+
+        var value = component.Sensors[type][mapping.Index].Value;
+        return Quantity.From(value, mapping.Unit.Value);
+    }
 
     protected override void OnPreLoad()
     {
-        CreateTextBox(HardwareStatsSetting.SelectedCPU, "Selected CPU", "Enter the (0th based) index of the CPU you want to track", 0);
-        CreateTextBox(HardwareStatsSetting.SelectedGPU, "Selected GPU", "Enter the (0th based) index of the GPU you want to track", 0);
+        try
+        {
+            provider = new HardwareProvider();
+            provider.Init();
+
+            var seenTypes = new HashSet<ComponentType>();
+
+            foreach (var (id, component) in provider.Components)
+            {
+                var data = createComponentData(component);
+                data.IsDefault = !seenTypes.Contains(data.Type);
+                seenTypes.Add(data.Type);
+                ComponentData[id] = data;
+                LogDebug($"Added new component: {component.Name} ({component.Id}). IsDefault: {data.IsDefault}");
+
+                foreach (var mapping in data.Mappings)
+                {
+                    LogDebug($"Mapping for {mapping.Type} - {mapping.Index} -> {mapping.Name}");
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            LogDebug($"Unable to init hardware provider - {e.Message}");
+            provider = null;
+        }
+
+        var defaultCpuComponent = new SettingsComponent("Default", string.Empty);
+        selectedCpuComponents.Add(defaultCpuComponent);
+        selectedCpuComponents.AddRange(ComponentData.Where(pair => pair.Value.Type == ComponentType.CPU).Select(p => new SettingsComponent(p.Value.Name, p.Key)));
+        CreateDropdown(HardwareStatsSetting.SelectedCPU, "Selected CPU", "The selected CPU to use for parameters and variables", selectedCpuComponents, defaultCpuComponent, nameof(SettingsComponent.Name), nameof(SettingsComponent.Id));
+
+        var defaultGpuComponent = new SettingsComponent("Default", string.Empty);
+        selectedGpuComponents.Add(defaultGpuComponent);
+        selectedGpuComponents.AddRange(ComponentData.Where(pair => pair.Value.Type == ComponentType.GPU).Select(p => new SettingsComponent(p.Value.Name, p.Key)));
+        CreateDropdown(HardwareStatsSetting.SelectedGPU, "Selected GPU", "The selected GPU to use for parameters and variables", selectedGpuComponents, defaultGpuComponent, nameof(SettingsComponent.Name), nameof(SettingsComponent.Id));
+
+        var defaultMemoryComponent = new SettingsComponent("Default", string.Empty);
+        selectedMemoryComponents.Add(defaultMemoryComponent);
+        selectedMemoryComponents.AddRange(ComponentData.Where(pair => pair.Value.Type == ComponentType.Memory).Select(p => new SettingsComponent(p.Value.Name, p.Key)));
+        CreateDropdown(HardwareStatsSetting.SelectedMemory, "Selected Memory", "The selected memory to use for parameters and variables", selectedMemoryComponents, defaultMemoryComponent, nameof(SettingsComponent.Name), nameof(SettingsComponent.Id));
 
         RegisterParameter<float>(HardwareStatsParameter.CPUUsage, "VRCOSC/Hardware/CPU/Usage", ParameterMode.Write, "CPU Usage", "The CPU usage (0-1)");
-        RegisterParameter<int>(HardwareStatsParameter.CPUPower, "VRCOSC/Hardware/CPU/Power", ParameterMode.Write, "CPU Power", "The CPU power draw (W)");
-        RegisterParameter<int>(HardwareStatsParameter.CPUTemp, "VRCOSC/Hardware/CPU/Temp", ParameterMode.Write, "CPU Temp", "The CPU temperature (C)");
+        RegisterParameter<float>(HardwareStatsParameter.CPUPower, "VRCOSC/Hardware/CPU/Power", ParameterMode.Write, "CPU Power", "The CPU power draw (W)");
+        RegisterParameter<float>(HardwareStatsParameter.CPUTemp, "VRCOSC/Hardware/CPU/Temp", ParameterMode.Write, "CPU Temp", "The CPU temperature (°C)");
         RegisterParameter<float>(HardwareStatsParameter.GPUUsage, "VRCOSC/Hardware/GPU/Usage", ParameterMode.Write, "GPU Usage", "The GPU usage (0-1)");
-        RegisterParameter<int>(HardwareStatsParameter.GPUPower, "VRCOSC/Hardware/GPU/Power", ParameterMode.Write, "GPU Power", "The GPU power draw (W)");
-        RegisterParameter<int>(HardwareStatsParameter.GPUTemp, "VRCOSC/Hardware/GPU/Temp", ParameterMode.Write, "GPU Temp", "The GPU temperature (C)");
+        RegisterParameter<float>(HardwareStatsParameter.GPUPower, "VRCOSC/Hardware/GPU/Power", ParameterMode.Write, "GPU Power", "The GPU power draw (W)");
+        RegisterParameter<float>(HardwareStatsParameter.GPUTemp, "VRCOSC/Hardware/GPU/Temp", ParameterMode.Write, "GPU Temp", "The GPU temperature (°C)");
         RegisterParameter<float>(HardwareStatsParameter.RAMUsage, "VRCOSC/Hardware/RAM/Usage", ParameterMode.Write, "RAM Usage", "The RAM usage (0-1)");
-        RegisterParameter<int>(HardwareStatsParameter.RAMTotal, "VRCOSC/Hardware/RAM/Total", ParameterMode.Write, "RAM Total", "The total RAM amount (GB)");
-        RegisterParameter<int>(HardwareStatsParameter.RAMUsed, "VRCOSC/Hardware/RAM/Used", ParameterMode.Write, "RAM Used", "The used RAM amount (GB)");
-        RegisterParameter<int>(HardwareStatsParameter.RAMFree, "VRCOSC/Hardware/RAM/Free", ParameterMode.Write, "RAM Free", "The free RAM amount (GB)");
+        RegisterParameter<float>(HardwareStatsParameter.RAMTotal, "VRCOSC/Hardware/RAM/Total", ParameterMode.Write, "RAM Total", "The total RAM amount (GB)");
+        RegisterParameter<float>(HardwareStatsParameter.RAMUsed, "VRCOSC/Hardware/RAM/Used", ParameterMode.Write, "RAM Used", "The used RAM amount (GB)");
+        RegisterParameter<float>(HardwareStatsParameter.RAMFree, "VRCOSC/Hardware/RAM/Free", ParameterMode.Write, "RAM Free", "The free RAM amount (GB)");
         RegisterParameter<float>(HardwareStatsParameter.VRAMUsage, "VRCOSC/Hardware/VRAM/Usage", ParameterMode.Write, "VRAM Usage", "The VRAM usage (0-1)");
-        RegisterParameter<int>(HardwareStatsParameter.VRAMTotal, "VRCOSC/Hardware/VRAM/Total", ParameterMode.Write, "VRAM Total", "The total VRAM amount (GB)");
-        RegisterParameter<int>(HardwareStatsParameter.VRAMUsed, "VRCOSC/Hardware/VRAM/Used", ParameterMode.Write, "VRAM Used", "The used VRAM amount (GB)");
-        RegisterParameter<int>(HardwareStatsParameter.VRAMFree, "VRCOSC/Hardware/VRAM/Free", ParameterMode.Write, "VRAM Free", "The free VRAM amount (GB)");
+        RegisterParameter<float>(HardwareStatsParameter.VRAMTotal, "VRCOSC/Hardware/VRAM/Total", ParameterMode.Write, "VRAM Total", "The total VRAM amount (GB)");
+        RegisterParameter<float>(HardwareStatsParameter.VRAMUsed, "VRCOSC/Hardware/VRAM/Used", ParameterMode.Write, "VRAM Used", "The used VRAM amount (GB)");
+        RegisterParameter<float>(HardwareStatsParameter.VRAMFree, "VRCOSC/Hardware/VRAM/Free", ParameterMode.Write, "VRAM Free", "The free VRAM amount (GB)");
     }
 
     protected override void OnPostLoad()
@@ -68,132 +160,115 @@ public sealed class HardwareStatsModule : Module
         CreateState(HardwareStatsState.Default, "Default", "CPU: {0}% | GPU: {1}%\nRAM: {2}GB/{3}GB", new[] { cpuUsageReference, gpuUsageReference, ramUsedReference, ramTotalReference });
     }
 
-    protected override async Task<bool> OnModuleStart()
+    protected override Task<bool> OnModuleStart()
     {
-        Log("Hooking into hardware monitor...");
-
         if (!IsAdministrator) Log("VRCOSC isn't running as admin so you might not receive power and temp data");
-
-        hardwareStatsProvider ??= new HardwareStatsProvider();
-        hardwareStatsProvider.Init();
-
-        await Task.Run(async () =>
-        {
-            while (!hardwareStatsProvider.CanAcceptQueries)
-            {
-                await Task.Delay(1);
-            }
-
-            return true;
-        });
-
-        await hardwareStatsProvider.Update();
-
-        var selectedCpu = GetSettingValue<int>(HardwareStatsSetting.SelectedCPU);
-        var selectedGpu = GetSettingValue<int>(HardwareStatsSetting.SelectedGPU);
-
-        if (!hardwareStatsProvider.CPUs.ContainsKey(selectedCpu))
-        {
-            Log($"CPU of id {selectedCpu} isn't available. If you have multiple, try changing the index");
-            Log("Available CPU indexes:");
-            hardwareStatsProvider.CPUs.ForEach(pair => Log($"Index: {pair.Key}"));
-            return false;
-        }
-
-        if (!hardwareStatsProvider.GPUs.ContainsKey(selectedGpu))
-        {
-            Log($"GPU of id {selectedGpu} isn't available. If you have multiple, try changing the index");
-            Log("Available GPU indexes:");
-            hardwareStatsProvider.CPUs.ForEach(pair => Log($"Index: {pair.Key}"));
-            return false;
-        }
-
-        var ram = hardwareStatsProvider.RAM;
-
-        if (ram is null)
-        {
-            Log("Could not connect to RAM. This is impossible, so well done!");
-            return false;
-        }
 
         ChangeState(HardwareStatsState.Default);
 
-        return true;
+        return Task.FromResult(true);
     }
 
-    public CPU? GetCPU() => hardwareStatsProvider?.CPUs.GetValueOrDefault(GetSettingValue<int>(HardwareStatsSetting.SelectedCPU));
-    public GPU? GetGPU() => hardwareStatsProvider?.GPUs.GetValueOrDefault(GetSettingValue<int>(HardwareStatsSetting.SelectedGPU));
-    public RAM? GetRAM() => hardwareStatsProvider?.RAM;
-
-    [ModuleUpdate(ModuleUpdateMode.Custom, true, 500)]
-    private async void updateParameters()
+    [ModuleUpdate(ModuleUpdateMode.Custom, false)]
+    private void updateParameters()
     {
-        if (hardwareStatsProvider is not { CanAcceptQueries: true }) return;
+        if (provider is null) return;
 
-        await hardwareStatsProvider.Update();
+        provider.Update();
 
-        var cpu = GetCPU();
-        var gpu = GetGPU();
-        var ram = GetRAM();
+        var selectedCpuId = GetSettingValue<SettingsComponent>(HardwareStatsSetting.SelectedCPU).Id;
+        var cpu = string.IsNullOrWhiteSpace(selectedCpuId) ? GetDefaultComponent(ComponentType.CPU) : GetComponentFromId(selectedCpuId);
+
+        var selectedGpuId = GetSettingValue<SettingsComponent>(HardwareStatsSetting.SelectedGPU).Id;
+        var gpu = string.IsNullOrWhiteSpace(selectedGpuId) ? GetDefaultComponent(ComponentType.GPU) : GetComponentFromId(selectedGpuId);
+
+        var selectedMemoryId = GetSettingValue<SettingsComponent>(HardwareStatsSetting.SelectedMemory).Id;
+        var memory = string.IsNullOrWhiteSpace(selectedMemoryId) ? GetDefaultComponent(ComponentType.Memory) : GetComponentFromId(selectedMemoryId);
 
         if (cpu is not null)
         {
-            SendParameter(HardwareStatsParameter.CPUUsage, cpu.Usage / 100f);
-            SendParameter(HardwareStatsParameter.CPUPower, cpu.Power);
-            SendParameter(HardwareStatsParameter.CPUTemp, cpu.Temperature);
+            var usageSensor = GetSensorValue(cpu, SensorType.Load, "Total");
+            var powerSensor = GetSensorValue(cpu, SensorType.Power, "Total");
+            var temperatureSensor = GetSensorValue(cpu, SensorType.Temperature, "Total");
+
+            var usage = (float)(usageSensor?.As(usageSensor.Unit) ?? 0d);
+            var power = (float)(powerSensor?.As(powerSensor.Unit) ?? 0d);
+            var temperature = (float)(temperatureSensor?.As(temperatureSensor.Unit) ?? 0d);
+
+            SendParameter(HardwareStatsParameter.CPUUsage, usage / 100f);
+            SendParameter(HardwareStatsParameter.CPUPower, power);
+            SendParameter(HardwareStatsParameter.CPUTemp, temperature);
 
             SetVariableValue(HardwareStatsVariable.CPUName, cpu.Name);
-            SetVariableValue(HardwareStatsVariable.CPUUsage, (int)cpu.Usage);
-            SetVariableValue(HardwareStatsVariable.CPUPower, cpu.Power);
-            SetVariableValue(HardwareStatsVariable.CPUTemp, cpu.Temperature);
+            SetVariableValue(HardwareStatsVariable.CPUUsage, (int)usage);
+            SetVariableValue(HardwareStatsVariable.CPUPower, (int)power);
+            SetVariableValue(HardwareStatsVariable.CPUTemp, (int)temperature);
         }
 
         if (gpu is not null)
         {
-            SendParameter(HardwareStatsParameter.GPUUsage, gpu.Usage / 100f);
-            SendParameter(HardwareStatsParameter.GPUPower, gpu.Power);
-            SendParameter(HardwareStatsParameter.GPUTemp, gpu.Temperature);
+            var usageSensor = GetSensorValue(gpu, SensorType.Load, "Total");
+            var powerSensor = GetSensorValue(gpu, SensorType.Power, "Total");
+            var temperatureSensor = GetSensorValue(gpu, SensorType.Temperature, "Total");
+            var vramFreeSensor = GetSensorValue(gpu, SensorType.Data, "Memory Free");
+            var vramUsedSensor = GetSensorValue(gpu, SensorType.Data, "Memory Used");
+            var vramTotalSensor = GetSensorValue(gpu, SensorType.Data, "Memory Total");
 
-            SendParameter(HardwareStatsParameter.VRAMUsage, gpu.MemoryUsage);
-            SendParameter(HardwareStatsParameter.VRAMTotal, gpu.MemoryTotal / BYTES_PER_GB);
-            SendParameter(HardwareStatsParameter.VRAMUsed, gpu.MemoryUsed / BYTES_PER_GB);
-            SendParameter(HardwareStatsParameter.VRAMFree, gpu.MemoryFree / BYTES_PER_GB);
+            var usage = (float)(usageSensor?.As(usageSensor.Unit) ?? 0d);
+            var power = (float)(powerSensor?.As(powerSensor.Unit) ?? 0d);
+            var temperature = (float)(temperatureSensor?.As(temperatureSensor.Unit) ?? 0d);
+            var vramFree = (float)(vramFreeSensor?.As(vramFreeSensor.Unit) ?? 0d);
+            var vramUsed = (float)(vramUsedSensor?.As(vramUsedSensor.Unit) ?? 0d);
+            var vramTotal = (float)(vramTotalSensor?.As(vramTotalSensor.Unit) ?? 0d);
+            var vramUsage = vramTotal == 0f ? 0f : vramUsed / vramTotal;
+
+            SendParameter(HardwareStatsParameter.GPUUsage, usage / 100f);
+            SendParameter(HardwareStatsParameter.GPUPower, power);
+            SendParameter(HardwareStatsParameter.GPUTemp, temperature);
+
+            SendParameter(HardwareStatsParameter.VRAMUsage, vramUsage);
+            SendParameter(HardwareStatsParameter.VRAMFree, vramFree / BYTES_PER_GB);
+            SendParameter(HardwareStatsParameter.VRAMUsed, vramUsed / BYTES_PER_GB);
+            SendParameter(HardwareStatsParameter.VRAMTotal, vramTotal / BYTES_PER_GB);
 
             SetVariableValue(HardwareStatsVariable.GPUName, gpu.Name);
-            SetVariableValue(HardwareStatsVariable.GPUUsage, (int)gpu.Usage);
-            SetVariableValue(HardwareStatsVariable.GPUPower, gpu.Power);
-            SetVariableValue(HardwareStatsVariable.GPUTemp, gpu.Temperature);
+            SetVariableValue(HardwareStatsVariable.GPUUsage, (int)usage);
+            SetVariableValue(HardwareStatsVariable.GPUPower, (int)power);
+            SetVariableValue(HardwareStatsVariable.GPUTemp, (int)temperature);
 
-            SetVariableValue(HardwareStatsVariable.VRAMUsage, gpu.MemoryUsage * 100f);
-            SetVariableValue(HardwareStatsVariable.VRAMTotal, gpu.MemoryTotal / BYTES_PER_GB);
-            SetVariableValue(HardwareStatsVariable.VRAMUsed, gpu.MemoryUsed / BYTES_PER_GB);
-            SetVariableValue(HardwareStatsVariable.VRAMFree, gpu.MemoryFree / BYTES_PER_GB);
+            SetVariableValue(HardwareStatsVariable.VRAMUsage, vramUsage);
+            SetVariableValue(HardwareStatsVariable.VRAMFree, vramFree / BYTES_PER_GB);
+            SetVariableValue(HardwareStatsVariable.VRAMUsed, vramUsed / BYTES_PER_GB);
+            SetVariableValue(HardwareStatsVariable.VRAMTotal, vramTotal / BYTES_PER_GB);
         }
 
-        if (ram is not null)
+        if (memory is not null)
         {
-            SendParameter(HardwareStatsParameter.RAMUsage, ram.Usage / 100f);
-            SendParameter(HardwareStatsParameter.RAMTotal, ram.Total / BYTES_PER_GB);
-            SendParameter(HardwareStatsParameter.RAMUsed, ram.Used / BYTES_PER_GB);
-            SendParameter(HardwareStatsParameter.RAMFree, ram.Available / BYTES_PER_GB);
+            var freeSensor = GetSensorValue(memory, SensorType.Data, "Free");
+            var usedSensor = GetSensorValue(memory, SensorType.Data, "Used");
 
-            SetVariableValue(HardwareStatsVariable.RAMUsage, ram.Usage);
-            SetVariableValue(HardwareStatsVariable.RAMTotal, ram.Total / BYTES_PER_GB);
-            SetVariableValue(HardwareStatsVariable.RAMUsed, ram.Used / BYTES_PER_GB);
-            SetVariableValue(HardwareStatsVariable.RAMFree, ram.Available / BYTES_PER_GB);
+            var free = (float)(freeSensor?.As(freeSensor.Unit) ?? 0d);
+            var used = (float)(usedSensor?.As(usedSensor.Unit) ?? 0d);
+            var total = free + used;
+            var usage = total == 0f ? 0f : used / total;
+
+            SendParameter(HardwareStatsParameter.RAMUsage, usage);
+            SendParameter(HardwareStatsParameter.RAMFree, free / BYTES_PER_GB);
+            SendParameter(HardwareStatsParameter.RAMUsed, used / BYTES_PER_GB);
+            SendParameter(HardwareStatsParameter.RAMTotal, total / BYTES_PER_GB);
+
+            SetVariableValue(HardwareStatsVariable.RAMUsage, usage);
+            SetVariableValue(HardwareStatsVariable.RAMFree, free / BYTES_PER_GB);
+            SetVariableValue(HardwareStatsVariable.RAMUsed, used / BYTES_PER_GB);
+            SetVariableValue(HardwareStatsVariable.RAMTotal, total / BYTES_PER_GB);
         }
-    }
-
-    protected override Task OnModuleStop()
-    {
-        hardwareStatsProvider?.Shutdown();
-        return Task.CompletedTask;
     }
 
     private enum HardwareStatsSetting
     {
         SelectedCPU,
-        SelectedGPU
+        SelectedGPU,
+        SelectedMemory
     }
 
     private enum HardwareStatsParameter
@@ -239,3 +314,5 @@ public sealed class HardwareStatsModule : Module
         VRAMTotal
     }
 }
+
+public record SettingsComponent(string Name, string Id);
