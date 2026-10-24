@@ -7,8 +7,8 @@ using VRCOSC.App.SDK.Parameters;
 
 namespace VRCOSC.Modules.OpenVR;
 
-[ModuleTitle("Index Gesture Extensions")]
-[ModuleDescription("Detect a range of custom gestures from Index controllers")]
+[ModuleTitle("Gesture Extensions")]
+[ModuleDescription("Detect a range of custom gestures from controllers that support skeleton input")]
 [ModuleType(ModuleType.SteamVR)]
 [ModuleInfo("https://vrcosc.com/docs/v2/modules/gesture-extensions")]
 public class GestureExtensionsModule : Module
@@ -34,7 +34,7 @@ public class GestureExtensionsModule : Module
         if (rc is not null) SendParameter(GestureExtensionsParameter.GestureRight, (int)getControllerGesture(rc.Input, threshold));
     }
 
-    private static GestureNames getControllerGesture(InputState input, float threshold)
+    private static GestureNames getControllerGesture(DeviceInput input, float threshold)
     {
         if (isGestureDoubleGun(input, threshold)) return GestureNames.DoubleGun;
         if (isGestureMiddleFinger(input, threshold)) return GestureNames.MiddleFinger;
@@ -43,20 +43,20 @@ public class GestureExtensionsModule : Module
         return GestureNames.None;
     }
 
-    private static bool isGestureDoubleGun(InputState input, float threshold) =>
+    private static bool isGestureDoubleGun(DeviceInput input, float threshold) =>
         input.Skeleton.Index <= threshold
         && input.Skeleton.Middle <= threshold
         && input.Skeleton.Ring > threshold
         && input.Skeleton.Pinky > threshold
-        && !input.Primary.Touch && !input.Secondary.Touch && !input.Stick.Touch && !input.Pad.Touch;
+        && !input.Buttons.South.Touch && !input.Buttons.North.Touch && !input.Stick.Touch && !input.Pad.Touch;
 
-    private static bool isGestureMiddleFinger(InputState input, float threshold) =>
+    private static bool isGestureMiddleFinger(DeviceInput input, float threshold) =>
         input.Skeleton.Index > threshold
         && input.Skeleton.Middle <= threshold
         && input.Skeleton.Ring > threshold
         && input.Skeleton.Pinky > threshold;
 
-    private static bool isGesturePinkyFinger(InputState input, float threshold) =>
+    private static bool isGesturePinkyFinger(DeviceInput input, float threshold) =>
         input.Skeleton.Index > threshold
         && input.Skeleton.Middle > threshold
         && input.Skeleton.Ring > threshold

@@ -369,8 +369,8 @@ public class SteamVRStatisticsModule : Module
 
         if (lc is not null)
         {
-            SendParameter(SteamVRParameter.LeftATouch, lc.Input.Primary.Touch);
-            SendParameter(SteamVRParameter.LeftBTouch, lc.Input.Secondary.Touch);
+            SendParameter(SteamVRParameter.LeftATouch, lc.Input.Buttons.South.Touch);
+            SendParameter(SteamVRParameter.LeftBTouch, lc.Input.Buttons.North.Touch);
             SendParameter(SteamVRParameter.LeftPadTouch, lc.Input.Pad.Touch);
             SendParameter(SteamVRParameter.LeftStickTouch, lc.Input.Stick.Touch);
             SendParameter(SteamVRParameter.LeftIndex, lc.Input.Skeleton.Index);
@@ -383,8 +383,8 @@ public class SteamVRStatisticsModule : Module
 
         if (rc is not null)
         {
-            SendParameter(SteamVRParameter.RightATouch, rc.Input.Primary.Touch);
-            SendParameter(SteamVRParameter.RightBTouch, rc.Input.Secondary.Touch);
+            SendParameter(SteamVRParameter.RightATouch, rc.Input.Buttons.South.Touch);
+            SendParameter(SteamVRParameter.RightBTouch, rc.Input.Buttons.North.Touch);
             SendParameter(SteamVRParameter.RightPadTouch, rc.Input.Pad.Touch);
             SendParameter(SteamVRParameter.RightStickTouch, rc.Input.Stick.Touch);
             SendParameter(SteamVRParameter.RightIndex, rc.Input.Skeleton.Index);
