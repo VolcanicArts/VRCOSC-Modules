@@ -2,9 +2,9 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Diagnostics;
+using UnitsNet.Units;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Parameters;
-using VRCOSC.App.SDK.Providers.Weather;
 using VRCOSC.App.SDK.VRChat;
 
 namespace VRCOSC.Modules.Weather;
@@ -17,7 +17,7 @@ public class WeatherModule : Module
 {
     private WeatherProvider? weatherProvider;
 
-    public CurrentWeather? CurrentWeather { get; private set; }
+    public Weather? CurrentWeather { get; private set; }
 
     protected override void OnPreLoad()
     {
@@ -28,9 +28,20 @@ public class WeatherModule : Module
 
     protected override void OnPostLoad()
     {
-        var tempCReference = CreateVariable<float>(WeatherVariable.TempC, "Temp C")!;
-        var tempFReference = CreateVariable<float>(WeatherVariable.TempF, "Temp F")!;
+        var tempCReference = CreateVariable<float>(WeatherVariable.TempC, "Temp (°C)")!;
+        var tempFReference = CreateVariable<float>(WeatherVariable.TempF, "Temp (°F)")!;
+        CreateVariable<float>(WeatherVariable.FeelsLikeC, "Feels Like (°C)");
+        CreateVariable<float>(WeatherVariable.FeelsLikeF, "Feels Like (°F)");
         CreateVariable<int>(WeatherVariable.Humidity, "Humidity");
+        CreateVariable<float>(WeatherVariable.WindSpeedKph, "Wind Speed (Kph)");
+        CreateVariable<float>(WeatherVariable.WindSpeedMph, "Wind Speed (Mph)");
+        CreateVariable<float>(WeatherVariable.WindChillC, "Wind Chill (°C)");
+        CreateVariable<float>(WeatherVariable.WindChillF, "Wind Chill (°F)");
+        CreateVariable<string>(WeatherVariable.WindDirection, "Wind Direction");
+        CreateVariable<float>(WeatherVariable.Pressure, "Pressure (atm)");
+        CreateVariable<float>(WeatherVariable.Precipitation, "Precipitation (mm)");
+        CreateVariable<float>(WeatherVariable.VisibilityKm, "Visibility (Km)");
+        CreateVariable<float>(WeatherVariable.VisibilityMi, "Visibility (Mi");
         var conditionReference = CreateVariable<string>(WeatherVariable.Condition, "Condition")!;
 
         CreateState(WeatherState.Default, "Default", "Local Weather\n{0}\n{1}C - {2}F", new[] { conditionReference, tempCReference, tempFReference });
@@ -61,7 +72,7 @@ public class WeatherModule : Module
     {
         Debug.Assert(weatherProvider is not null);
 
-        CurrentWeather = await weatherProvider.RetrieveFor(GetSettingValue<string>(WeatherSetting.Location)!, DateTime.Now);
+        CurrentWeather = await weatherProvider.RetrieveFor(GetSettingValue<string>(WeatherSetting.Location), DateTime.Now);
 
         if (CurrentWeather is null)
         {
@@ -72,13 +83,24 @@ public class WeatherModule : Module
 
         SendParameter(WeatherParameter.Code, getConvertedWeatherCode(CurrentWeather));
 
-        SetVariableValue(WeatherVariable.TempC, CurrentWeather.TempC);
-        SetVariableValue(WeatherVariable.TempF, CurrentWeather.TempF);
-        SetVariableValue(WeatherVariable.Humidity, CurrentWeather.Humidity);
-        SetVariableValue(WeatherVariable.Condition, CurrentWeather.ConditionString);
+        SetVariableValue(WeatherVariable.TempC, (float)CurrentWeather.Temperature.As(TemperatureUnit.DegreeCelsius));
+        SetVariableValue(WeatherVariable.TempF, (float)CurrentWeather.Temperature.As(TemperatureUnit.DegreeFahrenheit));
+        SetVariableValue(WeatherVariable.FeelsLikeC, (float)CurrentWeather.FeelsLike.As(TemperatureUnit.DegreeCelsius));
+        SetVariableValue(WeatherVariable.FeelsLikeF, (float)CurrentWeather.FeelsLike.As(TemperatureUnit.DegreeFahrenheit));
+        SetVariableValue(WeatherVariable.Humidity, (int)CurrentWeather.Humidity.As(RelativeHumidityUnit.Percent));
+        SetVariableValue(WeatherVariable.WindSpeedKph, (float)CurrentWeather.WindSpeed.As(SpeedUnit.KilometerPerHour));
+        SetVariableValue(WeatherVariable.WindSpeedMph, (float)CurrentWeather.WindSpeed.As(SpeedUnit.MilePerHour));
+        SetVariableValue(WeatherVariable.WindChillC, (float)CurrentWeather.WindChill.As(TemperatureUnit.DegreeCelsius));
+        SetVariableValue(WeatherVariable.WindChillF, (float)CurrentWeather.WindChill.As(TemperatureUnit.DegreeFahrenheit));
+        SetVariableValue(WeatherVariable.WindDirection, CurrentWeather.WindDirection);
+        SetVariableValue(WeatherVariable.Pressure, (float)CurrentWeather.Pressure.As(PressureUnit.Atmosphere));
+        SetVariableValue(WeatherVariable.Precipitation, (float)CurrentWeather.Precipitation.As(LengthUnit.Millimeter));
+        SetVariableValue(WeatherVariable.VisibilityKm, (float)CurrentWeather.Visibility.As(LengthUnit.Kilometer));
+        SetVariableValue(WeatherVariable.VisibilityMi, (float)CurrentWeather.Visibility.As(LengthUnit.Mile));
+        SetVariableValue(WeatherVariable.Condition, CurrentWeather.Condition);
     }
 
-    private static int getConvertedWeatherCode(CurrentWeather currentWeather) => currentWeather.Condition.Code switch
+    private static int getConvertedWeatherCode(Weather currentWeather) => currentWeather.Code switch
     {
         1000 => 1,
         1003 => 2,
@@ -150,7 +172,18 @@ public class WeatherModule : Module
     {
         TempC,
         TempF,
+        FeelsLikeC,
+        FeelsLikeF,
         Humidity,
+        WindSpeedKph,
+        WindSpeedMph,
+        WindChillC,
+        WindChillF,
+        WindDirection,
+        Pressure,
+        Precipitation,
+        VisibilityKm,
+        VisibilityMi,
         Condition
     }
 }
