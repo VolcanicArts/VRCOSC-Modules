@@ -66,6 +66,15 @@ public sealed class HardwareStatsModule : Module
         return provider.Components[id];
     }
 
+    public Component? GetComponentFromName(string name)
+    {
+        if (provider is null) return null;
+        if (string.IsNullOrWhiteSpace(name)) return null;
+
+        var componentId = ComponentData.SingleOrDefault(pair => string.Equals(pair.Value.Name, name, StringComparison.InvariantCultureIgnoreCase)).Key;
+        return !string.IsNullOrWhiteSpace(componentId) ? provider.Components[componentId] : null;
+    }
+
     public IQuantity? GetSensorValue(Component component, SensorType type, string name)
     {
         var mapping = ComponentData[component.Id].Mappings.FirstOrDefault(mapping => mapping.Type == type && mapping.Name == name);
@@ -160,6 +169,32 @@ public sealed class HardwareStatsModule : Module
         CreateState(HardwareStatsState.Default, "Default", "CPU: {0}% | GPU: {1}%\nRAM: {2}GB/{3}GB", new[] { cpuUsageReference, gpuUsageReference, ramUsedReference, ramTotalReference });
     }
 
+    public Component? GetSelectedComponent(ComponentType componentType) => componentType switch
+    {
+        ComponentType.CPU => getSelectedCPU(),
+        ComponentType.Memory => getSelectedMemory(),
+        ComponentType.GPU => getSelectedGPU(),
+        _ => null
+    };
+
+    private Component? getSelectedCPU()
+    {
+        var selectedCpuId = GetSettingValue<SettingsComponent>(HardwareStatsSetting.SelectedCPU).Id;
+        return string.IsNullOrWhiteSpace(selectedCpuId) ? GetDefaultComponent(ComponentType.CPU) : GetComponentFromId(selectedCpuId);
+    }
+
+    private Component? getSelectedGPU()
+    {
+        var selectedGpuId = GetSettingValue<SettingsComponent>(HardwareStatsSetting.SelectedGPU).Id;
+        return string.IsNullOrWhiteSpace(selectedGpuId) ? GetDefaultComponent(ComponentType.GPU) : GetComponentFromId(selectedGpuId);
+    }
+
+    private Component? getSelectedMemory()
+    {
+        var selectedMemoryId = GetSettingValue<SettingsComponent>(HardwareStatsSetting.SelectedMemory).Id;
+        return string.IsNullOrWhiteSpace(selectedMemoryId) ? GetDefaultComponent(ComponentType.Memory) : GetComponentFromId(selectedMemoryId);
+    }
+
     protected override Task<bool> OnModuleStart()
     {
         if (!IsAdministrator) Log("VRCOSC isn't running as admin so you might not receive power and temp data");
@@ -169,21 +204,16 @@ public sealed class HardwareStatsModule : Module
         return Task.FromResult(true);
     }
 
-    [ModuleUpdate(ModuleUpdateMode.Custom, false)]
+    [ModuleUpdate(ModuleUpdateMode.Custom, false, 250)]
     private void updateParameters()
     {
         if (provider is null) return;
 
         provider.Update();
 
-        var selectedCpuId = GetSettingValue<SettingsComponent>(HardwareStatsSetting.SelectedCPU).Id;
-        var cpu = string.IsNullOrWhiteSpace(selectedCpuId) ? GetDefaultComponent(ComponentType.CPU) : GetComponentFromId(selectedCpuId);
-
-        var selectedGpuId = GetSettingValue<SettingsComponent>(HardwareStatsSetting.SelectedGPU).Id;
-        var gpu = string.IsNullOrWhiteSpace(selectedGpuId) ? GetDefaultComponent(ComponentType.GPU) : GetComponentFromId(selectedGpuId);
-
-        var selectedMemoryId = GetSettingValue<SettingsComponent>(HardwareStatsSetting.SelectedMemory).Id;
-        var memory = string.IsNullOrWhiteSpace(selectedMemoryId) ? GetDefaultComponent(ComponentType.Memory) : GetComponentFromId(selectedMemoryId);
+        var cpu = getSelectedCPU();
+        var gpu = getSelectedGPU();
+        var memory = getSelectedMemory();
 
         if (cpu is not null)
         {
