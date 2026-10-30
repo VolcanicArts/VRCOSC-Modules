@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the LGPL License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using UnitsNet;
@@ -47,7 +47,7 @@ public sealed class SensorDataNode : Node, IModuleNode<HardwareStatsModule>, ICo
         var component = Component.Read(c);
         if (component is null) return Task.CompletedTask;
 
-        Value.Write(Module.GetSensorValue(component, Type.Read(c), Name.Read(c)), c);
+        Value.Write(Module.GetSensorQuantity(component, Type.Read(c), Name.Read(c)), c);
         return Task.CompletedTask;
     }
 }

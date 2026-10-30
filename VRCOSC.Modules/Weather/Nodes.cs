@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the LGPL License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using UnitsNet;
@@ -10,7 +10,7 @@ using VRCOSC.App.SDK.Nodes;
 namespace VRCOSC.Modules.Weather;
 
 [Node("Weather Source")]
-public sealed class CurrentWeatherSourceNode : ValueSourceNode<Weather?>, IModuleNode<WeatherModule>
+public sealed class WeatherSourceNode : ValueSourceNode<Weather?>, IModuleNode<WeatherModule>
 {
     public WeatherModule Module { get; set; } = null!;
 
