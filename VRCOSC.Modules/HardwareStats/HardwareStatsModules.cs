@@ -3,6 +3,7 @@
 
 using System.Security.Principal;
 using UnitsNet;
+using UnitsNet.Units;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Parameters;
 
@@ -13,10 +14,6 @@ namespace VRCOSC.Modules.HardwareStats;
 [ModuleType(ModuleType.Generic)]
 public sealed class HardwareStatsModule : Module
 {
-    public const float BYTES_PER_KB = 1024f;
-    public const float BYTES_PER_MB = 1024f * BYTES_PER_KB;
-    public const float BYTES_PER_GB = 1024f * BYTES_PER_MB;
-
     public static bool IsAdministrator => new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
 
     private HardwareProvider? provider;
@@ -75,13 +72,35 @@ public sealed class HardwareStatsModule : Module
         return !string.IsNullOrWhiteSpace(componentId) ? provider.Components[componentId] : null;
     }
 
-    public IQuantity? GetSensorValue(Component component, SensorType type, string name)
+    private (float Value, UnitsNet.UnitInfo UnitInfo)? getCompoundValue(Component component, SensorType type, string name)
+    {
+        if (component.Type == ComponentType.Memory && type == SensorType.Data && name == "Total")
+        {
+            var free = getSensorValue(component, type, "Free")!;
+            var used = getSensorValue(component, type, "Used")!;
+
+            return (free.Value.Value + used.Value.Value, Quantity.GetUnitInfo(InformationUnit.Byte));
+        }
+
+        return null;
+    }
+
+    private (float Value, UnitsNet.UnitInfo UnitInfo)? getSensorValue(Component component, SensorType type, string name)
     {
         var mapping = ComponentData[component.Id].Mappings.FirstOrDefault(mapping => mapping.Type == type && mapping.Name == name);
         if (mapping is null) return null;
 
         var value = component.Sensors[type][mapping.Index].Value;
-        return Quantity.From(value, mapping.Unit.Value);
+        return (value, mapping.Unit);
+    }
+
+    public IQuantity? GetSensorQuantity(Component component, SensorType type, string name)
+    {
+        var compoundResult = getCompoundValue(component, type, name);
+        if (compoundResult.HasValue) return Quantity.From(compoundResult.Value.Value, compoundResult.Value.UnitInfo.Value);
+
+        var result = getSensorValue(component, type, name);
+        return !result.HasValue ? null : Quantity.From(result.Value.Value, result.Value.UnitInfo.Value);
     }
 
     protected override void OnPreLoad()
@@ -217,9 +236,9 @@ public sealed class HardwareStatsModule : Module
 
         if (cpu is not null)
         {
-            var usageSensor = GetSensorValue(cpu, SensorType.Load, "Total");
-            var powerSensor = GetSensorValue(cpu, SensorType.Power, "Total");
-            var temperatureSensor = GetSensorValue(cpu, SensorType.Temperature, "Total");
+            var usageSensor = GetSensorQuantity(cpu, SensorType.Load, "Total");
+            var powerSensor = GetSensorQuantity(cpu, SensorType.Power, "Total");
+            var temperatureSensor = GetSensorQuantity(cpu, SensorType.Temperature, "Total");
 
             var usage = (float)(usageSensor?.As(usageSensor.Unit) ?? 0d);
             var power = (float)(powerSensor?.As(powerSensor.Unit) ?? 0d);
@@ -237,19 +256,19 @@ public sealed class HardwareStatsModule : Module
 
         if (gpu is not null)
         {
-            var usageSensor = GetSensorValue(gpu, SensorType.Load, "Total");
-            var powerSensor = GetSensorValue(gpu, SensorType.Power, "Total");
-            var temperatureSensor = GetSensorValue(gpu, SensorType.Temperature, "Total");
-            var vramFreeSensor = GetSensorValue(gpu, SensorType.Data, "Memory Free");
-            var vramUsedSensor = GetSensorValue(gpu, SensorType.Data, "Memory Used");
-            var vramTotalSensor = GetSensorValue(gpu, SensorType.Data, "Memory Total");
+            var usageSensor = GetSensorQuantity(gpu, SensorType.Load, "Total");
+            var powerSensor = GetSensorQuantity(gpu, SensorType.Power, "Total");
+            var temperatureSensor = GetSensorQuantity(gpu, SensorType.Temperature, "Total");
+            var vramFreeSensor = GetSensorQuantity(gpu, SensorType.Data, "Memory Free");
+            var vramUsedSensor = GetSensorQuantity(gpu, SensorType.Data, "Memory Used");
+            var vramTotalSensor = GetSensorQuantity(gpu, SensorType.Data, "Memory Total");
 
             var usage = (float)(usageSensor?.As(usageSensor.Unit) ?? 0d);
             var power = (float)(powerSensor?.As(powerSensor.Unit) ?? 0d);
             var temperature = (float)(temperatureSensor?.As(temperatureSensor.Unit) ?? 0d);
-            var vramFree = (float)(vramFreeSensor?.As(vramFreeSensor.Unit) ?? 0d);
-            var vramUsed = (float)(vramUsedSensor?.As(vramUsedSensor.Unit) ?? 0d);
-            var vramTotal = (float)(vramTotalSensor?.As(vramTotalSensor.Unit) ?? 0d);
+            var vramFree = (float)(vramFreeSensor?.As(InformationUnit.Gigabyte) ?? 0d);
+            var vramUsed = (float)(vramUsedSensor?.As(InformationUnit.Gigabyte) ?? 0d);
+            var vramTotal = (float)(vramTotalSensor?.As(InformationUnit.Gigabyte) ?? 0d);
             var vramUsage = vramTotal == 0f ? 0f : vramUsed / vramTotal;
 
             SendParameter(HardwareStatsParameter.GPUUsage, usage / 100f);
@@ -257,9 +276,9 @@ public sealed class HardwareStatsModule : Module
             SendParameter(HardwareStatsParameter.GPUTemp, temperature);
 
             SendParameter(HardwareStatsParameter.VRAMUsage, vramUsage);
-            SendParameter(HardwareStatsParameter.VRAMFree, vramFree / BYTES_PER_GB);
-            SendParameter(HardwareStatsParameter.VRAMUsed, vramUsed / BYTES_PER_GB);
-            SendParameter(HardwareStatsParameter.VRAMTotal, vramTotal / BYTES_PER_GB);
+            SendParameter(HardwareStatsParameter.VRAMFree, vramFree);
+            SendParameter(HardwareStatsParameter.VRAMUsed, vramUsed);
+            SendParameter(HardwareStatsParameter.VRAMTotal, vramTotal);
 
             SetVariableValue(HardwareStatsVariable.GPUName, gpu.Name);
             SetVariableValue(HardwareStatsVariable.GPUUsage, (int)usage);
@@ -267,30 +286,31 @@ public sealed class HardwareStatsModule : Module
             SetVariableValue(HardwareStatsVariable.GPUTemp, (int)temperature);
 
             SetVariableValue(HardwareStatsVariable.VRAMUsage, vramUsage);
-            SetVariableValue(HardwareStatsVariable.VRAMFree, vramFree / BYTES_PER_GB);
-            SetVariableValue(HardwareStatsVariable.VRAMUsed, vramUsed / BYTES_PER_GB);
-            SetVariableValue(HardwareStatsVariable.VRAMTotal, vramTotal / BYTES_PER_GB);
+            SetVariableValue(HardwareStatsVariable.VRAMFree, vramFree);
+            SetVariableValue(HardwareStatsVariable.VRAMUsed, vramUsed);
+            SetVariableValue(HardwareStatsVariable.VRAMTotal, vramTotal);
         }
 
         if (memory is not null)
         {
-            var freeSensor = GetSensorValue(memory, SensorType.Data, "Free");
-            var usedSensor = GetSensorValue(memory, SensorType.Data, "Used");
+            var freeSensor = GetSensorQuantity(memory, SensorType.Data, "Free");
+            var usedSensor = GetSensorQuantity(memory, SensorType.Data, "Used");
+            var totalSensor = GetSensorQuantity(memory, SensorType.Data, "Total");
 
-            var free = (float)(freeSensor?.As(freeSensor.Unit) ?? 0d);
-            var used = (float)(usedSensor?.As(usedSensor.Unit) ?? 0d);
-            var total = free + used;
+            var free = (float)(freeSensor?.As(InformationUnit.Gigabyte) ?? 0d);
+            var used = (float)(usedSensor?.As(InformationUnit.Gigabyte) ?? 0d);
+            var total = (float)(totalSensor?.As(InformationUnit.Gigabyte) ?? 0d);
             var usage = total == 0f ? 0f : used / total;
 
             SendParameter(HardwareStatsParameter.RAMUsage, usage);
-            SendParameter(HardwareStatsParameter.RAMFree, free / BYTES_PER_GB);
-            SendParameter(HardwareStatsParameter.RAMUsed, used / BYTES_PER_GB);
-            SendParameter(HardwareStatsParameter.RAMTotal, total / BYTES_PER_GB);
+            SendParameter(HardwareStatsParameter.RAMFree, free);
+            SendParameter(HardwareStatsParameter.RAMUsed, used);
+            SendParameter(HardwareStatsParameter.RAMTotal, total);
 
             SetVariableValue(HardwareStatsVariable.RAMUsage, usage);
-            SetVariableValue(HardwareStatsVariable.RAMFree, free / BYTES_PER_GB);
-            SetVariableValue(HardwareStatsVariable.RAMUsed, used / BYTES_PER_GB);
-            SetVariableValue(HardwareStatsVariable.RAMTotal, total / BYTES_PER_GB);
+            SetVariableValue(HardwareStatsVariable.RAMFree, free);
+            SetVariableValue(HardwareStatsVariable.RAMUsed, used);
+            SetVariableValue(HardwareStatsVariable.RAMTotal, total);
         }
     }
 
