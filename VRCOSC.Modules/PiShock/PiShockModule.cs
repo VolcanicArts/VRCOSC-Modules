@@ -19,7 +19,7 @@ namespace VRCOSC.Modules.PiShock;
 [ModulePrefab("Official Prefabs", "https://vrcosc.com/docs/downloads#prefabs")]
 public class PiShockModule : Module, ISpeechHandler
 {
-    private PiShockProvider piShockProvider = null!;
+    private PiShockProvider? piShockProvider;
 
     private string? globalGroupID;
     private float globalDuration;
@@ -113,12 +113,15 @@ public class PiShockModule : Module, ISpeechHandler
         if (!result)
             Log("Provider was unable to initialise");
 
+        Log("Provider initialised");
         return result;
     }
 
     protected override async Task OnModuleStop()
     {
-        await piShockProvider.Teardown();
+        if (piShockProvider is not null)
+            await piShockProvider.Teardown();
+
         shockerSettingsDisposable?.Dispose();
     }
 
@@ -312,7 +315,7 @@ public class PiShockModule : Module, ISpeechHandler
 
         Log($"Executing shockers: {string.Join(", ", instances.Select(shocker => $"'{shocker.Name.Value}'"))}");
 
-        var result = await piShockProvider.ExecuteAsync(instances.Select(shocker => shocker.Sharecode.Value), mode, intensity, duration);
+        var result = await piShockProvider!.ExecuteAsync(instances.Select(shocker => shocker.Sharecode.Value), mode, intensity, duration);
         if (!result.Success) Log(result.Message);
 
         return result.Success;
@@ -322,7 +325,7 @@ public class PiShockModule : Module, ISpeechHandler
     {
         Log($"Executing {mode.ToLookup()} for sharecode '{sharecode}' at {intensity}% for {MathF.Round(duration / 1000f, 1, MidpointRounding.AwayFromZero)}s");
 
-        var result = await piShockProvider.ExecuteAsync([sharecode], mode, intensity, duration);
+        var result = await piShockProvider!.ExecuteAsync([sharecode], mode, intensity, duration);
 
         if (!result.Success)
             Log(result.Message);
@@ -337,7 +340,7 @@ public class PiShockModule : Module, ISpeechHandler
         else
             Log($"Executing {mode.ToLookup()} over serial at {intensity}% for {MathF.Round(duration / 1000f, 1, MidpointRounding.AwayFromZero)}s" + (shockerId is not null ? $" on shocker {shockerId}" : string.Empty));
 
-        var result = await piShockProvider.ExecuteSerialAsync(mode, intensity, duration, shockerId);
+        var result = await piShockProvider!.ExecuteSerialAsync(mode, intensity, duration, shockerId);
 
         if (!result.Success)
             Log(result.Message);
